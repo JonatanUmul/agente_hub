@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flujograma n8n - Ecofiltro HubSpot</title>
+  <style>
+    :root {
+      --bg: #f6f8f5;
+      --surface: #ffffff;
+      --surface-soft: #f0f5f1;
+      --ink: #17241f;
+      --muted: #63736b;
+      --line: #d8dfd8;
+      --green: #27724d;
+      --green-soft: #e8f5ed;
+      --blue: #315f88;
+      --blue-soft: #edf4fa;
+      --amber: #8b651d;
+      --amber-soft: #fff6df;
+      --rose: #944752;
+      --rose-soft: #fff0f2;
+      --shadow: 0 14px 34px rgba(28, 43, 36, .1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.4;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    body.locked {
+      overflow: hidden;
+    }
+
+    body.locked .app {
+      display: none;
+    }
+
+    .access-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        linear-gradient(135deg, rgba(39, 114, 77, .1), rgba(49, 95, 136, .08)),
+        var(--bg);
+    }
+
+    body:not(.locked) .access-screen {
+      display: none;
+    }
+
+    .access-card {
+      width: min(420px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 28px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .access-card h1 {
+      margin-bottom: 8px;
+      font-size: 26px;
+    }
+
+    .access-card p {
+      margin: 0 0 18px;
+      color: var(--muted);
+    }
+
+    .access-card label {
+      display: grid;
+      gap: 7px;
+      color: #34483f;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .access-card input {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 0 12px;
+      color: var(--ink);
+      font: inherit;
+      letter-spacing: 2px;
+    }
+
+    .access-card input:focus {
+      border-color: var(--green);
+      outline: 3px solid rgba(39, 114, 77, .18);
+    }
+
+    .access-card button {
+      width: 100%;
+      min-height: 42px;
+      margin-top: 14px;
+      border: 0;
+      border-radius: 7px;
+      background: var(--green);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .access-error {
+      min-height: 20px;
+      margin-top: 10px;
+      color: var(--rose);
+      font-size: 13px;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+      background: var(--surface);
+      padding: 24px 18px;
+    }
+
+    .workspace {
+      min-width: 0;
+      padding: 24px;
+    }
+
+    .brand {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .brand-logo {
+      display: block;
+      width: 176px;
+      max-width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .access-logo {
+      width: 220px;
+      margin-bottom: 14px;
+    }
+
+    .brand strong {
+      font-size: 16px;
+    }
+
+    .brand span,
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .module-list {
+      display: grid;
+      gap: 7px;
+      margin-top: 18px;
+    }
+
+    .module-button {
+      min-height: 38px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .module-button:hover,
+    .module-button.active {
+      border-color: var(--line);
+      background: var(--surface-soft);
+      color: var(--ink);
+    }
+
+    .hero {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      letter-spacing: 0;
+      line-height: 1.15;
+    }
+
+    h1 {
+      font-size: 30px;
+    }
+
+    h2 {
+      font-size: 20px;
+    }
+
+    h3 {
+      font-size: 15px;
+    }
+
+    .subtitle {
+      max-width: 840px;
+      margin: 8px 0 0;
+      color: var(--muted);
+    }
+
+    .panel {
+      margin-bottom: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfa;
+    }
+
+    .panel-title {
+      display: grid;
+      gap: 5px;
+    }
+
+    .id-line {
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .toolbar button {
+      min-height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 0 12px;
+      background: var(--surface);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .toolbar button:hover {
+      border-color: #9cb4a7;
+      background: #f7faf7;
+    }
+
+    .board-wrap {
+      position: relative;
+      overflow: auto;
+      background:
+        linear-gradient(#e7ece8 1px, transparent 1px),
+        linear-gradient(90deg, #e7ece8 1px, transparent 1px),
+        #fbfcfa;
+      background-size: 30px 30px;
+    }
+
+    .board-wrap.main {
+      height: 620px;
+    }
+
+    .board-wrap.detail {
+      height: 780px;
+    }
+
+    .board {
+      position: relative;
+      transform-origin: top left;
+    }
+
+    #mainBoard {
+      width: 1500px;
+      height: 620px;
+    }
+
+    #detailBoard {
+      width: 1780px;
+      height: 820px;
+    }
+
+    .lines {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .lines path {
+      fill: none;
+      stroke: #72887d;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: .9;
+    }
+
+    .lines text {
+      fill: #5d6d65;
+      font-size: 12px;
+      paint-order: stroke;
+      stroke: #fbfcfa;
+      stroke-width: 4px;
+      stroke-linejoin: round;
+    }
+
+    .node {
+      position: absolute;
+      width: 200px;
+      min-height: 74px;
+      border: 1px solid #cbd8d0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: var(--surface);
+      box-shadow: 0 12px 26px rgba(26, 42, 35, .13);
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      text-align: left;
+    }
+
+    .node.active {
+      outline: 3px solid rgba(39, 114, 77, .22);
+      border-color: var(--green);
+    }
+
+    .node:active {
+      cursor: grabbing;
+    }
+
+    .node[data-kind="entry"] {
+      background: var(--green-soft);
+      border-color: #9cc8ad;
+    }
+
+    .node[data-kind="module"] {
+      background: var(--blue-soft);
+      border-color: #a9bfd4;
+    }
+
+    .node[data-kind="tool"] {
+      background: var(--amber-soft);
+      border-color: #d6bf83;
+    }
+
+    .node[data-kind="support"] {
+      background: var(--rose-soft);
+      border-color: #d5a2aa;
+    }
+
+    .node[data-kind="step"] {
+      background: #ffffff;
+      border-color: #d5ddd7;
+    }
+
+    .node strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #162b24;
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .node span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .node small {
+      display: block;
+      margin-top: 7px;
+      color: #687a72;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 18px;
+      border-top: 1px solid var(--line);
+      background: #fbfcfa;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .dot.module {
+      background: var(--blue);
+    }
+
+    .dot.tool {
+      background: var(--amber);
+    }
+
+    .dot.support {
+      background: var(--rose);
+    }
+
+    @media (max-width: 960px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+      }
+
+      .hero,
+      .panel-head {
+        display: grid;
+      }
+
+      .toolbar {
+        justify-content: flex-start;
+      }
+
+      .workspace {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body class="locked">
+  <div class="access-screen">
+    <form class="access-card" id="accessForm">
+      <img class="brand-logo access-logo" src="ecofiltro-logo.png" alt="Ecofiltro">
+      <h1>Acceso al flujograma</h1>
+      <p>Ingresa el codigo para ver el mapa de workflows.</p>
+      <label>
+        Codigo
+        <input id="accessCode" type="password" inputmode="numeric" autocomplete="off" maxlength="6" autofocus>
+      </label>
+      <button type="submit">Entrar</button>
+      <div class="access-error" id="accessError" aria-live="polite"></div>
+    </form>
+  </div>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <img class="brand-logo" src="ecofiltro-logo.png" alt="Ecofiltro">
+      </div>
+      <div class="module-list" id="moduleList"></div>
+    </aside>
+
+    <main class="workspace">
+      <header class="hero">
+        <div>
+        </div>
+      </header>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <h2>Flujo principal</h2>
+            <div class="id-line">Orquestador HubSpot - q6zZmVTWRBjWS3qF</div>
+          </div>
+          <div class="toolbar" data-toolbar="main">
+            <button type="button" data-action="reset">Ordenar</button>
+            <button type="button" data-action="zoom-out">Alejar</button>
+            <button type="button" data-action="zoom-in">Acercar</button>
+            <button type="button" data-action="fit">Vista completa</button>
+          </div>
+        </div>
+        <div class="board-wrap main" id="mainWrap">
+          <div class="board" id="mainBoard">
+            <svg class="lines" id="mainLines" viewBox="0 0 1500 620">
+              <defs>
+                <marker id="arrowMain" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#7a8e84"></path>
+                </marker>
+              </defs>
+            </svg>
+          </div>
+        </div>
+        <div class="legend">
+          <span><i class="dot"></i> Entrada / orquestador</span>
+          <span><i class="dot module"></i> Modulo</span>
+          <span><i class="dot support"></i> Salida a asesor</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <h2 id="detailTitle">Comprar Ecofiltro</h2>
+            <div class="id-line" id="detailId">rvzdh5GYBwID9B6Z</div>
+            <div class="small" id="detailSummary">Flujo interno del modulo seleccionado.</div>
+          </div>
+          <div class="toolbar" data-toolbar="detail">
+            <button type="button" data-action="reset">Ordenar</button>
+            <button type="button" data-action="zoom-out">Alejar</button>
+            <button type="button" data-action="zoom-in">Acercar</button>
+            <button type="button" data-action="fit">Vista completa</button>
+          </div>
+        </div>
+        <div class="board-wrap detail" id="detailWrap">
+          <div class="board" id="detailBoard">
+            <svg class="lines" id="detailLines" viewBox="0 0 1780 820">
+              <defs>
+                <marker id="arrowDetail" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#7a8e84"></path>
+                </marker>
+              </defs>
+            </svg>
+          </div>
+        </div>
+        <div class="legend">
+          <span><i class="dot module"></i> Pasos del modulo</span>
+          <span><i class="dot tool"></i> Herramientas</span>
+          <span><i class="dot support"></i> Salidas</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const accessForm = document.getElementById("accessForm");
+    const accessCode = document.getElementById("accessCode");
+    const accessError = document.getElementById("accessError");
+    const accessSessionKey = "ecofiltro-flow-session-access";
+
+    function unlock() {
+      document.body.classList.remove("locked");
+      sessionStorage.setItem(accessSessionKey, "ok");
+    }
+
+    if (sessionStorage.getItem(accessSessionKey) === "ok") {
+      unlock();
+    }
+
+    accessForm.addEventListener("submit", event => {
+      event.preventDefault();
+      if (accessCode.value.trim() === "120694") {
+        unlock();
+        return;
+      }
+      accessError.textContent = "Codigo incorrecto.";
+      accessCode.select();
+    });
+
+    const mainWrap = document.getElementById("mainWrap");
+    const mainBoard = document.getElementById("mainBoard");
+    const mainLines = document.getElementById("mainLines");
+    const detailWrap = document.getElementById("detailWrap");
+    const detailBoard = document.getElementById("detailBoard");
+    const detailLines = document.getElementById("detailLines");
+    const moduleList = document.getElementById("moduleList");
+    const detailTitle = document.getElementById("detailTitle");
+    const detailId = document.getElementById("detailId");
+    const detailSummary = document.getElementById("detailSummary");
+
+    let selectedModule = "comprar";
+
+    const modules = {
+      comprar: {
+        title: "Comprar Ecofiltro",
+        id: "rvzdh5GYBwID9B6Z",
+        summary: "Opcion 1: seguimiento y compra de Ecofiltro.",
+        nodes: [
+          ["start", "Inicio del modulo", "Entrada desde orquestador", "module", 80, 360],
+          ["lock", "Candado modulo comprar", "Control de duplicados", "step", 330, 360],
+          ["agent", "AI Agent", "Responde y decide formato", "module", 650, 360],
+          ["switch", "Switch", "Imagen, texto, video, asesor o menu", "step", 970, 360],
+          ["send", "Enviar respuesta", "Texto, imagen o video", "step", 1280, 185],
+          ["menu", "Enviar menu", "Regresar al menu", "support", 1280, 360],
+          ["asesor", "Esperar asesor", "Transferir a asesor", "support", 1280, 535],
+          ["tienda", "Tienda Ecofiltro", "Catalogo completo WooCommerce", "tool", 290, 70],
+          ["detalle", "Detalles del modelo", "Detalle por URL oficial", "tool", 540, 70],
+          ["faq", "Preguntas frecuentes", "Base de conocimiento oficial", "tool", 790, 70],
+          ["imagen", "Analizar imagen", "Identifica modelo desde imagen", "tool", 540, 625]
+        ],
+        edges: [
+          ["start", "lock", ""],
+          ["lock", "agent", ""],
+          ["tienda", "agent", ""],
+          ["detalle", "agent", ""],
+          ["faq", "agent", ""],
+          ["imagen", "agent", ""],
+          ["agent", "switch", ""],
+          ["switch", "send", "responder"],
+          ["switch", "menu", "regresar"],
+          ["switch", "asesor", "asesor"]
+        ]
+      },
+      info: {
+        title: "Informacion de productos",
+        id: "qzkpfiJ7UnWME3wc",
+        summary: "Opcion 2: informacion oficial sobre productos Ecofiltro.",
+        nodes: [
+          ["start", "Inicio del modulo", "Entrada desde orquestador", "module", 80, 360],
+          ["lock", "Candado modulo productos", "Control de continuidad", "step", 320, 360],
+          ["resolver", "Resolver opcion productos", "Detecta opcion directa", "step", 580, 360],
+          ["agent", "AI Agent", "Consulta y construye respuesta", "module", 870, 360],
+          ["switch", "Switch", "Imagen, texto, video, asesor o menu", "step", 1160, 360],
+          ["menu", "Enviar menu", "Regresar al menu", "support", 1390, 285],
+          ["asesor", "Esperar asesor", "Transferir a asesor", "support", 1390, 465],
+          ["tienda", "Tienda Ecofiltro", "Catalogo completo WooCommerce", "tool", 320, 70],
+          ["detalle", "Detalles del modelo", "Detalle por URL oficial", "tool", 580, 70],
+          ["faq", "Preguntas frecuentes", "Base de conocimiento oficial", "tool", 840, 70],
+          ["imagen", "Analizar imagen", "Identifica modelo desde imagen", "tool", 580, 625]
+        ],
+        edges: [
+          ["start", "lock", ""],
+          ["lock", "resolver", ""],
+          ["resolver", "agent", ""],
+          ["tienda", "agent", ""],
+          ["detalle", "agent", ""],
+          ["faq", "agent", ""],
+          ["imagen", "agent", ""],
+          ["agent", "switch", ""],
+          ["switch", "menu", "regresar"],
+          ["switch", "asesor", "asesor"]
+        ]
+      },
+      atencion: {
+        title: "Atencion al cliente",
+        id: "Fcnbw974zh813fih",
+        summary: "Soporte, FAQ, imagenes y consulta directa de pedidos.",
+        nodes: [
+          ["start", "Inicio del modulo", "Entrada desde orquestador", "module", 80, 385],
+          ["lock", "Candado modulo atencion", "Control de continuidad", "step", 320, 385],
+          ["detect", "Detectar pedido directo", "Identifica guia o pedido", "step", 560, 385],
+          ["route", "Ruta pedido directo", "Decide consulta o AI Agent", "step", 820, 385],
+          ["agent", "AI Agent", "Atiende soporte general", "module", 1120, 385],
+          ["normal", "Normalizar pedido", "Une respuesta de pedidos", "step", 1120, 565],
+          ["repeat", "Verificar repetido", "Evita respuesta duplicada", "step", 820, 640],
+          ["menu", "Enviar menu", "Regresar al menu", "support", 1400, 285],
+          ["asesor", "Esperar asesor", "Transferir a asesor", "support", 1400, 465],
+          ["faq", "Preguntas frecuentes", "Base de conocimiento oficial", "tool", 320, 70],
+          ["imagen", "Analizar imagen", "Revision de imagen", "tool", 560, 70],
+          ["caex", "Consultar pedido Cargo", "Tracking Cargo Expreso", "tool", 820, 70],
+          ["hub", "Consultar pedido HubSpot", "Deals/pedidos HubSpot", "tool", 1120, 70]
+        ],
+        edges: [
+          ["start", "lock", ""],
+          ["lock", "detect", ""],
+          ["detect", "route", ""],
+          ["route", "agent", "general"],
+          ["faq", "agent", ""],
+          ["imagen", "agent", ""],
+          ["caex", "normal", ""],
+          ["hub", "normal", ""],
+          ["route", "caex", "guia"],
+          ["route", "hub", "pedido"],
+          ["normal", "repeat", ""],
+          ["agent", "menu", "menu"],
+          ["agent", "asesor", "asesor"]
+        ]
+      },
+      donde: {
+        title: "Donde comprar",
+        id: "JRtpfrj5YsbEnqtH",
+        summary: "Orienta al cliente hacia puntos de venta y mapa oficial.",
+        nodes: [
+          ["start", "Inicio del modulo", "Entrada desde orquestador", "module", 100, 330],
+          ["norm", "normalizador", "Prepara datos de entrada", "step", 370, 330],
+          ["agent", "AI Agent", "Maneja la conversacion", "module", 640, 330],
+          ["code", "Code in JavaScript", "Normaliza salida del agente", "step", 910, 330],
+          ["switch", "Switch", "Responder, menu o asesor", "step", 1180, 330],
+          ["http", "HTTP Request", "Ruta de asesor o datos", "tool", 640, 80],
+          ["sql", "SQL", "Registro de sesion", "tool", 910, 80],
+          ["menu", "Enviar menu", "Regresar al menu", "support", 1180, 500],
+          ["asesor", "Esperar asesor", "Transferir a asesor", "support", 910, 500]
+        ],
+        edges: [
+          ["start", "norm", ""],
+          ["norm", "agent", ""],
+          ["agent", "code", ""],
+          ["code", "switch", ""],
+          ["http", "sql", ""],
+          ["switch", "http", "asesor"],
+          ["switch", "menu", "regresar"],
+          ["switch", "asesor", "asesor"]
+        ]
+      },
+      distrib: {
+        title: "Quiero ser distribuidor",
+        id: "sDe0XuhxdMlkK8mA",
+        summary: "Recopila datos de interesados en ser distribuidores y deriva a asesor.",
+        nodes: [
+          ["start", "Inicio del modulo", "Entrada desde orquestador", "module", 100, 330],
+          ["norm", "normalizador", "Prepara datos de entrada", "step", 370, 330],
+          ["agent", "AI Agent", "Solicita y valida datos", "module", 640, 330],
+          ["code", "Code in JavaScript", "Normaliza salida del agente", "step", 910, 330],
+          ["switch", "Switch", "Datos completos, menu o asesor", "step", 1180, 330],
+          ["http", "HTTP Request", "Envia datos capturados", "tool", 640, 80],
+          ["sql", "SQL", "Registro de sesion/datos", "tool", 910, 80],
+          ["menu", "Enviar menu", "Regresar al menu", "support", 1180, 500],
+          ["asesor", "Esperar asesor", "Transferir a asesor", "support", 910, 500]
+        ],
+        edges: [
+          ["start", "norm", ""],
+          ["norm", "agent", ""],
+          ["agent", "code", ""],
+          ["code", "switch", ""],
+          ["switch", "http", "datos completos"],
+          ["http", "sql", ""],
+          ["switch", "menu", "regresar"],
+          ["switch", "asesor", "asesor"]
+        ]
+      },
+      recuperar: {
+        title: "Recuperar webhooks de HubSpot",
+        id: "5clHST5SbUG2Quvc",
+        summary: "Reprocesa webhooks pendientes y los envia nuevamente al orquestador.",
+        nodes: [
+          ["schedule", "Schedule Trigger", "Ejecucion programada", "support", 90, 340],
+          ["prep", "Preparar tabla log", "Asegura estructura de control", "step", 350, 340],
+          ["buscar", "Buscar pendientes", "Localiza webhooks no procesados", "step", 610, 340],
+          ["loop", "Loop pendientes", "Procesa cada registro", "step", 870, 340],
+          ["lock", "Candado anti duplicado", "Evita procesar dos veces", "step", 1130, 250],
+          ["orq", "Llamar orquestador", "Envia evento normalizado", "module", 1130, 420],
+          ["processed", "Marcar processed", "Actualiza estado final", "support", 1390, 420]
+        ],
+        edges: [
+          ["schedule", "prep", ""],
+          ["prep", "buscar", ""],
+          ["buscar", "loop", ""],
+          ["loop", "lock", ""],
+          ["lock", "orq", "continuar"],
+          ["orq", "processed", ""]
+        ]
+      },
+      asignar: {
+        title: "Asignar agente",
+        id: "O1eKsuUFPICZungz",
+        summary: "Asigna conversaciones a un agente humano y controla disponibilidad, horario y avisos fuera de horario.",
+        nodes: [
+          ["start", "Inicio del flujo", "Entrada desde espera de agente", "support", 70, 300],
+          ["schedule", "Schedule Trigger", "Revisa pendientes automaticamente", "support", 70, 455],
+          ["pendiente", "Pendiente de agente", "Cola de conversaciones pendientes", "step", 330, 380],
+          ["loop", "Procesar por registro", "Procesa cada conversacion", "step", 590, 380],
+          ["normal", "normalizador", "Datos para asignacion", "step", 850, 290],
+          ["normalHorario", "normalizador horario", "Datos para fuera de horario", "step", 850, 470],
+          ["agente", "Obtener agente disponible", "Busca agente disponible", "step", 1110, 290],
+          ["if", "Hay agente disponible?", "Decide asignar o avisar", "step", 1110, 470],
+          ["assignSql", "Registrar asignacion", "Guarda control de asignacion", "tool", 1370, 180],
+          ["assign", "Asignar a agente humano", "PUT HubSpot: asigna conversacion", "support", 1370, 300],
+          ["confirm", "Enviar texto", "Confirma que sera atendido", "support", 1370, 420],
+          ["control", "Control aviso fuera de horario", "Evita avisos duplicados", "tool", 1370, 540],
+          ["aviso", "Avisar fuera de horario", "POST HubSpot: mensaje al cliente", "support", 1110, 630],
+          ["marcar", "Marcar fuera de horario", "Actualiza estado de la conversacion", "tool", 850, 630]
+        ],
+        edges: [
+          ["start", "pendiente", ""],
+          ["schedule", "pendiente", ""],
+          ["pendiente", "loop", ""],
+          ["loop", "normal", "asignar"],
+          ["loop", "normalHorario", "revisar horario"],
+          ["normal", "agente", ""],
+          ["agente", "if", ""],
+          ["if", "assignSql", "si"],
+          ["assignSql", "assign", ""],
+          ["assign", "confirm", ""],
+          ["confirm", "loop", "siguiente"],
+          ["if", "control", "no / fuera horario"],
+          ["normalHorario", "control", ""],
+          ["control", "aviso", "avisar"],
+          ["aviso", "marcar", ""],
+          ["marcar", "loop", "siguiente"]
+        ]
+      },
+      inactividad: {
+        title: "Terminar por inactividad",
+        id: "89puJMzFsALZ0bou",
+        summary: "Cierra o marca sesiones inactivas mediante una ejecucion programada.",
+        nodes: [
+          ["schedule", "Schedule Trigger", "Ejecucion programada", "support", 100, 340],
+          ["prep", "Preparar control", "Prepara control de inactividad", "step", 360, 340],
+          ["buscar", "Buscar sesiones inactivas", "Consulta sesiones vencidas", "step", 620, 340],
+          ["loop", "Loop Over Items", "Procesa cada sesion", "step", 880, 340],
+          ["texto", "enviar_texto", "Avisa al cliente por HubSpot", "tool", 1140, 250],
+          ["registrar", "Registrar inactividad", "Guarda cierre o estado", "support", 1140, 430]
+        ],
+        edges: [
+          ["schedule", "prep", ""],
+          ["prep", "buscar", ""],
+          ["buscar", "loop", ""],
+          ["loop", "texto", ""],
+          ["texto", "registrar", ""],
+          ["registrar", "loop", "siguiente"]
+        ]
+      }
+    };
+
+    const mainNodes = [
+      ["recuperar", "Recuperar webhooks", "Reintenta eventos pendientes", "support", 80, 80],
+      ["inactividad", "Terminar inactividad", "Cierra sesiones inactivas", "support", 365, 80],
+      ["entrada", "Entrada HubSpot", "Mensaje recibido por webhook", "entry", 80, 285],
+      ["orq", "Orquestador", "Normaliza, revisa sesion y clasifica", "entry", 365, 285],
+      ["decision", "Decision de ruta", "Sesion activa o nueva intencion", "entry", 660, 285],
+      ["menu", "Menu", "Mostrar opciones o regresar", "support", 980, 70],
+      ["comprar", "Comprar Ecofiltro", "Opcion 1", "module", 1180, 85],
+      ["info", "Informacion Productos", "Opcion 2", "module", 1210, 205],
+      ["atencion", "Atencion al Cliente", "Opcion 3", "module", 1225, 325],
+      ["donde", "Donde Comprar", "Opcion 4", "module", 1195, 445],
+      ["distrib", "Ser Distribuidor", "Opcion 5", "module", 1125, 535],
+      ["asesor", "Espera de asesor", "Preparar transferencia", "support", 745, 455],
+      ["asignar", "Asignar agente", "Entrega a agente humano", "support", 1015, 455]
+    ];
+
+    const mainEdges = [
+      ["recuperar", "orq", "reproceso"],
+      ["inactividad", "asesor", "cierre"],
+      ["entrada", "orq", ""],
+      ["orq", "decision", ""],
+      ["decision", "menu", "menu"],
+      ["decision", "comprar", "1"],
+      ["decision", "info", "2"],
+      ["decision", "atencion", "3"],
+      ["decision", "donde", "4"],
+      ["decision", "distrib", "5"],
+      ["decision", "asesor", "asesor"],
+      ["asesor", "asignar", ""]
+    ];
+
+    const mainRecords = {
+      comprar: modules.comprar,
+      info: modules.info,
+      atencion: modules.atencion,
+      donde: modules.donde,
+      distrib: modules.distrib,
+      recuperar: modules.recuperar,
+      asignar: modules.asignar,
+      inactividad: modules.inactividad
+    };
+
+    function boardApi(kind, board, wrap, svg, baseWidth, baseHeight, markerId) {
+      const storageKey = `ecofiltro-n8n-${kind}-positions-v7`;
+      let zoom = 1;
+      let currentNodes = [];
+      let currentEdges = [];
+      let edgeStats = { from: {}, to: {} };
+
+      function savedFor(scope) {
+        return JSON.parse(localStorage.getItem(`${storageKey}-${scope}`) || "{}");
+      }
+
+      function save(scope) {
+        const data = {};
+        board.querySelectorAll(".node").forEach(el => {
+          data[el.dataset.id] = { x: el.offsetLeft, y: el.offsetTop };
+        });
+        localStorage.setItem(`${storageKey}-${scope}`, JSON.stringify(data));
+      }
+
+      function boxOf(id) {
+        const el = board.querySelector(`[data-id="${id}"]`);
+        return {
+          left: el.offsetLeft,
+          top: el.offsetTop,
+          right: el.offsetLeft + el.offsetWidth,
+          bottom: el.offsetTop + el.offsetHeight,
+          width: el.offsetWidth,
+          height: el.offsetHeight,
+          cx: el.offsetLeft + el.offsetWidth / 2,
+          cy: el.offsetTop + el.offsetHeight / 2
+        };
+      }
+
+      function buildEdgeStats(edges) {
+        edgeStats = { from: {}, to: {} };
+        edges.forEach(([from, to], index) => {
+          edgeStats.from[from] = edgeStats.from[from] || [];
+          edgeStats.to[to] = edgeStats.to[to] || [];
+          edgeStats.from[from].push(index);
+          edgeStats.to[to].push(index);
+        });
+      }
+
+      function spreadOffset(list, index, gap) {
+        const pos = list.indexOf(index);
+        return (pos - (list.length - 1) / 2) * gap;
+      }
+
+      function anchorPoints(from, to, edgeIndex) {
+        const a = boxOf(from);
+        const b = boxOf(to);
+        const horizontal = Math.abs(b.cx - a.cx) >= Math.abs(b.cy - a.cy);
+        const startOffset = spreadOffset(edgeStats.from[from] || [edgeIndex], edgeIndex, 18);
+        const endOffset = spreadOffset(edgeStats.to[to] || [edgeIndex], edgeIndex, 14);
+
+        if (horizontal) {
+          if (b.cx >= a.cx) {
+            return {
+              start: { x: a.right + 2, y: Math.max(a.top + 14, Math.min(a.bottom - 14, a.cy + startOffset)) },
+              end: { x: b.left - 2, y: Math.max(b.top + 14, Math.min(b.bottom - 14, b.cy + endOffset)) },
+              dir: "right"
+            };
+          }
+
+          return {
+            start: { x: a.left - 2, y: Math.max(a.top + 14, Math.min(a.bottom - 14, a.cy + startOffset)) },
+            end: { x: b.right + 2, y: Math.max(b.top + 14, Math.min(b.bottom - 14, b.cy + endOffset)) },
+            dir: "left"
+          };
+        }
+
+        if (b.cy >= a.cy) {
+          return {
+            start: { x: Math.max(a.left + 18, Math.min(a.right - 18, a.cx + startOffset)), y: a.bottom + 2 },
+            end: { x: Math.max(b.left + 18, Math.min(b.right - 18, b.cx + endOffset)), y: b.top - 2 },
+            dir: "down"
+          };
+        }
+
+        return {
+          start: { x: Math.max(a.left + 18, Math.min(a.right - 18, a.cx + startOffset)), y: a.top - 2 },
+          end: { x: Math.max(b.left + 18, Math.min(b.right - 18, b.cx + endOffset)), y: b.bottom + 2 },
+          dir: "up"
+        };
+      }
+
+      function draw() {
+        svg.querySelectorAll(".flow-edge, .flow-label").forEach(el => el.remove());
+        currentEdges.forEach(([from, to, label], edgeIndex) => {
+          const { start: a, end: b, dir } = anchorPoints(from, to, edgeIndex);
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          const horizontalGap = Math.max(85, Math.min(240, Math.abs(b.x - a.x) * .42));
+          const verticalGap = Math.max(75, Math.min(210, Math.abs(b.y - a.y) * .42));
+          let d = "";
+          if (dir === "right") {
+            d = `M ${a.x} ${a.y} C ${a.x + horizontalGap} ${a.y}, ${b.x - horizontalGap} ${b.y}, ${b.x} ${b.y}`;
+          }
+          if (dir === "left") {
+            d = `M ${a.x} ${a.y} C ${a.x - horizontalGap} ${a.y}, ${b.x + horizontalGap} ${b.y}, ${b.x} ${b.y}`;
+          }
+          if (dir === "down") {
+            d = `M ${a.x} ${a.y} C ${a.x} ${a.y + verticalGap}, ${b.x} ${b.y - verticalGap}, ${b.x} ${b.y}`;
+          }
+          if (dir === "up") {
+            d = `M ${a.x} ${a.y} C ${a.x} ${a.y - verticalGap}, ${b.x} ${b.y + verticalGap}, ${b.x} ${b.y}`;
+          }
+          path.setAttribute("class", "flow-edge");
+          path.setAttribute("marker-end", `url(#${markerId})`);
+          path.setAttribute("d", d);
+          svg.appendChild(path);
+          if (label) {
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("class", "flow-label");
+            text.setAttribute("x", (a.x + b.x) / 2);
+            text.setAttribute("y", (a.y + b.y) / 2 - 9);
+            text.textContent = label;
+            svg.appendChild(text);
+          }
+        });
+      }
+
+      function enableDrag(el, scope) {
+        el.addEventListener("pointerdown", event => {
+          el.setPointerCapture(event.pointerId);
+          el.dataset.dragged = "";
+          const sx = event.clientX;
+          const sy = event.clientY;
+          const ix = el.offsetLeft;
+          const iy = el.offsetTop;
+
+          function move(moveEvent) {
+            const moved = Math.abs(moveEvent.clientX - sx) + Math.abs(moveEvent.clientY - sy);
+            if (moved > 4) el.dataset.dragged = "true";
+            const nextX = ix + (moveEvent.clientX - sx) / zoom;
+            const nextY = iy + (moveEvent.clientY - sy) / zoom;
+            el.style.left = `${Math.max(0, Math.min(baseWidth - 220, nextX))}px`;
+            el.style.top = `${Math.max(0, Math.min(baseHeight - 90, nextY))}px`;
+            draw();
+          }
+
+          function up() {
+            el.removeEventListener("pointermove", move);
+            el.removeEventListener("pointerup", up);
+            save(scope);
+            setTimeout(() => {
+              delete el.dataset.dragged;
+            }, 0);
+          }
+
+          el.addEventListener("pointermove", move);
+          el.addEventListener("pointerup", up);
+        });
+      }
+
+      function render(nodes, edges, scope, onSelect) {
+        currentNodes = nodes;
+        currentEdges = edges;
+        buildEdgeStats(edges);
+        board.querySelectorAll(".node").forEach(el => el.remove());
+        const saved = savedFor(scope);
+
+        nodes.forEach(([id, title, desc, nodeKind, x, y]) => {
+          const pos = saved[id] || { x, y };
+          const el = document.createElement("button");
+          el.type = "button";
+          el.className = "node";
+          el.dataset.id = id;
+          el.dataset.kind = nodeKind;
+          el.style.left = `${pos.x}px`;
+          el.style.top = `${pos.y}px`;
+          el.innerHTML = `<strong>${title}</strong><span>${desc}</span>`;
+          el.addEventListener("click", event => {
+            if (!el.dataset.dragged && onSelect) onSelect(id);
+            event.stopPropagation();
+          });
+          board.appendChild(el);
+          enableDrag(el, scope);
+        });
+
+        draw();
+      }
+
+      function setZoom(value) {
+        zoom = Math.max(.55, Math.min(1.25, value));
+        board.style.transform = `scale(${zoom})`;
+        board.style.width = `${baseWidth}px`;
+        board.style.height = `${baseHeight}px`;
+      }
+
+      function reset(scope) {
+        localStorage.removeItem(`${storageKey}-${scope}`);
+        render(currentNodes, currentEdges, scope, kind === "main" ? selectFromMain : null);
+      }
+
+      return { render, draw, setZoom, reset, get zoom() { return zoom; } };
+    }
+
+    const main = boardApi("main", mainBoard, mainWrap, mainLines, 1500, 620, "arrowMain");
+    const detail = boardApi("detail", detailBoard, detailWrap, detailLines, 1780, 820, "arrowDetail");
+
+    function createMenu() {
+      moduleList.innerHTML = "";
+      const groups = [
+        ["Modulos principales", ["comprar", "info", "atencion", "donde", "distrib"]],
+        ["Flujos de soporte", ["recuperar", "inactividad", "asignar"]]
+      ];
+      groups.forEach(([label, keys]) => {
+        const heading = document.createElement("div");
+        heading.className = "small";
+        heading.style.margin = "14px 0 4px";
+        heading.textContent = label;
+        moduleList.appendChild(heading);
+        keys.forEach(key => {
+          const record = mainRecords[key];
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "module-button";
+          button.dataset.select = key;
+          button.textContent = record.title;
+          button.addEventListener("click", () => selectModule(key));
+          moduleList.appendChild(button);
+        });
+      });
+    }
+
+    function selectFromMain(id) {
+      if (mainRecords[id]) selectModule(id);
+    }
+
+    function selectModule(key) {
+      selectedModule = key;
+      const data = modules[key];
+      detailTitle.textContent = data.title;
+      detailId.textContent = data.id;
+      detailSummary.textContent = data.summary;
+      document.querySelectorAll(".module-button").forEach(el => {
+        el.classList.toggle("active", el.dataset.select === key);
+      });
+      document.querySelectorAll("#mainBoard .node").forEach(el => {
+        el.classList.toggle("active", el.dataset.id === key);
+      });
+      detail.render(data.nodes, data.edges, key);
+    }
+
+    document.querySelector("[data-toolbar='main'] [data-action='reset']").addEventListener("click", () => main.reset("principal"));
+    document.querySelector("[data-toolbar='main'] [data-action='zoom-out']").addEventListener("click", () => main.setZoom(main.zoom - .1));
+    document.querySelector("[data-toolbar='main'] [data-action='zoom-in']").addEventListener("click", () => main.setZoom(main.zoom + .1));
+    document.querySelector("[data-toolbar='main'] [data-action='fit']").addEventListener("click", () => main.setZoom(.74));
+
+    document.querySelector("[data-toolbar='detail'] [data-action='reset']").addEventListener("click", () => detail.reset(selectedModule));
+    document.querySelector("[data-toolbar='detail'] [data-action='zoom-out']").addEventListener("click", () => detail.setZoom(detail.zoom - .1));
+    document.querySelector("[data-toolbar='detail'] [data-action='zoom-in']").addEventListener("click", () => detail.setZoom(detail.zoom + .1));
+    document.querySelector("[data-toolbar='detail'] [data-action='fit']").addEventListener("click", () => detail.setZoom(.68));
+
+    createMenu();
+    main.render(mainNodes, mainEdges, "principal", selectFromMain);
+    main.setZoom(.9);
+    selectModule(selectedModule);
+    detail.setZoom(.72);
+  </script>
+</body>
+</html>
