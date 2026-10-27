@@ -1,29 +1,69 @@
 @import 'tailwindcss';
 
-/* Paleta de la app (oscura, inspirada en Supabase). Todo color de la interfaz sale de aquí:
-   las clases usan estos nombres (bg-panel, text-tenue, border-borde…), no colores sueltos. */
-@theme {
-  --color-fondo: #121212; /* fondo de la aplicación */
-  --color-panel: #1a1a1a; /* menú lateral, tarjetas, tablas, modales */
-  --color-panel-2: #232323; /* hover, encabezados de tabla, controles */
-  --color-borde: #2a2a2a;
-  --color-borde-fuerte: #3a3a3a;
-  --color-texto: #ededed;
-  --color-tenue: #a0a0a0;
-  --color-apagado: #6b6b6b;
-  --color-acento: #3ecf8e; /* verde: acciones principales, activo, encendido */
-  --color-acento-hover: #34b27b;
-  --color-alerta: #f2b33d;
-  --color-peligro: #ef6461;
-  --color-info: #5aa9e6;
+/* Colores de marca Ecofiltro (de ecofiltro.com):
+     azul    #00537c  — logo y color principal
+     celeste #00b2e6  — botones y enlaces del sitio
+     naranja #f97602  — ofertas y avisos
+   La app tiene modo claro y oscuro. Las clases usan nombres (bg-panel, text-tenue, bg-acento…);
+   cada nombre toma su valor del modo activo, definido abajo en <html data-tema="claro|oscuro">. */
+@theme inline {
+  --color-fondo: var(--fondo); /* fondo de la aplicación */
+  --color-panel: var(--panel); /* menú lateral, tarjetas, tablas, modales */
+  --color-panel-2: var(--panel-2); /* hover, encabezados de tabla */
+  --color-borde: var(--borde);
+  --color-borde-fuerte: var(--borde-fuerte);
+  --color-texto: var(--texto);
+  --color-tenue: var(--tenue);
+  --color-apagado: var(--apagado);
+  --color-acento: var(--acento); /* acciones principales, activo, encendido */
+  --color-acento-hover: var(--acento-hover);
+  --color-sobre-acento: var(--sobre-acento); /* texto e íconos encima del acento */
+  --color-alerta: var(--alerta); /* naranja de marca: avisos */
+  --color-peligro: var(--peligro);
+  --color-info: var(--info);
+}
 
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
 }
 
-/* Controles nativos (select, calendario, barras de desplazamiento) también en oscuro. */
+/* Modo claro: como el sitio de Ecofiltro (fondo claro, azul de marca en las acciones). */
 :root {
+  color-scheme: light;
+  --fondo: #f3f6f8;
+  --panel: #ffffff;
+  --panel-2: #eaf0f4;
+  --borde: #dde4ea;
+  --borde-fuerte: #c3cfd8;
+  --texto: #0f2a3a;
+  --tenue: #4b6474;
+  --apagado: #8597a4;
+  --acento: #00537c;
+  --acento-hover: #00415f;
+  --sobre-acento: #ffffff;
+  --alerta: #c25a00;
+  --peligro: #c62828;
+  --info: #007fa6;
+}
+
+/* Modo oscuro: fondo con un leve tono azul Ecofiltro; el celeste de marca como acento (se lee bien sobre oscuro). */
+:root[data-tema='oscuro'] {
   color-scheme: dark;
+  --fondo: #0a1117;
+  --panel: #0f1922;
+  --panel-2: #15232e;
+  --borde: #1d2d3a;
+  --borde-fuerte: #2b3f4e;
+  --texto: #e6eef3;
+  --tenue: #93a7b5;
+  --apagado: #5d7484;
+  --acento: #00b2e6;
+  --acento-hover: #29c2ef;
+  --sobre-acento: #03131c;
+  --alerta: #f98a2b;
+  --peligro: #ef6461;
+  --info: #7fcbe9;
 }
 
 body {
@@ -31,11 +71,15 @@ body {
 }
 
 ::selection {
-  @apply bg-acento/30;
+  @apply bg-acento/25;
 }
 
-/* Barras de desplazamiento discretas. */
+/* El logo oficial es azul; en modo oscuro se muestra en blanco. */
+:root[data-tema='oscuro'] .logo-marca {
+  filter: brightness(0) invert(1);
+}
+
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-borde-fuerte) transparent;
+  scrollbar-color: var(--borde-fuerte) transparent;
 }

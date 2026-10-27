@@ -18,6 +18,11 @@ export default [
     languageOptions: { globals: globals.node },
   },
   {
+    // Scripts sueltos que el navegador carga tal cual (sin Vite).
+    files: ['apps/web/public/**/*.js'],
+    languageOptions: { globals: globals.browser, sourceType: 'script' },
+  },
+  {
     files: ['apps/web/src/**/*.{js,jsx}'],
     languageOptions: {
       globals: globals.browser,

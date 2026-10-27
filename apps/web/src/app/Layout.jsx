@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
+import { BotonTema } from '../components/BotonTema.jsx';
 import { Icono } from '../components/Icono.jsx';
 import { Logo } from '../components/Logo.jsx';
 import { useCerrarSesion, usePermiso, useSesion } from '../features/auth/hooks.js';
@@ -81,6 +82,7 @@ export function Layout() {
             <Icono nombre="menu" className="h-5 w-5" />
           </button>
           <Logo />
+          <BotonTema className="ml-auto" />
         </header>
         <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-8 sm:py-8">
           <Outlet />
@@ -140,6 +142,7 @@ function PieUsuario({ alNavegar }) {
           <span className="block font-mono text-[11px] text-apagado">{rol}</span>
         </span>
       </Link>
+      <BotonTema />
       <button
         onClick={() => salir.mutate()}
         disabled={salir.isPending}

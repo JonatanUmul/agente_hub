@@ -14,7 +14,7 @@ export function Toggle({ activo, alCambiar, deshabilitado = false, etiqueta }) {
     >
       <span
         className={`inline-block h-3.5 w-3.5 rounded-full shadow transition-transform ${
-          activo ? 'translate-x-[18px] bg-black' : 'translate-x-0.5 bg-tenue'
+          activo ? 'translate-x-[18px] bg-sobre-acento' : 'translate-x-0.5 bg-tenue'
         }`}
       />
     </button>

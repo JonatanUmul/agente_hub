@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Navigate, useLocation } from 'react-router-dom';
 import { esquemaLogin } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
+import { BotonTema } from '../../components/BotonTema.jsx';
 import { Campo, claseControl } from '../../components/Campo.jsx';
 import { Logo } from '../../components/Logo.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
@@ -21,7 +22,8 @@ export function LoginPage() {
   if (sesion) return <Navigate to={ubicacion.state?.desde ?? '/'} replace />;
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="relative flex min-h-screen items-center justify-center p-4">
+      <BotonTema className="absolute right-4 top-4" />
       <div className="w-full max-w-sm">
         <div className="mb-8 flex justify-center">
           <Logo />

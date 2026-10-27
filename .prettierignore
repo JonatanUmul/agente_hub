@@ -1,5 +1,5 @@
 node_modules
 dist
 package-lock.json
-index.html
+/index.html
 prompt_claude_code_app_gestion.md

@@ -1,5 +1,5 @@
 const VARIANTES = {
-  primario: 'border-acento/60 bg-acento text-black hover:bg-acento-hover',
+  primario: 'border-acento bg-acento text-sobre-acento hover:bg-acento-hover',
   secundario: 'border-borde-fuerte bg-panel-2 text-texto hover:border-apagado hover:bg-borde',
   peligro: 'border-peligro/50 bg-peligro/10 text-peligro hover:bg-peligro/20',
   enlace: 'text-acento hover:underline underline-offset-2',
