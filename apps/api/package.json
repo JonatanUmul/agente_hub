@@ -1,0 +1,28 @@
+{
+  "name": "@ecofiltro/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch --env-file=../../.env src/server.js",
+    "start": "node src/server.js",
+    "migrar": "node --env-file=../../.env scripts/migrar.js",
+    "crear-admin": "node --env-file=../../.env scripts/crear-admin.js",
+    "test": "vitest run",
+    "test:integracion": "node --env-file=../../.env ../../node_modules/vitest/vitest.mjs run --config vitest.integracion.config.js"
+  },
+  "dependencies": {
+    "@ecofiltro/shared": "^0.0.0",
+    "@fastify/cookie": "^11.1.3",
+    "@fastify/cors": "^11.3.1",
+    "@fastify/helmet": "^13.2.0",
+    "@fastify/rate-limit": "^11.2.1",
+    "argon2": "^0.45.1",
+    "fastify": "^5.12.7",
+    "fastify-plugin": "^6.0.1",
+    "fastify-type-provider-zod": "^7.0.0",
+    "node-pg-migrate": "^9.0.0",
+    "pg": "^8.23.1",
+    "zod": "^4.6.7"
+  }
+}

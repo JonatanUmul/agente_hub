@@ -1,0 +1,26 @@
+# Desarrollo: PostgreSQL 18 (misma versión mayor que producción, 18.6) con una copia del esquema eco_* (sin datos de producción).
+# Solo escucha en 127.0.0.1: nunca expuesto a la red.
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: ${DEV_PG_SUPERUSER:?Falta DEV_PG_SUPERUSER en .env}
+      POSTGRES_PASSWORD: ${DEV_PG_SUPERPASSWORD:?Falta DEV_PG_SUPERPASSWORD en .env}
+      POSTGRES_DB: ${DB_NAME:?Falta DB_NAME en .env}
+      # Los scripts de init crean el rol eco_app con esta contraseña.
+      ECO_APP_PASSWORD: ${DB_PASSWORD:?Falta DB_PASSWORD en .env}
+    ports:
+      - '127.0.0.1:5433:5432'
+    volumes:
+      # Desde la imagen 18 el volumen se monta en /var/lib/postgresql (no en .../data).
+      - db-datos:/var/lib/postgresql
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./docs/sql:/sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  db-datos:

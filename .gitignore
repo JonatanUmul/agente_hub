@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+
+# Credenciales: nunca al repositorio
+.env
+.env.*
+!.env.example
+
+# Volcados del esquema real (pueden contener datos o nombres internos)
+*.dump
+docker/postgres/init/*.local.sql
+
+.DS_Store
