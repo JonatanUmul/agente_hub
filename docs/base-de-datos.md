@@ -240,9 +240,46 @@ módulo de la conversación.
 | `ORQUESTADOR` | Orquestador central                                    | Clasifica en módulo compra, atención o distribuidor. **Solo lee reglas `GLOBAL`** |
 | `VISION`      | Análisis de fotos del cliente (en preparación)         | Cómo describir y validar una imagen                                               |
 
-## Tablas operativas del bot
+## Tablas operativas del bot (inspeccionadas el 27-10-2026, solo lectura)
 
-No fueron inspeccionadas (no son `eco_*`). La app **no las toca** y `eco_app` no tiene permisos sobre ellas.
+La app **no escribe** en ellas. El módulo de reportes (fase 5) las lee con un rol propio de solo lectura.
+Volúmenes al 27-10-2026: `eventos` 1 107 filas (22–27 oct, 176 conversaciones); `hubspot_webhook_log` ~29 000 (desde 10 oct);
+`chat_asignados` 253 (desde 10 oct); `conversation_inactivity_control` 378 (desde 2 sep).
+
+### `eventos` — un registro por paso del bot en una conversación
+
+| Columna                                                                           | Tipo        | Qué guarda (observado)                                                                                                                                                                                     |
+| --------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                                                                              | integer PK  |                                                                                                                                                                                                            |
+| `conversationsthreadid`                                                           | varchar     | ID de la conversación en HubSpot (= `hubspot_webhook_log.object_id`)                                                                                                                                       |
+| `messageid`                                                                       | varchar     | ID del mensaje (índice)                                                                                                                                                                                    |
+| `fecha_registro` / `fecha_cierre`                                                 | timestamptz | cuándo ocurrió / cierre (3 % lleno)                                                                                                                                                                        |
+| `workflow`                                                                        | varchar     | flujo de n8n: `orquestador`, `comprar_ecofiltro`, `atencion_cliente`, `asignar_agente`, `guardar_espera_agente`, `terminar_por_inactividad`, `14.Pautas` (23 % vacío)                                      |
+| `etapa_conversacion` / `etapa_descripcion`                                        | varchar     | etapa (id y código de `etapa_conversacion`): `orquestador`, `comprar_ecofiltro`, `atencion_cliente`, `agente_asignado`, `crear_sesion_orquestador`, `cerrado_por_inactividad`, `pauta`, `pendiente_asesor` |
+| `status`                                                                          | varchar     | `SENT`, `RECEIVED`, `register`, `CLOSED_BY_INACTIVITY`                                                                                                                                                     |
+| `bandeja`                                                                         | varchar     | `Televentas`/`televentas`, `SAC`, `sin_bandeja` o vacío (**normalizar con lower()**)                                                                                                                       |
+| `id_menu`, `menu_descripcion`                                                     | varchar     | menú del flujo (`esperando_nombre`, `submenu_atencion_cliente`, `pauta`)                                                                                                                                   |
+| `id_menu_opcion`, `menu_descripcion_opcion`                                       | varchar     | opción elegida; en pautas guarda el **código de la pauta** (ej. `PT000001`)                                                                                                                                |
+| `imagen`, `video`                                                                 | varchar     | `'true'` / `'false'`: si en ese paso se envió foto o video                                                                                                                                                 |
+| `fileid`                                                                          | varchar     | ID de HubSpot del archivo enviado (coincide con `eco_multimedia.hubspot_file_id`)                                                                                                                          |
+| `numero_pregunta`                                                                 | varchar     | JSON con los números de preguntas frecuentes usadas, ej. `[12,55]`                                                                                                                                         |
+| `recuperacion`                                                                    | varchar     | `no`, `inactividad`, `webhook_log`                                                                                                                                                                         |
+| `message`, `respuesta_n8n`, `resumen_ia`, `name`, `sesionid_cliente`, `createdby` |             | **datos del cliente o textos: nunca se muestran ni se exportan**                                                                                                                                           |
+| `executionid`, `channelid`, `channelaccountid`, `sessionid`                       | varchar     | técnicos                                                                                                                                                                                                   |
+
+Índices: `(conversationsthreadid, fecha_registro)`, `messageid`. **No hay índice por `fecha_registro` solo.**
+
+### Otras tablas
+
+| Tabla                                                    | Columnas útiles                                                                                                     | Notas                                                                                                                                            |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `hubspot_webhook_log`                                    | `received_at`, `object_id` (conversación), `subscription_type` (`conversation.newMessage`), `status`                | Todos los mensajes nuevos de la bandeja (ambos sentidos, también conversaciones sin bot). `payload` solo trae IDs. Sin índice por `received_at`. |
+| `chat_asignados`                                         | `conversationsthreadid`, `id_hubspot_agentes` (→ `hubspot_agentes.id`), `fecha_registro`, `estado_chat` (`ABIERTO`) | `fecha_cierre` = `fecha_registro` en todas las filas: **no sirve para duración**.                                                                |
+| `conversation_inactivity_control`                        | `conversationsthreadid`, `action` (`warning` / `close`), `sent_at`, `message` (texto que envió el bot)              | Oferta de recuperación = `warning` con «promoción para ti» (n8n usa ese texto).                                                                  |
+| `agent_hours_notice_control`                             | `notified_at`, `motivo` (`fuera_de_horario_lunes_viernes`, `_sabado`, `_domingo`)                                   | Avisos de fuera de horario.                                                                                                                      |
+| `hubspot_agentes`                                        | `id`, `nombre`, `apellido`, `bandeja`, `estado_agente`                                                              | Ver horarios (002).                                                                                                                              |
+| `etapa_conversacion`, `estados`, `menu`, `menu_opciones` | catálogos del bot                                                                                                   | Códigos y descripciones de etapas, estados y menús.                                                                                              |
+| `work`, `*_locks`, `estado_rotacion_agentes`             | técnicas de n8n                                                                                                     | Sin valor para reportes.                                                                                                                         |
 
 ## Pendiente de confirmar
 

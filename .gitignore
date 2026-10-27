@@ -17,3 +17,6 @@ docker/postgres/init/*.local.sql
 
 # Respaldos locales de producción
 respaldos/
+
+# Flujos exportados de n8n (pueden incluir IDs de credenciales o claves)
+n8n/
