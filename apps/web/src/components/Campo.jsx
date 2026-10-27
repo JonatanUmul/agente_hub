@@ -10,5 +10,10 @@ export function Campo({ etiqueta, error, ayuda, children }) {
   );
 }
 
-export const claseControl =
-  'w-full rounded-md border border-slate-300 px-3 py-2 focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600';
+const claseBase =
+  'rounded-md border border-slate-300 bg-white px-3 py-2 focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600';
+
+// Controles de formulario: ocupan todo el ancho de su columna.
+export const claseControl = `w-full ${claseBase}`;
+// Filtros de una tabla: ancho según su contenido, para que quepan varios en una fila.
+export const claseFiltro = `${claseBase} text-sm`;

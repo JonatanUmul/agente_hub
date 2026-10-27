@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { DESTINOS, ESTADOS_VIGENCIA, MODULOS } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
-import { claseControl } from '../../components/Campo.jsx';
+import { claseFiltro } from '../../components/Campo.jsx';
 import { ConfirmarModal } from '../../components/ConfirmarModal.jsx';
 import { EstadoVigencia } from '../../components/EstadoVigencia.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
@@ -52,7 +52,7 @@ export function ReglasPage() {
   const filtro = (campo) => ({
     value: filtros[campo],
     onChange: (e) => setFiltros({ ...filtros, [campo]: e.target.value }),
-    className: `${claseControl} w-auto`,
+    className: claseFiltro,
   });
 
   const columnas = [
@@ -110,7 +110,7 @@ export function ReglasPage() {
         <input
           placeholder="Buscar código, título o texto"
           {...filtro('texto')}
-          className={`${claseControl} w-64`}
+          className={`${claseFiltro} w-64`}
         />
         <select {...filtro('modulo')}>
           <option value="">Todos los módulos</option>

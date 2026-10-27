@@ -10,6 +10,7 @@ import {
 } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
 import { Campo, claseControl } from '../../components/Campo.jsx';
+import { Cargando } from '../../components/Cargando.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
 import { usePautasResumen } from '../pautas/hooks.js';
 import { useProductos } from '../productos/hooks.js';
@@ -37,10 +38,18 @@ const valoresIniciales = (a) => ({
   activo: a?.activo ?? true,
 });
 
-export function ArchivoForm({ archivo, mutacion, alTerminar, alCancelar }) {
+// Los <select> necesitan sus opciones antes de dibujarse para mostrar el valor actual.
+export function ArchivoForm(props) {
+  const productos = useProductos();
+  const pautas = usePautasResumen();
+  if (productos.isPending || pautas.isPending) return <Cargando />;
+  if (productos.error || pautas.error)
+    return <MensajeError error={productos.error ?? pautas.error} />;
+  return <FormularioArchivo {...props} productos={productos.data} pautas={pautas.data} />;
+}
+
+function FormularioArchivo({ archivo, productos, pautas, mutacion, alTerminar, alCancelar }) {
   const editando = Boolean(archivo);
-  const { data: productos = [] } = useProductos();
-  const { data: pautas = [] } = usePautasResumen();
   const esquema = useMemo(() => esquemaFormulario(archivo), [archivo]);
   const {
     register,

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { TIPOS_MULTIMEDIA, comoLoVeElBot } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
-import { claseControl } from '../../components/Campo.jsx';
+import { claseFiltro } from '../../components/Campo.jsx';
 import { ConfirmarModal } from '../../components/ConfirmarModal.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
 import { Modal } from '../../components/Modal.jsx';
@@ -61,7 +61,7 @@ export function MultimediaPage() {
   const filtro = (campo) => ({
     value: filtros[campo],
     onChange: (e) => setFiltros({ ...filtros, [campo]: e.target.value }),
-    className: `${claseControl} w-auto`,
+    className: claseFiltro,
   });
   const promocionesSinPauta = (archivos ?? []).filter(
     (a) => a.activo && !visibilidad(a).visible,
@@ -151,7 +151,7 @@ export function MultimediaPage() {
         <input
           placeholder="Buscar descripción, ID, producto, pauta…"
           {...filtro('texto')}
-          className={`${claseControl} w-72`}
+          className={`${claseFiltro} w-72`}
         />
         <select {...filtro('tipo')}>
           <option value="">Todos los tipos</option>

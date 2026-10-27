@@ -10,6 +10,7 @@ import {
 } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
 import { Campo, claseControl } from '../../components/Campo.jsx';
+import { Cargando } from '../../components/Cargando.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
 import { monto, porcentaje } from '../../lib/formato.js';
 import { usePautasResumen } from '../pautas/hooks.js';
@@ -49,8 +50,16 @@ function cambiosSensibles(antes, despues) {
   return cambios;
 }
 
-export function ProductoForm({ producto, interruptores, mutacion, alTerminar, alCancelar }) {
-  const { data: pautas = [] } = usePautasResumen();
+// Un <select> que se dibuja antes de tener sus opciones muestra la primera ("Ninguna") aunque el
+// valor sea otro. Por eso el formulario espera a tener las pautas antes de dibujarse.
+export function ProductoForm(props) {
+  const { data: pautas, isPending, error } = usePautasResumen();
+  if (isPending) return <Cargando />;
+  if (error) return <MensajeError error={error} />;
+  return <FormularioProducto {...props} pautas={pautas} />;
+}
+
+function FormularioProducto({ producto, interruptores, pautas, mutacion, alTerminar, alCancelar }) {
   const [porConfirmar, setPorConfirmar] = useState(null);
   const {
     register,

@@ -13,9 +13,9 @@ export function Layout() {
   return (
     <div className="min-h-screen">
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-6 py-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 py-3 sm:px-6">
           <h1 className="mr-4 text-lg font-semibold">Ecofiltro Gestión</h1>
-          <nav className="flex flex-1 flex-wrap gap-1">
+          <nav className="order-last flex w-full flex-wrap gap-1 lg:order-none lg:w-auto lg:flex-1">
             <NavLink to="/" end className={claseEnlace}>
               Inicio
             </NavLink>
@@ -43,6 +43,7 @@ export function Layout() {
               </NavLink>
             )}
           </nav>
+          <div className="flex-1 lg:hidden" />
           <NavLink to="/mi-cuenta" className={claseEnlace}>
             {sesion.usuario.nombre}
           </NavLink>
@@ -51,7 +52,7 @@ export function Layout() {
           </Boton>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl p-6">
+      <main className="mx-auto max-w-6xl p-4 sm:p-6">
         <Outlet />
       </main>
     </div>

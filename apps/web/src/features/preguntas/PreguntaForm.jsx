@@ -1,10 +1,11 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { MODULOS, esquemaCrearPregunta, esquemaEditarPregunta } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
 import { Campo, claseControl } from '../../components/Campo.jsx';
+import { Cargando } from '../../components/Cargando.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
 import { useSiguienteNumero } from './hooks.js';
 
@@ -18,8 +19,8 @@ function esquemaFormulario(pregunta) {
     .pipe(esquemaEditarPregunta);
 }
 
-const valoresIniciales = (p) => ({
-  numero: p?.numero ?? '',
+const valoresIniciales = (p, numeroSugerido) => ({
+  numero: p?.numero ?? numeroSugerido,
   pregunta: p?.pregunta ?? '',
   tema: p?.tema ?? '',
   palabrasClave: p?.palabrasClave.join(', ') ?? '',
@@ -29,22 +30,25 @@ const valoresIniciales = (p) => ({
   activo: p?.activo ?? true,
 });
 
-export function PreguntaForm({ pregunta, mutacion, alTerminar, alCancelar }) {
+// Al crear, espera el número sugerido para usarlo como valor inicial del campo.
+export function PreguntaForm(props) {
+  const creando = !props.pregunta;
+  const siguiente = useSiguienteNumero(creando);
+  if (creando && siguiente.isPending) return <Cargando />;
+  return <FormularioPregunta {...props} numeroSugerido={siguiente.data?.numero ?? ''} />;
+}
+
+function FormularioPregunta({ pregunta, numeroSugerido, mutacion, alTerminar, alCancelar }) {
   const editando = Boolean(pregunta);
-  const { data: siguiente } = useSiguienteNumero(!editando);
   const esquema = useMemo(() => esquemaFormulario(pregunta), [pregunta]);
   const {
     register,
     handleSubmit,
-    setValue,
-    getValues,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(esquema), defaultValues: valoresIniciales(pregunta) });
-
-  // Proponemos el siguiente número libre en cuanto llega, sin pisar lo que ya se haya escrito.
-  useEffect(() => {
-    if (siguiente && getValues('numero') === '') setValue('numero', siguiente.numero);
-  }, [siguiente, getValues, setValue]);
+  } = useForm({
+    resolver: zodResolver(esquema),
+    defaultValues: valoresIniciales(pregunta, numeroSugerido),
+  });
 
   const enviar = (datos) =>
     mutacion.mutate(editando ? { id: pregunta.id, ...datos } : datos, { onSuccess: alTerminar });
