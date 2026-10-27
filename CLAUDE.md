@@ -27,7 +27,11 @@ npm run dev:web              # Web en :5173, proxy /api → :3000
 npm test                     # unitarias
 npm run test:integracion -w @ecofiltro/api   # requiere dev:db
 npm run lint && npm run format:check
+npm run verificar-datos -w @ecofiltro/api   # solo lectura: ¿la app puede leer y guardar los datos de la base de .env?
 ```
+
+Producción: `docker-compose.prod.yml` + `docs/despliegue.md`. Credenciales de `eco_admin` (solo para el administrador)
+en `.env.admin`, nunca en `.env`. **Antes de correr pruebas de integración, confirmar que `.env` apunta a la base local.**
 
 ## Arquitectura
 

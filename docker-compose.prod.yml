@@ -1,0 +1,56 @@
+# Producción: la app junto a la base del bot que YA existe en el servidor.
+# Ver docs/despliegue.md. Uso: docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+#
+# - api: se une a la red de Docker de la base (RED_BD) y a una red interna con web. No publica puertos.
+# - web: único punto de entrada. Publica solo en 127.0.0.1 para que lo alcance el proxy del servidor,
+#        nunca directo a internet.
+
+name: ecofiltro-gestion
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    image: ecofiltro-gestion-api
+    restart: unless-stopped
+    # Por defecto .env junto a este archivo; ARCHIVO_ENV permite probar con otro.
+    env_file: ${ARCHIVO_ENV:-.env}
+    environment:
+      NODE_ENV: production
+      API_HOST: 0.0.0.0
+      API_PORT: 3000
+      COOKIE_SECURE: 'true'
+      # nginx del contenedor web + el proxy del servidor.
+      TRUST_PROXY_SALTOS: ${TRUST_PROXY_SALTOS:-2}
+    networks:
+      - interna
+      - bd
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    image: ecofiltro-gestion-web
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - '127.0.0.1:${WEB_PUERTO:-8080}:8080'
+    networks:
+      - interna
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  interna: {}
+  # Red de Docker donde corre PostgreSQL del bot (ya existe; la app no la crea ni la modifica).
+  bd:
+    external: true
+    name: ${RED_BD:?Define RED_BD en .env con el nombre de la red de Docker de la base}

@@ -1,0 +1,12 @@
+# Nada de esto debe entrar a una imagen: secretos, dependencias locales, artefactos y datos de desarrollo.
+**/node_modules
+**/dist
+.git
+.env
+.env.*
+docker
+respaldos
+**/*.test.js
+apps/api/test
+index.html
+prompt_claude_code_app_gestion.md

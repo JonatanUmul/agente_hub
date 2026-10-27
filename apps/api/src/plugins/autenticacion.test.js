@@ -97,3 +97,23 @@ describe('rate limit del login', () => {
     expect(bloqueado.json().error.codigo).toBe('DEMASIADAS_SOLICITUDES');
   });
 });
+
+describe('IP del cliente detrás de proxies', () => {
+  // Con 1 salto de confianza, la IP es la que agregó nuestro proxy (la última de la lista);
+  // lo que el cliente escriba antes en X-Forwarded-For no cuenta.
+  it('no deja que el cliente invente su IP para saltarse el rate limit', async () => {
+    app = await crearAppPrueba({
+      config: { LOGIN_RATE_LIMIT_POR_MINUTO: '1', TRUST_PROXY_SALTOS: '1' },
+    });
+    const intento = (ipFalsa) =>
+      app.inject({
+        method: 'POST',
+        url: '/api/auth/login',
+        remoteAddress: '10.0.0.2',
+        headers: { 'x-forwarded-for': `${ipFalsa}, 203.0.113.7` },
+        payload: { correo: 'nadie@ejemplo.com', contrasena: 'x' },
+      });
+    expect((await intento('1.1.1.1')).statusCode).toBe(401);
+    expect((await intento('2.2.2.2')).statusCode).toBe(429);
+  });
+});

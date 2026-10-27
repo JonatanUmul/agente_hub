@@ -14,6 +14,10 @@ const esquemaEnv = z
     API_HOST: z.string().min(1).default('0.0.0.0'),
     API_PORT: z.coerce.number().int().positive().default(3000),
     LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+    // Cuántos proxies hay delante de la API (en producción: nginx del contenedor web + el proxy del
+    // servidor = 2). Solo se confía en X-Forwarded-For de esos saltos: si se confiara en todos, un
+    // atacante podría inventar su IP y saltarse el límite de intentos de login.
+    TRUST_PROXY_SALTOS: z.coerce.number().int().min(0).max(5).default(0),
     CORS_ORIGIN: z.url(),
 
     DB_HOST: z.string().min(1),

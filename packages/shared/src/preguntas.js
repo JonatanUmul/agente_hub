@@ -26,7 +26,8 @@ export const esquemaPregunta = z.object({
 
 const camposEditables = {
   pregunta: textoRequerido(1000),
-  tema: textoOpcional(100),
+  // En producción el tema funciona como descripción (hasta 157 caracteres en oct. 2026).
+  tema: textoOpcional(500),
   palabrasClave: listaDeTextos,
   respuesta: textoRequerido(10_000),
   // La base no restringe los valores; la app usa los mismos módulos que eco_reglas_bot.

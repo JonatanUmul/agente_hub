@@ -62,4 +62,11 @@ describe('esquemaCrearPregunta', () => {
     expect(esquemaCrearPregunta.safeParse({ ...pregunta, modulos: [] }).success).toBe(false);
     expect(esquemaCrearPregunta.safeParse({ ...pregunta, modulos: ['OTRO'] }).success).toBe(false);
   });
+
+  it('acepta temas largos como los de producción (157 caracteres)', () => {
+    const tema = 'Consultas de stock, inventario, existencia o disponibilidad '
+      .repeat(3)
+      .slice(0, 157);
+    expect(esquemaCrearPregunta.safeParse({ ...pregunta, tema }).success).toBe(true);
+  });
 });

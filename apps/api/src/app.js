@@ -33,8 +33,8 @@ export async function crearApp({ config, pool, logger = true, registrar }) {
       level: config.LOG_LEVEL,
       redact: { paths: CAMPOS_SENSIBLES, censor: '[oculto]' },
     },
-    // Detrás del proxy: confiamos en X-Forwarded-For para la IP real (rate limit, auditoría).
-    trustProxy: config.NODE_ENV === 'production',
+    // IP real del cliente para el rate limit, confiando solo en los proxies que controlamos.
+    trustProxy: config.TRUST_PROXY_SALTOS || false,
   });
 
   app.setValidatorCompiler(validatorCompiler);

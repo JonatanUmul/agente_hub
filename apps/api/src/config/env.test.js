@@ -28,4 +28,11 @@ describe('cargarEnv', () => {
       expect.objectContaining({ message: expect.not.stringContaining('secreto-raro') }),
     );
   });
+
+  it('trustProxy desactivado por defecto; en producción exige cookie Secure', () => {
+    expect(cargarEnv(minimo).TRUST_PROXY_SALTOS).toBe(0);
+    expect(() => cargarEnv({ ...minimo, NODE_ENV: 'production', COOKIE_SECURE: 'false' })).toThrow(
+      /COOKIE_SECURE/,
+    );
+  });
 });

@@ -3,9 +3,8 @@
 -- El rol YA EXISTE en producción (LOGIN, sin superusuario, solo CONNECT). Si hubiera que crearlo:
 --   CREATE ROLE eco_app LOGIN PASSWORD '<contraseña generada>';   -- nunca guardar la contraseña aquí
 --
--- Ejecutar como superusuario (ecofiltro / ecofiltro_admin): CREATE SCHEMA ... AUTHORIZATION eco_app
--- exige poder actuar como eco_app, y eco_admin no puede.
---   psql -X -d ecofiltro_bot -f docs/sql/crear_rol_eco_app.sql
+-- Ejecutar como eco_admin (dueño de la base y de los objetos eco_*) o como superusuario:
+--   set -a; . ./.env.admin; set +a; psql -X -f docs/sql/crear_rol_eco_app.sql
 -- Es idempotente: se puede volver a correr sin efectos secundarios.
 
 \set ON_ERROR_STOP on
@@ -40,7 +39,18 @@ REVOKE UPDATE, DELETE, TRUNCATE ON eco_auditoria FROM eco_app;
 GRANT EXECUTE ON FUNCTION eco_contexto(text) TO eco_app;
 
 -- Esquema propio de la app (usuarios, sesiones, migraciones).
-CREATE SCHEMA IF NOT EXISTS gestion AUTHORIZATION eco_app;
+-- Un superusuario puede dárselo directamente a eco_app. eco_admin no puede (tendría que poder actuar
+-- como eco_app): entonces lo crea como suyo y le da a eco_app USAGE + CREATE, que es lo que necesita
+-- para crear y usar sus tablas (que sí serán de eco_app).
+DO $$
+BEGIN
+  IF (SELECT rolsuper FROM pg_roles WHERE rolname = current_user) THEN
+    CREATE SCHEMA IF NOT EXISTS gestion AUTHORIZATION eco_app;
+  ELSE
+    CREATE SCHEMA IF NOT EXISTS gestion;
+  END IF;
+END $$;
+GRANT USAGE, CREATE ON SCHEMA gestion TO eco_app;
 
 COMMIT;
 
