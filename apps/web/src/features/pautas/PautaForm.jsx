@@ -82,16 +82,16 @@ export function PautaForm({ pauta, mutacion, alTerminar, alCancelar }) {
         <table className="w-full">
           <tbody>
             {porConfirmar.cambios.map(([campo, antes, despues]) => (
-              <tr key={campo} className="border-b border-slate-100">
+              <tr key={campo} className="border-b border-borde">
                 <td className="py-1 font-medium">{campo}</td>
-                <td className="py-1 text-slate-500 line-through">{antes}</td>
+                <td className="py-1 text-tenue line-through">{antes}</td>
                 <td className="py-1">{despues}</td>
               </tr>
             ))}
           </tbody>
         </table>
         {pauta.productosConDescuentoPropio > 0 && (
-          <p className="text-amber-700">
+          <p className="text-alerta">
             Si la pauta deja de estar vigente, {pauta.productosConDescuentoPropio} producto(s)
             asociado(s) perderán también su descuento propio.
           </p>
@@ -112,7 +112,7 @@ export function PautaForm({ pauta, mutacion, alTerminar, alCancelar }) {
   return (
     <form onSubmit={handleSubmit(enviar)} className="space-y-4" noValidate>
       {editando ? (
-        <p className="text-sm text-slate-600">Código: {pauta.codigo}</p>
+        <p className="text-sm text-tenue">Código: {pauta.codigo}</p>
       ) : (
         <Campo etiqueta="Código" error={errors.codigo} ayuda="No se puede cambiar después">
           <input className={claseControl} {...register('codigo')} />

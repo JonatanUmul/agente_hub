@@ -108,9 +108,9 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
         <table className="w-full">
           <tbody>
             {porConfirmar.cambios.map(([campo, antes, despues]) => (
-              <tr key={campo} className="border-b border-slate-100">
+              <tr key={campo} className="border-b border-borde">
                 <td className="py-1 font-medium">{campo}</td>
-                <td className="py-1 text-slate-500 line-through">{antes}</td>
+                <td className="py-1 text-tenue line-through">{antes}</td>
                 <td className="py-1">{despues}</td>
               </tr>
             ))}
@@ -131,7 +131,7 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
 
   return (
     <form onSubmit={handleSubmit(enviar)} className="space-y-4" noValidate>
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-tenue">
         ItemCode <span className="font-mono">{producto.codigo}</span> · {producto.tipo} ·{' '}
         {producto.familia}
       </p>
@@ -184,7 +184,7 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
         </select>
       </Campo>
       {pauta && !pauta.vigente && (
-        <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <p className="rounded-md bg-alerta/10 px-3 py-2 text-sm text-alerta">
           Esta pauta no está vigente: mientras siga asociada, el producto{' '}
           <strong>no tendrá ningún descuento</strong>, tampoco el propio.
         </p>
@@ -199,11 +199,11 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
         <input type="checkbox" {...register('activo')} /> Activo (el bot lo conoce y lo ofrece)
       </label>
 
-      <div className="rounded-md bg-slate-50 p-3 text-sm">
+      <div className="rounded-md bg-panel-2 p-3 text-sm">
         <p>
           Precio final:{' '}
           <strong>{monto(calcularPrecioFinal(productoPrevio.precioBase, descuentoPrevio))}</strong>{' '}
-          <span className="text-slate-500">(descuento vigente {porcentaje(descuentoPrevio)})</span>
+          <span className="text-tenue">(descuento vigente {porcentaje(descuentoPrevio)})</span>
         </p>
         <p>
           Lo que dirá el bot ahora:{' '}

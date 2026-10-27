@@ -43,7 +43,7 @@ export function ReglasPage() {
   );
   const visibles = useMemo(() => filtrar(reglas ?? [], filtros), [reglas, filtros]);
 
-  if (isPending) return <p className="text-slate-500">Cargando reglas…</p>;
+  if (isPending) return <p className="text-tenue">Cargando reglas…</p>;
   if (error) return <MensajeError error={error} />;
 
   const cerrar = () => {
@@ -63,10 +63,10 @@ export function ReglasPage() {
       celda: (r) => (
         <div className="max-w-xl">
           <div className="font-medium">{r.titulo}</div>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-tenue">
             {r.codigo} · {r.categoria}
           </div>
-          <div className="mt-1 line-clamp-2 text-xs text-slate-700">{r.regla}</div>
+          <div className="mt-1 line-clamp-2 text-xs text-texto">{r.regla}</div>
         </div>
       ),
     },
@@ -150,7 +150,7 @@ export function ReglasPage() {
         </select>
       </div>
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-tenue">
         {visibles.length} de {reglas.length} reglas
       </p>
       <Tabla columnas={columnas} filas={visibles} vacio="Ninguna regla coincide con los filtros" />

@@ -32,13 +32,13 @@ export function MiCuentaPage() {
     <section className="max-w-md space-y-6">
       <div>
         <h2 className="text-lg font-semibold">Mi cuenta</h2>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-tenue">
           {sesion.usuario.nombre} · {sesion.usuario.correo} · rol {sesion.usuario.rol}
         </p>
       </div>
       <form
         onSubmit={handleSubmit(enviar)}
-        className="space-y-4 rounded-lg border border-slate-200 bg-white p-4"
+        className="space-y-4 rounded-lg border border-borde bg-panel p-4"
         noValidate
       >
         <h3 className="font-medium">Cambiar contraseña</h3>
@@ -68,7 +68,7 @@ export function MiCuentaPage() {
         </Campo>
         <MensajeError error={cambiar.error} />
         {cambiar.isSuccess && (
-          <p className="text-sm text-emerald-700">
+          <p className="text-sm text-acento">
             Contraseña actualizada. Se cerraron tus sesiones en otros navegadores.
           </p>
         )}

@@ -72,7 +72,7 @@ function FormularioArchivo({ archivo, productos, pautas, mutacion, alTerminar, a
   return (
     <form onSubmit={handleSubmit(enviar)} className="space-y-4" noValidate>
       {editando ? (
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-tenue">
           {archivo.tipo} · ID HubSpot {archivo.hubspotFileId}
         </p>
       ) : (
@@ -153,7 +153,7 @@ function FormularioArchivo({ archivo, productos, pautas, mutacion, alTerminar, a
       </label>
 
       <p
-        className={`rounded-md px-3 py-2 text-sm ${visibilidad.visible ? 'bg-slate-50 text-slate-700' : 'bg-amber-50 text-amber-800'}`}
+        className={`rounded-md px-3 py-2 text-sm ${visibilidad.visible ? 'bg-panel-2 text-texto' : 'bg-alerta/10 text-alerta'}`}
       >
         {visibilidad.detalle}
       </p>

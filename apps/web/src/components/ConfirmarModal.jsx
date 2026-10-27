@@ -17,7 +17,7 @@ export function ConfirmarModal({
   return (
     <Modal abierto={abierto} titulo={titulo} alCerrar={alCancelar}>
       <div className="space-y-4">
-        <div className="text-sm text-slate-700">{mensaje}</div>
+        <div className="text-sm text-texto">{mensaje}</div>
         <MensajeError error={error} />
         <div className="flex justify-end gap-2">
           <Boton variante="secundario" onClick={alCancelar}>

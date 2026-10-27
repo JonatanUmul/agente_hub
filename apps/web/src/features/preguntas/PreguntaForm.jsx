@@ -57,7 +57,7 @@ function FormularioPregunta({ pregunta, numeroSugerido, mutacion, alTerminar, al
     <form onSubmit={handleSubmit(enviar)} className="space-y-4" noValidate>
       <div className="grid grid-cols-3 gap-4">
         {editando ? (
-          <p className="text-sm text-slate-600">Número: {pregunta.numero}</p>
+          <p className="text-sm text-tenue">Número: {pregunta.numero}</p>
         ) : (
           <Campo etiqueta="Número" error={errors.numero} ayuda="No se puede cambiar después">
             <input
@@ -95,7 +95,7 @@ function FormularioPregunta({ pregunta, numeroSugerido, mutacion, alTerminar, al
         <input className={claseControl} {...register('palabrasClave')} />
       </Campo>
       <fieldset>
-        <legend className="mb-1 text-sm font-medium text-slate-700">Módulos</legend>
+        <legend className="mb-1 text-sm font-medium text-texto">Módulos</legend>
         <div className="flex flex-wrap gap-4">
           {MODULOS.map((m) => (
             <label key={m} className="flex items-center gap-1 text-sm">
@@ -103,7 +103,7 @@ function FormularioPregunta({ pregunta, numeroSugerido, mutacion, alTerminar, al
             </label>
           ))}
         </div>
-        {errors.modulos && <p className="mt-1 text-xs text-red-700">{errors.modulos.message}</p>}
+        {errors.modulos && <p className="mt-1 text-xs text-peligro">{errors.modulos.message}</p>}
       </fieldset>
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" {...register('activo')} /> Activa

@@ -19,7 +19,7 @@ export function BotonCopiar({ texto, etiqueta = 'Copiar' }) {
       type="button"
       onClick={copiar}
       title={`${etiqueta} ${texto}`}
-      className="rounded px-1 text-xs text-emerald-800 hover:bg-emerald-50"
+      className="rounded px-1 text-xs text-acento hover:bg-acento/10"
     >
       {copiado ? '¡Copiado!' : etiqueta}
     </button>

@@ -8,13 +8,11 @@ export function LoQueVeElBot({ producto, interruptores }) {
     preciosHabilitados: interruptores.precios_habilitados,
     promocionesHabilitadas: interruptores.promociones_habilitadas,
   });
-  if (!resultado.visible) return <span className="text-slate-500">{resultado.motivo}</span>;
+  if (!resultado.visible) return <span className="text-tenue">{resultado.motivo}</span>;
   return (
     <span className="font-medium">
       {monto(resultado.precio)}
-      {resultado.descuentoPct && (
-        <span className="text-emerald-700"> (−{resultado.descuentoPct}%)</span>
-      )}
+      {resultado.descuentoPct && <span className="text-acento"> (−{resultado.descuentoPct}%)</span>}
     </span>
   );
 }

@@ -49,7 +49,7 @@ export function ProductosPage() {
   );
   const visibles = useMemo(() => filtrar(productos ?? [], filtros), [productos, filtros]);
 
-  if (isPending) return <p className="text-slate-500">Cargando productos…</p>;
+  if (isPending) return <p className="text-tenue">Cargando productos…</p>;
   if (error) return <MensajeError error={error} />;
 
   const cerrar = () => {
@@ -69,14 +69,13 @@ export function ProductosPage() {
       celda: (p) => (
         <>
           <div className="font-medium">{p.nombre}</div>
-          <div className="flex items-center gap-1 text-xs text-slate-500">
+          <div className="flex items-center gap-1 text-xs text-tenue">
             <span className="whitespace-nowrap">
-              ItemCode{' '}
-              <span className="font-mono whitespace-nowrap text-slate-700">{p.codigo}</span>
+              ItemCode <span className="font-mono whitespace-nowrap text-texto">{p.codigo}</span>
             </span>
             <BotonCopiar texto={p.codigo} />
           </div>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-tenue">
             {p.tipo} · {p.familia}
           </div>
         </>
@@ -126,10 +125,10 @@ export function ProductosPage() {
     <section className="space-y-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-lg font-semibold">Productos</h2>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-tenue">
           Precios {interruptores.precios_habilitados ? 'encendidos' : 'apagados'} · promociones{' '}
           {interruptores.promociones_habilitadas ? 'encendidas' : 'apagadas'} ·{' '}
-          <Link to="/interruptores" className="text-emerald-800 underline">
+          <Link to="/interruptores" className="text-acento underline">
             cambiar
           </Link>
         </p>
@@ -171,7 +170,7 @@ export function ProductosPage() {
         )}
       </div>
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-tenue">
         {visibles.length} de {productos.length} productos
       </p>
       <Tabla
@@ -228,12 +227,12 @@ function Descuento({ producto: p }) {
     <div>
       <div>{porcentaje(p.descuentoVigentePct)}</div>
       {p.pauta && (
-        <div className={`text-xs ${p.pauta.vigente ? 'text-slate-500' : 'text-amber-700'}`}>
+        <div className={`text-xs ${p.pauta.vigente ? 'text-tenue' : 'text-alerta'}`}>
           {p.pauta.nombre}
           {!p.pauta.vigente && ' (no vigente)'}
         </div>
       )}
-      {anulado && <div className="text-xs text-amber-700">anula su {p.descuentoPct}% propio</div>}
+      {anulado && <div className="text-xs text-alerta">anula su {p.descuentoPct}% propio</div>}
     </div>
   );
 }

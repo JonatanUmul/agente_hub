@@ -4,6 +4,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { esquemaLogin } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
 import { Campo, claseControl } from '../../components/Campo.jsx';
+import { Logo } from '../../components/Logo.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
 import { useIniciarSesion, useSesion } from './hooks.js';
 
@@ -21,33 +22,43 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
-      <form
-        onSubmit={handleSubmit((datos) => login.mutate(datos))}
-        className="w-full max-w-sm space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
-        noValidate
-      >
-        <h1 className="text-xl font-semibold">Ecofiltro Gestión</h1>
-        <Campo etiqueta="Correo" error={errors.correo}>
-          <input
-            type="email"
-            autoComplete="username"
-            className={claseControl}
-            {...register('correo')}
-          />
-        </Campo>
-        <Campo etiqueta="Contraseña" error={errors.contrasena}>
-          <input
-            type="password"
-            autoComplete="current-password"
-            className={claseControl}
-            {...register('contrasena')}
-          />
-        </Campo>
-        <MensajeError error={login.error} />
-        <Boton type="submit" cargando={login.isPending} className="w-full">
-          Entrar
-        </Boton>
-      </form>
+      <div className="w-full max-w-sm">
+        <div className="mb-8 flex justify-center">
+          <Logo />
+        </div>
+        <form
+          onSubmit={handleSubmit((datos) => login.mutate(datos))}
+          className="space-y-4 rounded-lg border border-borde bg-panel p-6"
+          noValidate
+        >
+          <div>
+            <h1 className="text-lg font-medium">Iniciar sesión</h1>
+            <p className="text-sm text-tenue">
+              Administra lo que el bot de WhatsApp le dice a los clientes.
+            </p>
+          </div>
+          <Campo etiqueta="Correo" error={errors.correo}>
+            <input
+              type="email"
+              autoComplete="username"
+              className={claseControl}
+              {...register('correo')}
+            />
+          </Campo>
+          <Campo etiqueta="Contraseña" error={errors.contrasena}>
+            <input
+              type="password"
+              autoComplete="current-password"
+              className={claseControl}
+              {...register('contrasena')}
+            />
+          </Campo>
+          <MensajeError error={login.error} />
+          <Boton type="submit" cargando={login.isPending} className="h-9 w-full">
+            Entrar
+          </Boton>
+        </form>
+      </div>
     </div>
   );
 }

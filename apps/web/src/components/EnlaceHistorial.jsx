@@ -7,7 +7,7 @@ export function EnlaceHistorial({ tabla, registroId }) {
   return (
     <Link
       to={`/auditoria?${query}`}
-      className="text-sm text-slate-600 underline-offset-2 hover:underline"
+      className="text-sm text-tenue underline-offset-2 hover:underline"
     >
       Historial
     </Link>

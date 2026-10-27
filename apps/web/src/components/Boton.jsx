@@ -1,8 +1,8 @@
 const VARIANTES = {
-  primario: 'bg-emerald-700 text-white hover:bg-emerald-800',
-  secundario: 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-50',
-  peligro: 'bg-red-700 text-white hover:bg-red-800',
-  enlace: 'text-emerald-800 underline-offset-2 hover:underline',
+  primario: 'border-acento/60 bg-acento text-black hover:bg-acento-hover',
+  secundario: 'border-borde-fuerte bg-panel-2 text-texto hover:border-apagado hover:bg-borde',
+  peligro: 'border-peligro/50 bg-peligro/10 text-peligro hover:bg-peligro/20',
+  enlace: 'text-acento hover:underline underline-offset-2',
 };
 
 export function Boton({
@@ -12,12 +12,15 @@ export function Boton({
   children,
   ...props
 }) {
-  const base = variante === 'enlace' ? '' : 'rounded-md px-3 py-2 text-sm font-medium';
+  const base =
+    variante === 'enlace'
+      ? 'text-sm'
+      : 'inline-flex h-8 items-center justify-center gap-1.5 rounded-md border px-3 text-sm font-medium transition-colors';
   return (
     <button
       type="button"
       disabled={cargando || props.disabled}
-      className={`${base} ${VARIANTES[variante]} disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
+      className={`${base} ${VARIANTES[variante]} disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
       {...props}
     >
       {cargando ? 'Guardando…' : children}

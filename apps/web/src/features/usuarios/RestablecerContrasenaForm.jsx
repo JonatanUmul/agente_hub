@@ -17,7 +17,7 @@ export function RestablecerContrasenaForm({ usuario, mutacion, alTerminar, alCan
 
   return (
     <form onSubmit={handleSubmit(enviar)} className="space-y-4" noValidate>
-      <p className="text-sm text-slate-700">
+      <p className="text-sm text-texto">
         Nueva contraseña para <strong>{usuario.correo}</strong>. Se desbloqueará la cuenta y se
         cerrarán todas sus sesiones.
       </p>

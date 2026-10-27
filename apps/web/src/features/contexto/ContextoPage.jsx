@@ -18,21 +18,21 @@ export function ContextoPage() {
     <section className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">¿Qué ve el bot ahora?</h2>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-tenue">
           Es exactamente lo que recibe el bot en su próximo mensaje, generado con{' '}
           <code>eco_contexto()</code>.
         </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <div role="tablist" className="flex flex-wrap gap-1 rounded-lg bg-slate-100 p-1">
+        <div role="tablist" className="flex flex-wrap gap-1 rounded-lg bg-panel-2 p-1">
           {MODULOS.map((m) => (
             <button
               key={m}
               role="tab"
               aria-selected={m === modulo}
               onClick={() => setModulo(m)}
-              className={`rounded-md px-3 py-1 text-sm ${m === modulo ? 'bg-white font-medium shadow-sm' : 'text-slate-600'}`}
+              className={`rounded-md px-3 py-1 text-sm ${m === modulo ? 'bg-panel font-medium shadow-sm' : 'text-tenue'}`}
             >
               {m}
             </button>
@@ -46,7 +46,7 @@ export function ContextoPage() {
         </Boton>
       </div>
 
-      {isPending && <p className="text-slate-500">Consultando…</p>}
+      {isPending && <p className="text-tenue">Consultando…</p>}
       <MensajeError error={error} />
       {contexto &&
         (verJson ? <VistaJson contexto={contexto} /> : <VistaLegible contexto={contexto} />)}
@@ -59,7 +59,7 @@ function VistaJson({ contexto }) {
   return (
     <div className="space-y-2">
       <BotonCopiar texto={texto} etiqueta="Copiar JSON" />
-      <pre className="max-h-[70vh] overflow-auto rounded-lg bg-slate-900 p-4 text-xs text-slate-100">
+      <pre className="max-h-[70vh] overflow-auto rounded-lg bg-fondo p-4 text-xs text-texto">
         {texto}
       </pre>
     </div>
@@ -68,11 +68,11 @@ function VistaJson({ contexto }) {
 
 function Seccion({ titulo, cantidad, children }) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4">
+    <section className="rounded-lg border border-borde bg-panel p-4">
       <h3 className="mb-2 font-medium">
         {titulo}{' '}
         {cantidad !== undefined && (
-          <span className="text-sm font-normal text-slate-500">({cantidad})</span>
+          <span className="text-sm font-normal text-tenue">({cantidad})</span>
         )}
       </h3>
       {children}
@@ -81,13 +81,13 @@ function Seccion({ titulo, cantidad, children }) {
 }
 
 const Estado = ({ activo, si, no }) => (
-  <span className={activo ? 'text-emerald-700' : 'text-slate-500'}>{activo ? si : no}</span>
+  <span className={activo ? 'text-acento' : 'text-tenue'}>{activo ? si : no}</span>
 );
 
 function VistaLegible({ contexto: c }) {
   return (
     <div className="space-y-4">
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-tenue">
         Generado: {fecha(c.generado_en)} · módulo {c.modulo}
       </p>
 
@@ -112,12 +112,12 @@ function VistaLegible({ contexto: c }) {
 
       <Seccion titulo="Reglas" cantidad={c.reglas.length}>
         {c.reglas.length === 0 && (
-          <p className="text-sm text-slate-500">Ninguna regla activa para este módulo.</p>
+          <p className="text-sm text-tenue">Ninguna regla activa para este módulo.</p>
         )}
         <ol className="space-y-2">
           {c.reglas.map((r) => (
             <li key={r.codigo} className="text-sm">
-              <div className="text-xs text-slate-500">
+              <div className="text-xs text-tenue">
                 {r.codigo} · {r.categoria} · para {r.destino}
               </div>
               <div className="whitespace-pre-wrap">{r.regla}</div>
@@ -129,7 +129,7 @@ function VistaLegible({ contexto: c }) {
       <Seccion titulo="Catálogo" cantidad={c.catalogo.length}>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="text-left text-xs uppercase text-slate-500">
+            <thead className="text-left text-xs uppercase text-tenue">
               <tr>
                 <th className="py-1 pr-3">Producto</th>
                 <th className="py-1 pr-3">Estado</th>
@@ -138,11 +138,11 @@ function VistaLegible({ contexto: c }) {
                 <th className="py-1 pr-3">Pauta</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-borde">
               {c.catalogo.map((p) => (
                 <tr key={p.codigo}>
                   <td className="py-1 pr-3">
-                    {p.nombre} <span className="font-mono text-xs text-slate-500">{p.codigo}</span>
+                    {p.nombre} <span className="font-mono text-xs text-tenue">{p.codigo}</span>
                   </td>
                   <td className="py-1 pr-3">{p.estado}</td>
                   <td className="py-1 pr-3">{valorLegible(p.colores)}</td>
@@ -152,14 +152,11 @@ function VistaLegible({ contexto: c }) {
                       <>
                         {monto(p.precio_final)}
                         {p.descuento_pct && (
-                          <span className="text-emerald-700">
-                            {' '}
-                            (−{porcentaje(p.descuento_pct)})
-                          </span>
+                          <span className="text-acento"> (−{porcentaje(p.descuento_pct)})</span>
                         )}
                       </>
                     ) : (
-                      <span className="text-slate-400">sin precio</span>
+                      <span className="text-apagado">sin precio</span>
                     )}
                   </td>
                   <td className="py-1 pr-3">{p.pauta ?? '—'}</td>
@@ -172,18 +169,18 @@ function VistaLegible({ contexto: c }) {
 
       <Seccion titulo="Pautas vigentes" cantidad={c.pautas.length}>
         {!c.promociones_habilitadas && (
-          <p className="text-sm text-slate-500">Promociones apagadas: el bot no recibe pautas.</p>
+          <p className="text-sm text-tenue">Promociones apagadas: el bot no recibe pautas.</p>
         )}
         <ul className="space-y-2">
           {c.pautas.map((p) => (
             <li key={p.codigo} className="text-sm">
               <span className="font-medium">{p.nombre}</span> · {porcentaje(p.descuento_pct)}
               {p.vigente_hasta && (
-                <span className="text-slate-500"> · hasta {fecha(p.vigente_hasta)}</span>
+                <span className="text-tenue"> · hasta {fecha(p.vigente_hasta)}</span>
               )}
-              {p.mensaje && <div className="text-slate-700">“{p.mensaje}”</div>}
+              {p.mensaje && <div className="text-texto">“{p.mensaje}”</div>}
               {p.imagenes && (
-                <div className="text-xs text-slate-500">Imágenes: {p.imagenes.join(', ')}</div>
+                <div className="text-xs text-tenue">Imágenes: {p.imagenes.join(', ')}</div>
               )}
             </li>
           ))}
@@ -194,10 +191,10 @@ function VistaLegible({ contexto: c }) {
         <ul className="space-y-1 text-sm">
           {c.multimedia.map((m) => (
             <li key={`${m.tipo}-${m.file_id}`}>
-              <span className="text-slate-500">{m.tipo}</span> {m.descripcion}{' '}
-              <span className="font-mono text-xs text-slate-500">#{m.file_id}</span>
-              {m.producto && <span className="text-xs text-slate-500"> · {m.producto}</span>}
-              {m.color && <span className="text-xs text-slate-500"> · {m.color}</span>}
+              <span className="text-tenue">{m.tipo}</span> {m.descripcion}{' '}
+              <span className="font-mono text-xs text-tenue">#{m.file_id}</span>
+              {m.producto && <span className="text-xs text-tenue"> · {m.producto}</span>}
+              {m.color && <span className="text-xs text-tenue"> · {m.color}</span>}
             </li>
           ))}
         </ul>
@@ -210,7 +207,7 @@ function VistaLegible({ contexto: c }) {
               .sort(([a], [b]) => a.localeCompare(b))
               .map(([clave, valor]) => (
                 <tr key={clave}>
-                  <td className="py-0.5 pr-4 font-mono text-xs text-slate-600">{clave}</td>
+                  <td className="py-0.5 pr-4 font-mono text-xs text-tenue">{clave}</td>
                   <td className="py-0.5">{valorLegible(valor)}</td>
                 </tr>
               ))}
@@ -218,7 +215,7 @@ function VistaLegible({ contexto: c }) {
         </table>
       </Seccion>
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-tenue">
         Las preguntas frecuentes no forman parte de este contexto: el bot las lee aparte (
         <Link to="/preguntas" className="underline">
           ver preguntas

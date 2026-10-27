@@ -38,7 +38,7 @@ export function AuditoriaPage() {
     <section className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">Historial de cambios</h2>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-tenue">
           Todo cambio en productos, interruptores, pautas, multimedia, reglas y preguntas queda
           registrado por la base de datos, también los hechos fuera de esta app.
         </p>
@@ -78,7 +78,7 @@ export function AuditoriaPage() {
           onChange={cambiar('registroId')}
           className={`${claseFiltro} w-36`}
         />
-        <label className="flex items-center gap-1 text-sm text-slate-600">
+        <label className="flex items-center gap-1 text-sm text-tenue">
           Desde
           <input
             type="datetime-local"
@@ -87,7 +87,7 @@ export function AuditoriaPage() {
             className={claseFiltro}
           />
         </label>
-        <label className="flex items-center gap-1 text-sm text-slate-600">
+        <label className="flex items-center gap-1 text-sm text-tenue">
           Hasta
           <input
             type="datetime-local"
@@ -103,13 +103,13 @@ export function AuditoriaPage() {
         )}
       </div>
 
-      {consulta.isPending && <p className="text-slate-500">Cargando historial…</p>}
+      {consulta.isPending && <p className="text-tenue">Cargando historial…</p>}
       <MensajeError error={consulta.error} />
       {!consulta.isPending && entradas.length === 0 && !consulta.error && (
-        <p className="text-slate-500">No hay cambios que coincidan con los filtros.</p>
+        <p className="text-tenue">No hay cambios que coincidan con los filtros.</p>
       )}
 
-      <ol className="space-y-3">
+      <ol className="divide-y divide-borde overflow-hidden rounded-lg border border-borde bg-panel empty:hidden">
         {entradas.map((e) => (
           <Entrada key={e.id} entrada={e} />
         ))}
@@ -130,22 +130,22 @@ export function AuditoriaPage() {
 
 function Entrada({ entrada: e }) {
   return (
-    <li className="rounded-lg border border-slate-200 bg-white p-4 text-sm">
+    <li className="px-4 py-3 text-sm transition-colors hover:bg-panel-2/40">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <p>
           <span className="font-medium">
             {e.origen === 'app' ? e.usuarioApp : `Cambio directo en la base (rol ${e.usuarioDb})`}
           </span>{' '}
           {NOMBRE_OPERACION[e.operacion].toLowerCase()}{' '}
-          <span className="text-slate-500">{TABLAS_AUDITADAS[e.tabla]}:</span>{' '}
+          <span className="text-tenue">{TABLAS_AUDITADAS[e.tabla]}:</span>{' '}
           <span className="font-medium">{e.etiqueta ?? `#${e.registroId}`}</span>
         </p>
-        <time className="text-xs text-slate-500" dateTime={e.creadoEn}>
+        <time className="text-xs text-tenue" dateTime={e.creadoEn}>
           {fecha(e.creadoEn)}
         </time>
       </div>
       {e.origen === 'directo' && (
-        <p className="mt-1 text-xs text-amber-700">
+        <p className="mt-1 text-xs text-alerta">
           Hecho fuera de esta app: no se sabe qué persona fue.
         </p>
       )}
@@ -155,7 +155,7 @@ function Entrada({ entrada: e }) {
         ) : (
           // Altas y bajas traen la fila completa: plegada para que la lista se pueda leer.
           <details className="mt-2">
-            <summary className="cursor-pointer text-xs text-emerald-800">
+            <summary className="cursor-pointer text-xs text-acento">
               Ver datos ({e.cambios.length} campos)
             </summary>
             <TablaCambiosAuditoria entrada={e} />
@@ -170,10 +170,10 @@ function TablaCambiosAuditoria({ entrada: e }) {
     <table className="mt-2 w-full table-fixed text-xs">
       <tbody>
         {e.cambios.map((c) => (
-          <tr key={c.campo} className="border-t border-slate-100 align-top">
-            <td className="w-40 py-1 pr-2 font-medium text-slate-600">{nombreCampo(c.campo)}</td>
+          <tr key={c.campo} className="border-t border-borde align-top">
+            <td className="w-40 py-1 pr-2 font-medium text-tenue">{nombreCampo(c.campo)}</td>
             {e.operacion !== 'INSERT' && (
-              <td className="break-words py-1 pr-2 text-slate-500 line-through">
+              <td className="break-words py-1 pr-2 text-tenue line-through">
                 {valorLegible(c.antes)}
               </td>
             )}

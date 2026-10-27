@@ -48,7 +48,7 @@ export function PreguntasPage() {
   );
   const visibles = useMemo(() => filtrar(preguntas ?? [], filtros), [preguntas, filtros]);
 
-  if (isPending) return <p className="text-slate-500">Cargando preguntas…</p>;
+  if (isPending) return <p className="text-tenue">Cargando preguntas…</p>;
   if (error) return <MensajeError error={error} />;
 
   const cerrar = () => {
@@ -68,7 +68,7 @@ export function PreguntasPage() {
       celda: (p) => (
         <div className="max-w-xl">
           <div className="font-medium">{p.pregunta}</div>
-          <div className="mt-1 line-clamp-2 text-xs text-slate-700">{p.respuesta}</div>
+          <div className="mt-1 line-clamp-2 text-xs text-texto">{p.respuesta}</div>
         </div>
       ),
     },
@@ -135,7 +135,7 @@ export function PreguntasPage() {
         </select>
       </div>
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-tenue">
         {visibles.length} de {preguntas.length} preguntas
       </p>
       <Tabla

@@ -1,13 +1,15 @@
 const ESTILOS = {
-  vigente: 'bg-emerald-50 text-emerald-800',
-  programada: 'bg-sky-50 text-sky-800',
-  vencida: 'bg-amber-50 text-amber-800',
-  inactiva: 'bg-slate-100 text-slate-600',
+  vigente: 'border-acento/30 bg-acento/10 text-acento',
+  programada: 'border-info/30 bg-info/10 text-info',
+  vencida: 'border-alerta/30 bg-alerta/10 text-alerta',
+  inactiva: 'border-borde-fuerte bg-panel-2 text-tenue',
 };
 
 export function EstadoVigencia({ estado }) {
   return (
-    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${ESTILOS[estado]}`}>
+    <span
+      className={`inline-flex rounded border px-1.5 py-0.5 font-mono text-[11px] ${ESTILOS[estado]}`}
+    >
       {estado}
     </span>
   );

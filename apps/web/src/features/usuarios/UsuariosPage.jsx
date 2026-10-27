@@ -43,7 +43,7 @@ function Usuarios() {
     restablecer.reset();
   };
 
-  if (isPending) return <p className="text-slate-500">Cargando usuarios…</p>;
+  if (isPending) return <p className="text-tenue">Cargando usuarios…</p>;
   if (error) return <MensajeError error={error} />;
 
   const columnas = [
@@ -54,11 +54,11 @@ function Usuarios() {
       titulo: 'Estado',
       celda: (u) =>
         !u.activo ? (
-          <span className="text-slate-500">Inactivo</span>
+          <span className="text-tenue">Inactivo</span>
         ) : estaBloqueado(u) ? (
-          <span className="text-amber-700">Bloqueado hasta {fecha(u.bloqueadoHasta)}</span>
+          <span className="text-alerta">Bloqueado hasta {fecha(u.bloqueadoHasta)}</span>
         ) : (
-          <span className="text-emerald-700">Activo</span>
+          <span className="text-acento">Activo</span>
         ),
     },
     { titulo: 'Último acceso', celda: (u) => fecha(u.ultimoAcceso) },

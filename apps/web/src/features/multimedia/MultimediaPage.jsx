@@ -53,7 +53,7 @@ export function MultimediaPage() {
   const [accion, setAccion] = useState(null); // { tipo: 'crear' | 'editar' | 'activo', archivo? }
   const visibles = useMemo(() => filtrar(archivos ?? [], filtros), [archivos, filtros]);
 
-  if (isPending) return <p className="text-slate-500">Cargando multimedia…</p>;
+  if (isPending) return <p className="text-tenue">Cargando multimedia…</p>;
   if (error) return <MensajeError error={error} />;
 
   const cerrar = () => {
@@ -75,7 +75,7 @@ export function MultimediaPage() {
       celda: (a) => (
         <>
           <div className="font-medium">{a.descripcion}</div>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-tenue">
             {a.tipo} · ID {a.hubspotFileId}
           </div>
         </>
@@ -86,8 +86,8 @@ export function MultimediaPage() {
       celda: (a) => (
         <div className="text-xs">
           <div>{a.producto?.nombre ?? '—'}</div>
-          {a.producto && <div className="font-mono text-slate-500">{a.producto.codigo}</div>}
-          {a.color && <div className="text-slate-500">{a.color}</div>}
+          {a.producto && <div className="font-mono text-tenue">{a.producto.codigo}</div>}
+          {a.color && <div className="text-tenue">{a.color}</div>}
         </div>
       ),
     },
@@ -99,9 +99,7 @@ export function MultimediaPage() {
       celda: (a) => {
         const v = visibilidad(a);
         return (
-          <span className={`text-xs ${v.visible ? 'text-slate-600' : 'text-amber-700'}`}>
-            {v.detalle}
-          </span>
+          <span className={`text-xs ${v.visible ? 'text-tenue' : 'text-alerta'}`}>{v.detalle}</span>
         );
       },
     },
@@ -140,7 +138,7 @@ export function MultimediaPage() {
         {puedeEditar && <Boton onClick={() => setAccion({ tipo: 'crear' })}>Agregar archivo</Boton>}
       </div>
       {promocionesSinPauta > 0 && (
-        <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <p className="rounded-md bg-alerta/10 px-3 py-2 text-sm text-alerta">
           {promocionesSinPauta} archivo(s) activo(s) no llegan al bot (promociones sin pauta).{' '}
           <Boton
             variante="enlace"
@@ -175,7 +173,7 @@ export function MultimediaPage() {
         )}
       </div>
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-tenue">
         {visibles.length} de {archivos.length} archivos
       </p>
       <Tabla columnas={columnas} filas={visibles} vacio="Ningún archivo coincide con los filtros" />

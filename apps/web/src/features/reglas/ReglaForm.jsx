@@ -98,7 +98,7 @@ export function ReglaForm({ regla, categorias, mutacion, alTerminar, alCancelar 
   return (
     <form onSubmit={handleSubmit(enviar)} className="space-y-4" noValidate>
       {editando ? (
-        <p className="text-sm text-slate-600">Código: {regla.codigo}</p>
+        <p className="text-sm text-tenue">Código: {regla.codigo}</p>
       ) : (
         <Campo
           etiqueta="Código"
@@ -139,7 +139,7 @@ export function ReglaForm({ regla, categorias, mutacion, alTerminar, alCancelar 
           />
         </Campo>
       </div>
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-tenue">
         {modulo === 'GLOBAL' ? 'Aplica en todos los módulos' : `Aplica solo en el módulo ${modulo}`}
         , para {DESCRIPCION_DESTINO[destino]}.
       </p>

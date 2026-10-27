@@ -14,13 +14,15 @@ export function Modal({ abierto, titulo, alCerrar, children }) {
     <dialog
       ref={ref}
       onClose={alCerrar}
-      className="m-auto w-full max-w-md rounded-lg p-0 shadow-xl backdrop:bg-slate-900/40"
+      className="m-auto w-full max-w-lg rounded-lg border border-borde bg-panel p-0 text-texto shadow-2xl shadow-black/60 backdrop:bg-black/70 backdrop:backdrop-blur-[1px]"
     >
       {abierto && (
-        <div className="p-5">
-          <h2 className="mb-4 text-lg font-semibold">{titulo}</h2>
-          {children}
-        </div>
+        <>
+          <div className="border-b border-borde px-5 py-3">
+            <h2 className="text-sm font-medium">{titulo}</h2>
+          </div>
+          <div className="max-h-[80vh] overflow-y-auto p-5">{children}</div>
+        </>
       )}
     </dialog>
   );

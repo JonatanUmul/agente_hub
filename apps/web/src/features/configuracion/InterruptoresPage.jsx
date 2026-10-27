@@ -20,7 +20,7 @@ export function InterruptoresPage() {
   const cambiar = useCambiarInterruptor();
   const [pendiente, setPendiente] = useState(null); // { clave, habilitado }
 
-  if (isPending) return <p className="text-slate-500">Cargando…</p>;
+  if (isPending) return <p className="text-tenue">Cargando…</p>;
   if (error) return <MensajeError error={error} />;
 
   const cerrar = () => {
@@ -33,7 +33,7 @@ export function InterruptoresPage() {
     <section className="max-w-2xl space-y-4">
       <div>
         <h2 className="text-lg font-semibold">Interruptores comerciales</h2>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-tenue">
           El bot lee estos valores en cada mensaje: un cambio aplica en el siguiente mensaje de cada
           cliente.
         </p>
@@ -42,7 +42,7 @@ export function InterruptoresPage() {
       {interruptores.map((i) => (
         <div
           key={i.clave}
-          className="flex items-start gap-4 rounded-lg border border-slate-200 bg-white p-4"
+          className="flex items-start gap-4 rounded-lg border border-borde bg-panel p-4"
         >
           <Toggle
             activo={i.habilitado}
@@ -53,12 +53,12 @@ export function InterruptoresPage() {
           <div className="flex-1">
             <h3 className="font-medium">
               {TITULOS[i.clave]}{' '}
-              <span className={i.habilitado ? 'text-emerald-700' : 'text-slate-500'}>
+              <span className={i.habilitado ? 'text-acento' : 'text-tenue'}>
                 · {i.habilitado ? 'Encendido' : 'Apagado'}
               </span>
             </h3>
-            <p className="text-sm text-slate-600">{i.descripcion}</p>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="text-sm text-tenue">{i.descripcion}</p>
+            <p className="mt-1 text-xs text-tenue">
               Último cambio: {fecha(i.actualizadoEn)}{' '}
               {i.actualizadoPor && `por ${i.actualizadoPor}`} ·{' '}
               <EnlaceHistorial tabla="eco_configuracion" registroId={i.clave} />
@@ -94,7 +94,7 @@ function MensajeConfirmacion({ clave, habilitado, sinPrecio }) {
         </p>
         <p>Revisa antes que los precios del catálogo estén correctos.</p>
         {sinPrecio > 0 && (
-          <p className="text-amber-700">
+          <p className="text-alerta">
             {sinPrecio} producto(s) activo(s) no tienen precio base: para esos el bot no dará
             precio.
           </p>

@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     // En desarrollo /api va a Fastify por el mismo origen: la cookie SameSite=Strict funciona igual que en producción.
-    proxy: { '/api': 'http://localhost:3000' },
+    // API_URL permite apuntar a otra API (p. ej. una segunda copia local en otro puerto).
+    proxy: { '/api': process.env.API_URL ?? 'http://localhost:3000' },
   },
 });

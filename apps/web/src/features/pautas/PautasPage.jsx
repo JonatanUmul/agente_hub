@@ -22,7 +22,7 @@ export function PautasPage() {
   const cambiarActivo = useCambiarActivoPauta();
   const [accion, setAccion] = useState(null); // { tipo: 'crear' | 'editar' | 'activo', pauta? }
 
-  if (isPending) return <p className="text-slate-500">Cargando pautas…</p>;
+  if (isPending) return <p className="text-tenue">Cargando pautas…</p>;
   if (error) return <MensajeError error={error} />;
 
   const cerrar = () => {
@@ -36,7 +36,7 @@ export function PautasPage() {
       celda: (p) => (
         <>
           <div className="font-medium">{p.nombre}</div>
-          <div className="text-xs text-slate-500">{p.codigo}</div>
+          <div className="text-xs text-tenue">{p.codigo}</div>
         </>
       ),
     },
@@ -94,7 +94,7 @@ export function PautasPage() {
         <div>
           <h2 className="text-lg font-semibold">Pautas y promociones</h2>
           {!interruptores.promociones_habilitadas && (
-            <p className="text-sm text-amber-700">
+            <p className="text-sm text-alerta">
               Las promociones están apagadas: el bot no menciona ninguna pauta, aunque esté vigente.
             </p>
           )}
@@ -155,7 +155,7 @@ function MensajeActivo({ pauta }) {
         </p>
       )}
       {pauta.productosConDescuentoPropio > 0 && (
-        <p className="text-amber-700">
+        <p className="text-alerta">
           {pauta.productosConDescuentoPropio} de ellos perderán también su descuento propio mientras
           sigan asociados a una pauta inactiva.
         </p>
