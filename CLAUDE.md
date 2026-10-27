@@ -71,10 +71,14 @@ Los métodos que modifican exigen la cabecera `x-csrf-token` (el cliente web la 
 - `precio_final` se calcula igual que `eco_contexto`: `round(precio_base * (1 - descuento_vigente_pct/100), 2)`.
   Usar siempre `calcularPrecioFinal` / `descuentoVigente` / `precioQueVeElBot` de `@ecofiltro/shared` (hay pruebas
   de paridad contra PostgreSQL). El descuento vigente real sale de la vista `eco_v_catalogo`.
-- Ediciones de registros `eco_*` usan **concurrencia optimista**: el cliente envía `version` (`actualizado_en::text`);
+- Ediciones de registros `eco_*` pasan por `editarConVersion` (`apps/api/src/lib/edicion.js`) y usan **concurrencia optimista**: el cliente envía `version` (`actualizado_en::text`);
   si no coincide → 409 `CONFLICTO_VERSION`. Guardar sin cambios no hace `UPDATE` (no ensucia la auditoría).
 - Reglas de "qué ve el bot" viven en `@ecofiltro/shared` (`precioQueVeElBot`, `descuentoVigente`, `comoLoVeElBot`) y
   cada una tiene una prueba de integración contra `eco_v_catalogo` / `eco_contexto()`. Si cambias una, cambia su prueba.
+- Vigencia en SQL: usar `vigenteSql(alias)` / `estadoVigenciaSql(alias)` de `apps/api/src/lib/vigencia.js`
+  (misma condición que las vistas del bot).
+- Mutaciones web: `useMutacionQueRecarga(fn, claves)` (`apps/web/src/lib/mutaciones.js`) recarga las consultas
+  afectadas también tras un error (p. ej. 409).
 - Formularios web: convertir texto del formulario con `z.any().transform(...).pipe(esquemaDeShared)`, así se valida con
   el mismo esquema que la API (Zod 4 no permite `.omit`/`.pick` sobre objetos con `.refine`).
 - Solo `precios_habilitados` y `promociones_habilitadas` son editables en `eco_configuracion`; las demás claves son de n8n.

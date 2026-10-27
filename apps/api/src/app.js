@@ -9,7 +9,9 @@ import moduloAuth from './modules/auth/index.js';
 import moduloConfiguracion from './modules/configuracion/index.js';
 import moduloMultimedia from './modules/multimedia/index.js';
 import moduloPautas from './modules/pautas/index.js';
+import moduloPreguntas from './modules/preguntas/index.js';
 import moduloProductos from './modules/productos/index.js';
+import moduloReglas from './modules/reglas/index.js';
 import moduloSalud from './modules/salud/index.js';
 import moduloUsuarios from './modules/usuarios/index.js';
 
@@ -52,6 +54,8 @@ export async function crearApp({ config, pool, logger = true, registrar }) {
       await api.register(moduloPautas);
       await api.register(moduloProductos);
       await api.register(moduloMultimedia);
+      await api.register(moduloReglas);
+      await api.register(moduloPreguntas);
       if (registrar) await api.register(registrar);
     },
     { prefix: '/api' },

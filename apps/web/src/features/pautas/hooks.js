@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import { useMutacionQueRecarga } from '../../lib/mutaciones.js';
 import {
   cambiarActivoPauta,
   crearPauta,
@@ -12,19 +13,7 @@ export const usePautasResumen = () =>
 export const usePautas = () => useQuery({ queryKey: ['pautas', 'lista'], queryFn: listarPautas });
 
 // Una pauta cambia el descuento vigente de sus productos: también recargamos productos y multimedia.
-function useMutacionPautas(mutationFn) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn,
-    onSettled: () =>
-      Promise.all(
-        [['pautas'], ['productos'], ['multimedia']].map((queryKey) =>
-          queryClient.invalidateQueries({ queryKey }),
-        ),
-      ),
-  });
-}
-
-export const useCrearPauta = () => useMutacionPautas(crearPauta);
-export const useEditarPauta = () => useMutacionPautas(editarPauta);
-export const useCambiarActivoPauta = () => useMutacionPautas(cambiarActivoPauta);
+const RECARGAR = [['pautas'], ['productos'], ['multimedia']];
+export const useCrearPauta = () => useMutacionQueRecarga(crearPauta, RECARGAR);
+export const useEditarPauta = () => useMutacionQueRecarga(editarPauta, RECARGAR);
+export const useCambiarActivoPauta = () => useMutacionQueRecarga(cambiarActivoPauta, RECARGAR);

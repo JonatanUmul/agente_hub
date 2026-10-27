@@ -36,3 +36,14 @@ INSERT INTO eco_multimedia (tipo, hubspot_file_id, descripcion, producto_id, col
   ('promocion', 'DEV-FILE-3', 'Arte de prueba de la pauta vigente',   NULL, NULL, NULL, (SELECT id FROM eco_pautas WHERE codigo = 'DEV-VIGENTE'), 10, 'semilla-dev'),
   ('promocion', 'DEV-FILE-4', 'Arte de prueba sin pauta (el bot no lo ve)', NULL, NULL, NULL, NULL, 20, 'semilla-dev')
 ON CONFLICT (tipo, hubspot_file_id) DO NOTHING;
+
+INSERT INTO eco_reglas_bot (codigo, modulo, destino, categoria, titulo, regla, prioridad, actualizado_por) VALUES
+  ('DEV-R-GLOBAL', 'GLOBAL', 'TODOS',     'prueba', 'Regla global de prueba', 'Texto de prueba para todos los módulos.', 10, 'semilla-dev'),
+  ('DEV-R-SAC',    'SAC',    'REDACTOR',  'prueba', 'Regla SAC de prueba',    'Texto de prueba solo para SAC.',          20, 'semilla-dev'),
+  ('DEV-R-COMPRA', 'COMPRA', 'ENRUTADOR', 'prueba', 'Regla COMPRA de prueba', 'Texto de prueba solo para COMPRA.',       30, 'semilla-dev')
+ON CONFLICT (codigo) DO NOTHING;
+
+INSERT INTO eco_preguntas_frecuentes (numero, pregunta, tema, palabras_clave, respuesta, modulos, orden, actualizado_por) VALUES
+  (1, '¿Pregunta de prueba 1?', 'prueba', '{prueba}', 'Respuesta de prueba 1.', '{GLOBAL}', 10, 'semilla-dev'),
+  (2, '¿Pregunta de prueba 2?', 'prueba', '{}',       'Respuesta de prueba 2.', '{SAC,COMPRA}', 20, 'semilla-dev')
+ON CONFLICT (numero) DO NOTHING;

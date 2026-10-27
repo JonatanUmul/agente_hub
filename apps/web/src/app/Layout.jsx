@@ -31,6 +31,12 @@ export function Layout() {
             <NavLink to="/interruptores" className={claseEnlace}>
               Interruptores
             </NavLink>
+            <NavLink to="/reglas" className={claseEnlace}>
+              Reglas
+            </NavLink>
+            <NavLink to="/preguntas" className={claseEnlace}>
+              Preguntas
+            </NavLink>
             {puedeGestionarUsuarios && (
               <NavLink to="/usuarios" className={claseEnlace}>
                 Usuarios

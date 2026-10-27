@@ -6,7 +6,9 @@ import { MiCuentaPage } from '../features/auth/MiCuentaPage.jsx';
 import { InterruptoresPage } from '../features/configuracion/InterruptoresPage.jsx';
 import { MultimediaPage } from '../features/multimedia/MultimediaPage.jsx';
 import { PautasPage } from '../features/pautas/PautasPage.jsx';
+import { PreguntasPage } from '../features/preguntas/PreguntasPage.jsx';
 import { ProductosPage } from '../features/productos/ProductosPage.jsx';
+import { ReglasPage } from '../features/reglas/ReglasPage.jsx';
 import { SaludPage } from '../features/salud/SaludPage.jsx';
 import { UsuariosPage } from '../features/usuarios/UsuariosPage.jsx';
 
@@ -21,6 +23,8 @@ export function Rutas() {
           <Route path="pautas" element={<PautasPage />} />
           <Route path="multimedia" element={<MultimediaPage />} />
           <Route path="interruptores" element={<InterruptoresPage />} />
+          <Route path="reglas" element={<ReglasPage />} />
+          <Route path="preguntas" element={<PreguntasPage />} />
           <Route path="usuarios" element={<UsuariosPage />} />
           <Route path="mi-cuenta" element={<MiCuentaPage />} />
         </Route>

@@ -1,15 +1,15 @@
 import { z } from 'zod';
 import {
+  ESTADOS_VIGENCIA,
+  errorVigencia,
   fechaIso,
   listaDeTextos,
   porcentaje,
   textoOpcional,
   textoRequerido,
+  vigenciaValida,
   version,
 } from './comunes.js';
-
-// Estado calculado con la misma condición de vigencia que eco_v_catalogo y eco_contexto().
-export const ESTADOS_VIGENCIA = ['vigente', 'programada', 'vencida', 'inactiva'];
 
 // Resumen para selectores (producto, multimedia).
 export const esquemaPautaResumen = z.object({
@@ -45,11 +45,6 @@ const camposEditables = {
   vigenteHasta: fechaIso.nullable(),
   activo: z.boolean(),
 };
-
-// Mismo CHECK que eco_pautas: si hay ambas fechas, "hasta" debe ser posterior a "desde".
-const vigenciaValida = (d) =>
-  !d.vigenteDesde || !d.vigenteHasta || new Date(d.vigenteHasta) > new Date(d.vigenteDesde);
-const errorVigencia = { path: ['vigenteHasta'], message: 'Debe ser posterior a "vigente desde"' };
 
 export const esquemaCrearPauta = z
   .object({ codigo: textoRequerido(100), ...camposEditables })

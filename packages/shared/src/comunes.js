@@ -37,3 +37,15 @@ export const orden = z
 
 // `version` = actualizado_en de la fila; detecta si otra persona guardó mientras editabas.
 export const version = z.string().min(1);
+
+// Estado calculado con la misma condición de vigencia que las vistas y eco_contexto().
+export const ESTADOS_VIGENCIA = ['vigente', 'programada', 'vencida', 'inactiva'];
+
+// Si hay ambas fechas, "hasta" debe ser posterior a "desde" (CHECK en eco_pautas; en eco_reglas_bot
+// la base no lo valida, pero una regla así nunca estaría vigente).
+export const vigenciaValida = (d) =>
+  !d.vigenteDesde || !d.vigenteHasta || new Date(d.vigenteHasta) > new Date(d.vigenteDesde);
+export const errorVigencia = {
+  path: ['vigenteHasta'],
+  message: 'Debe ser posterior a "vigente desde"',
+};

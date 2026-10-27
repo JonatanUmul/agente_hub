@@ -8,7 +8,7 @@ import { Toggle } from '../../components/Toggle.jsx';
 import { fecha, porcentaje } from '../../lib/formato.js';
 import { usePermiso } from '../auth/hooks.js';
 import { useEstadoInterruptores } from '../configuracion/hooks.js';
-import { EstadoVigencia } from './EstadoVigencia.jsx';
+import { EstadoVigencia } from '../../components/EstadoVigencia.jsx';
 import { PautaForm } from './PautaForm.jsx';
 import { useCambiarActivoPauta, useCrearPauta, useEditarPauta, usePautas } from './hooks.js';
 

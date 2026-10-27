@@ -1,18 +1,12 @@
 import { aNumero } from '../../lib/numeros.js';
-
-// Misma condición de vigencia que eco_v_catalogo y eco_contexto().
-const VIGENTE = `(pa.activo AND (pa.vigente_desde IS NULL OR pa.vigente_desde <= now())
-                           AND (pa.vigente_hasta IS NULL OR pa.vigente_hasta > now()))`;
+import { estadoVigenciaSql, vigenteSql } from '../../lib/vigencia.js';
 
 const SELECT_PAUTA = `
   SELECT pa.id, pa.codigo, pa.nombre, pa.mensaje_cliente, pa.descuento_pct, pa.palabras_clave,
          pa.vigente_desde, pa.vigente_hasta, pa.activo, pa.actualizado_en, pa.actualizado_por,
          pa.actualizado_en::text AS version,
-         ${VIGENTE} AS vigente,
-         CASE WHEN NOT pa.activo THEN 'inactiva'
-              WHEN pa.vigente_desde > now() THEN 'programada'
-              WHEN pa.vigente_hasta <= now() THEN 'vencida'
-              ELSE 'vigente' END AS estado_vigencia,
+         ${vigenteSql('pa')} AS vigente,
+         ${estadoVigenciaSql('pa')} AS estado_vigencia,
          (SELECT count(*)::int FROM eco_productos p WHERE p.pauta_id = pa.id AND p.activo) AS productos_activos,
          (SELECT count(*)::int FROM eco_productos p
            WHERE p.pauta_id = pa.id AND p.activo AND p.descuento_pct > 0) AS productos_con_descuento_propio,
@@ -57,7 +51,7 @@ export async function obtenerPorId(db, id) {
 
 export async function listarResumen(db) {
   const { rows } = await db.query(
-    `SELECT pa.id, pa.codigo, pa.nombre, pa.descuento_pct, pa.activo, ${VIGENTE} AS vigente
+    `SELECT pa.id, pa.codigo, pa.nombre, pa.descuento_pct, pa.activo, ${vigenteSql('pa')} AS vigente
      FROM eco_pautas pa
      ORDER BY pa.activo DESC, pa.nombre, pa.id`,
   );

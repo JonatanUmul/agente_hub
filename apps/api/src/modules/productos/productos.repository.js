@@ -1,4 +1,5 @@
 import { aNumero } from '../../lib/numeros.js';
+import { vigenteSql } from '../../lib/vigencia.js';
 
 // descuento_vigente_pct sale de eco_v_catalogo (la misma vista que lee el bot), así no repetimos
 // su lógica. La vista solo incluye productos activos: para los inactivos llega null.
@@ -10,8 +11,7 @@ const SELECT_PRODUCTO = `
          v.descuento_vigente_pct,
          pa.id AS pauta_id, pa.codigo AS pauta_codigo, pa.nombre AS pauta_nombre,
          pa.descuento_pct AS pauta_descuento_pct,
-         (pa.activo AND (pa.vigente_desde IS NULL OR pa.vigente_desde <= now())
-                    AND (pa.vigente_hasta IS NULL OR pa.vigente_hasta > now())) AS pauta_vigente
+         ${vigenteSql('pa')} AS pauta_vigente
   FROM eco_productos p
   LEFT JOIN eco_pautas pa ON pa.id = p.pauta_id
   LEFT JOIN eco_v_catalogo v ON v.id = p.id`;

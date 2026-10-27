@@ -1,11 +1,11 @@
 import { withTransaction } from '../../db/transaction.js';
 import {
   AppError,
-  conflictoDeVersion,
   esViolacionLlaveForanea,
   esViolacionUnica,
   noEncontrado,
 } from '../../lib/app-error.js';
+import { editarConVersion } from '../../lib/edicion.js';
 import * as repo from './multimedia.repository.js';
 
 const CAMPOS_EDITABLES = [
@@ -17,9 +17,6 @@ const CAMPOS_EDITABLES = [
   'orden',
   'activo',
 ];
-
-const hayCambios = (actual, nuevo) =>
-  CAMPOS_EDITABLES.some((c) => JSON.stringify(actual[c]) !== JSON.stringify(nuevo[c]));
 
 function traducirError(error) {
   if (esViolacionUnica(error)) {
@@ -58,17 +55,13 @@ export async function crearArchivo(db, { datos, correo }) {
   }
 }
 
-// `aplicar` recibe el estado actual y devuelve el nuevo (todo el formulario o solo `activo`).
-async function editarConVersion(db, { id, version, correo, aplicar }) {
+async function editar(db, opciones) {
   try {
-    return await withTransaction(db, async (client) => {
-      const actual = await repo.obtenerEditableBloqueando(client, id);
-      if (!actual) throw noEncontrado('Archivo no encontrado');
-      if (actual.version !== version) throw conflictoDeVersion();
-
-      const nuevo = aplicar(actual);
-      if (hayCambios(actual, nuevo)) await repo.actualizar(client, id, nuevo, correo);
-      return repo.obtenerPorId(client, id);
+    return await editarConVersion(db, {
+      ...opciones,
+      repo,
+      campos: CAMPOS_EDITABLES,
+      mensajeNoEncontrado: 'Archivo no encontrado',
     });
   } catch (error) {
     throw traducirError(error);
@@ -76,7 +69,7 @@ async function editarConVersion(db, { id, version, correo, aplicar }) {
 }
 
 export const editarArchivo = (db, { id, datos, correo }) =>
-  editarConVersion(db, { id, version: datos.version, correo, aplicar: () => datos });
+  editar(db, { id, version: datos.version, correo, aplicar: () => datos });
 
 export const cambiarActivoArchivo = (db, { id, activo, version, correo }) =>
-  editarConVersion(db, { id, version, correo, aplicar: (actual) => ({ ...actual, activo }) });
+  editar(db, { id, version, correo, aplicar: (actual) => ({ ...actual, activo }) });

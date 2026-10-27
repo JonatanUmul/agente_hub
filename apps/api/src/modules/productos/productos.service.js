@@ -1,11 +1,6 @@
 import { calcularPrecioFinal } from '@ecofiltro/shared';
-import { withTransaction } from '../../db/transaction.js';
-import {
-  AppError,
-  conflictoDeVersion,
-  esViolacionLlaveForanea,
-  noEncontrado,
-} from '../../lib/app-error.js';
+import { AppError, esViolacionLlaveForanea, noEncontrado } from '../../lib/app-error.js';
+import { editarConVersion } from '../../lib/edicion.js';
 import * as repo from './productos.repository.js';
 
 const CAMPOS_EDITABLES = [
@@ -39,21 +34,15 @@ export async function obtenerProducto(db, id) {
   return conPrecioFinal(producto);
 }
 
-const hayCambios = (actual, nuevo) =>
-  CAMPOS_EDITABLES.some((campo) => JSON.stringify(actual[campo]) !== JSON.stringify(nuevo[campo]));
-
-// Reemplaza los campos editables. `version` debe coincidir con la que el usuario vio al abrir el producto.
-export async function editarProducto(db, { id, datos, correo }) {
+async function editar(db, opciones) {
   try {
-    return await withTransaction(db, async (client) => {
-      const actual = await repo.obtenerEditableBloqueando(client, id);
-      if (!actual) throw noEncontrado('Producto no encontrado');
-      if (actual.version !== datos.version) throw conflictoDeVersion();
-
-      // Guardar sin cambios no escribe: evita registros vacíos en la auditoría.
-      if (hayCambios(actual, datos)) await repo.actualizar(client, id, datos, correo);
-      return conPrecioFinal(await repo.obtenerPorId(client, id));
+    const producto = await editarConVersion(db, {
+      ...opciones,
+      repo,
+      campos: CAMPOS_EDITABLES,
+      mensajeNoEncontrado: 'Producto no encontrado',
     });
+    return conPrecioFinal(producto);
   } catch (error) {
     if (esViolacionLlaveForanea(error)) {
       throw new AppError({
@@ -66,14 +55,10 @@ export async function editarProducto(db, { id, datos, correo }) {
   }
 }
 
-// Activar / desactivar desde la tabla, sin abrir el formulario completo.
-export function cambiarActivo(db, { id, activo, version, correo }) {
-  return withTransaction(db, async (client) => {
-    const actual = await repo.obtenerEditableBloqueando(client, id);
-    if (!actual) throw noEncontrado('Producto no encontrado');
-    if (actual.version !== version) throw conflictoDeVersion();
+// Reemplaza los campos editables. `version` debe coincidir con la que el usuario vio al abrir el producto.
+export const editarProducto = (db, { id, datos, correo }) =>
+  editar(db, { id, version: datos.version, correo, aplicar: () => datos });
 
-    if (actual.activo !== activo) await repo.actualizar(client, id, { ...actual, activo }, correo);
-    return conPrecioFinal(await repo.obtenerPorId(client, id));
-  });
-}
+// Activar / desactivar desde la tabla, sin abrir el formulario completo.
+export const cambiarActivo = (db, { id, activo, version, correo }) =>
+  editar(db, { id, version, correo, aplicar: (actual) => ({ ...actual, activo }) });
