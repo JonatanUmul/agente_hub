@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { DESTINOS, ESTADOS_VIGENCIA, MODULOS } from '@ecofiltro/shared';
+import { DESTINOS, ESTADOS_VIGENCIA, MODULOS, agentesAfectados } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
 import { EnlaceHistorial } from '../../components/EnlaceHistorial.jsx';
 import { claseFiltro } from '../../components/Campo.jsx';
@@ -11,18 +11,20 @@ import { Tabla } from '../../components/Tabla.jsx';
 import { Toggle } from '../../components/Toggle.jsx';
 import { usePermiso } from '../auth/hooks.js';
 import { ReglaForm } from './ReglaForm.jsx';
+import { ResumenAgentes } from './ResumenAgentes.jsx';
 import { useCambiarActivoRegla, useCrearRegla, useEditarRegla, useReglas } from './hooks.js';
 
 const FILTROS_INICIALES = { texto: '', modulo: '', destino: '', categoria: '', estado: '' };
 
-// El filtro "módulo" muestra lo que el bot recibe en ese módulo: sus reglas + las GLOBAL.
+// Los filtros de módulo y destino pueden mostrar lo que de verdad recibe el bot:
+// un módulo + sus reglas GLOBAL; un destino + las reglas TODOS (que leen todos los agentes).
 function filtrar(reglas, f) {
   const texto = f.texto.trim().toLowerCase();
   return reglas.filter(
     (r) =>
       (!texto || [r.codigo, r.titulo, r.regla].some((v) => v.toLowerCase().includes(texto))) &&
       (!f.modulo || r.modulo === f.modulo || (r.modulo === 'GLOBAL' && f.incluirGlobales)) &&
-      (!f.destino || r.destino === f.destino) &&
+      (!f.destino || r.destino === f.destino || (r.destino === 'TODOS' && f.incluirTodos)) &&
       (!f.categoria || r.categoria === f.categoria) &&
       (!f.estado || r.estadoVigencia === f.estado),
   );
@@ -34,7 +36,11 @@ export function ReglasPage() {
   const crear = useCrearRegla();
   const editar = useEditarRegla();
   const cambiarActivo = useCambiarActivoRegla();
-  const [filtros, setFiltros] = useState({ ...FILTROS_INICIALES, incluirGlobales: true });
+  const [filtros, setFiltros] = useState({
+    ...FILTROS_INICIALES,
+    incluirGlobales: true,
+    incluirTodos: true,
+  });
   const [accion, setAccion] = useState(null); // { tipo: 'crear' | 'editar' | 'activo', regla? }
 
   const categorias = useMemo(
@@ -72,6 +78,11 @@ export function ReglasPage() {
     },
     { titulo: 'Módulo', celda: (r) => r.modulo },
     { titulo: 'Destino', celda: (r) => r.destino },
+    {
+      titulo: 'Caracteres',
+      className: 'text-right font-mono text-xs',
+      celda: (r) => r.regla.length.toLocaleString('es-GT'),
+    },
     { titulo: 'Estado', celda: (r) => <EstadoVigencia estado={r.estadoVigencia} /> },
     {
       titulo: 'Activa',
@@ -108,6 +119,20 @@ export function ReglasPage() {
         {puedeEditar && <Boton onClick={() => setAccion({ tipo: 'crear' })}>Nueva regla</Boton>}
       </div>
 
+      <div className="space-y-2">
+        <h3 className="text-sm font-medium">Qué recibe cada agente</h3>
+        <p className="text-xs text-tenue">
+          Reglas vigentes propias + las de TODOS, por módulo de conversación, y su largo total. Haz
+          clic en un agente para ver sus reglas.
+        </p>
+        <ResumenAgentes
+          reglas={reglas}
+          alElegir={(destino) =>
+            setFiltros({ ...filtros, destino, incluirTodos: true, modulo: '' })
+          }
+        />
+      </div>
+
       <div className="flex flex-wrap items-center gap-2">
         <input
           placeholder="Buscar código, título o texto"
@@ -136,6 +161,16 @@ export function ReglasPage() {
             <option key={d}>{d}</option>
           ))}
         </select>
+        {filtros.destino && filtros.destino !== 'TODOS' && (
+          <label className="flex items-center gap-1 text-sm">
+            <input
+              type="checkbox"
+              checked={filtros.incluirTodos}
+              onChange={(e) => setFiltros({ ...filtros, incluirTodos: e.target.checked })}
+            />
+            incluir TODOS (lo que recibe el agente)
+          </label>
+        )}
         <select {...filtro('categoria')}>
           <option value="">Todas las categorías</option>
           {categorias.map((c) => (
@@ -175,9 +210,21 @@ export function ReglasPage() {
         abierto={accion?.tipo === 'activo'}
         titulo={regla?.activo ? 'Desactivar regla' : 'Activar regla'}
         mensaje={
-          regla?.activo
-            ? `El bot dejará de seguir "${regla.titulo}" (${regla.modulo}) desde el siguiente mensaje.`
-            : `El bot empezará a seguir "${regla?.titulo}" (${regla?.modulo}) mientras esté dentro de su vigencia.`
+          regla && (
+            <div className="space-y-2">
+              <p>
+                {regla.activo
+                  ? `El bot dejará de seguir "${regla.titulo}" (${regla.modulo}) desde el siguiente mensaje.`
+                  : `El bot empezará a seguir "${regla.titulo}" (${regla.modulo}) mientras esté dentro de su vigencia.`}
+              </p>
+              <p className="text-tenue">Agentes afectados:</p>
+              <ul className="list-inside list-disc">
+                {agentesAfectados(regla).map((a) => (
+                  <li key={a}>{a}</li>
+                ))}
+              </ul>
+            </div>
+          )
         }
         textoConfirmar={regla?.activo ? 'Desactivar' : 'Activar'}
         peligro={regla?.activo}

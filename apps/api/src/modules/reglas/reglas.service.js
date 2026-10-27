@@ -1,3 +1,4 @@
+import { ORQUESTADOR_SOLO_GLOBAL } from '@ecofiltro/shared';
 import { withTransaction } from '../../db/transaction.js';
 import { AppError, esViolacionUnica, noEncontrado } from '../../lib/app-error.js';
 import { editarConVersion } from '../../lib/edicion.js';
@@ -27,6 +28,18 @@ function traducirError(error) {
   return error;
 }
 
+// El orquestador decide el módulo antes de conocerlo: solo lee reglas GLOBAL. Zod ya lo valida en la ruta;
+// se repite aquí para que ninguna otra vía (scripts, otra ruta) pueda guardar una combinación que el bot ignoraría.
+function verificarOrquestador(datos) {
+  if (!ORQUESTADOR_SOLO_GLOBAL(datos)) {
+    throw new AppError({
+      codigo: 'ORQUESTADOR_SOLO_GLOBAL',
+      mensaje: 'Las reglas del orquestador deben ser del módulo GLOBAL',
+      estadoHttp: 400,
+    });
+  }
+}
+
 export const listarReglas = (db) => repo.listar(db);
 
 export async function obtenerRegla(db, id) {
@@ -36,6 +49,7 @@ export async function obtenerRegla(db, id) {
 }
 
 export async function crearRegla(db, { datos, correo }) {
+  verificarOrquestador(datos);
   try {
     return await withTransaction(db, async (client) => {
       const id = await repo.insertar(client, datos, correo);
@@ -55,8 +69,10 @@ const editar = (db, opciones) =>
     mensajeNoEncontrado: 'Regla no encontrada',
   });
 
-export const editarRegla = (db, { id, datos, correo }) =>
-  editar(db, { id, version: datos.version, correo, aplicar: () => datos });
+export const editarRegla = async (db, { id, datos, correo }) => {
+  verificarOrquestador(datos);
+  return editar(db, { id, version: datos.version, correo, aplicar: () => datos });
+};
 
 export const cambiarActivoRegla = (db, { id, activo, version, correo }) =>
   editar(db, { id, version, correo, aplicar: (actual) => ({ ...actual, activo }) });

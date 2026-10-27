@@ -111,6 +111,23 @@ describe('integración: reglas', () => {
   });
 });
 
+describe('integración: destinos nuevos', () => {
+  it('acepta SELECTOR, ORQUESTADOR (GLOBAL) y VISION; rechaza ORQUESTADOR en un módulo', async () => {
+    for (const [sufijo, cambios] of [
+      ['selector', { destino: 'SELECTOR', modulo: 'SAC' }],
+      ['orquestador', { destino: 'ORQUESTADOR', modulo: 'GLOBAL' }],
+      ['vision', { destino: 'VISION' }],
+    ]) {
+      const res = await crearRegla(sufijo, cambios);
+      expect(res.statusCode).toBe(201);
+      reglaIds.push(res.json().id);
+    }
+    const mal = await crearRegla('orq-sac', { destino: 'ORQUESTADOR', modulo: 'SAC' });
+    expect(mal.statusCode).toBe(400);
+    expect(mal.json().error.detalles[0].campo).toBe('modulo');
+  });
+});
+
 describe('integración: preguntas frecuentes', () => {
   it('crea con el número sugerido y aparece en la vista del bot', async () => {
     const { numero } = (await contenido.pedir({ url: '/api/preguntas/siguiente-numero' })).json();

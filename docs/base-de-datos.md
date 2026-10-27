@@ -225,6 +225,21 @@ Por eso el script otorga `INSERT` (sin `UPDATE`/`DELETE`) y `USAGE` sobre la sec
 - **`eco_contexto()`**: solo cambia la consulta de `imagenes` de cada pauta (ahora desde la tabla nueva). Verificado:
   mismo JSON antes y después en los 5 módulos.
 
+## Destinos de reglas (docs/sql/004_destinos_reglas.sql, aplicado en producción el 27-10-2026)
+
+El bot arma en n8n (flujo CONTEXTO_NEGOCIO) el texto de cada agente con `eco_contexto(modulo)`: **las reglas de su
+destino** («Reglas de tu función») **y después las de `TODOS`** («Reglas generales de atención»), siempre `GLOBAL` + el
+módulo de la conversación.
+
+| Destino       | Agentes que lo leen                                    | Para qué sirve                                                                    |
+| ------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| `TODOS`       | Todos los agentes                                      | Reglas generales: contexto, exactitud, productos, asesor                          |
+| `ENRUTADOR`   | Analizador de ramas (COMPRA y SAC)                     | Qué ruta atiende el mensaje: tienda, detalle, FAQ, foto, video, asesor…           |
+| `SELECTOR`    | Identificador de modelo, selector de video, FAQ de SAC | Cómo identificar productos, fotos y videos del catálogo                           |
+| `REDACTOR`    | Redactor final, agente de tienda, FAQ de COMPRA        | Tono, estilo, listas, precios, cierre de mensajes                                 |
+| `ORQUESTADOR` | Orquestador central                                    | Clasifica en módulo compra, atención o distribuidor. **Solo lee reglas `GLOBAL`** |
+| `VISION`      | Análisis de fotos del cliente (en preparación)         | Cómo describir y validar una imagen                                               |
+
 ## Tablas operativas del bot
 
 No fueron inspeccionadas (no son `eco_*`). La app **no las toca** y `eco_app` no tiene permisos sobre ellas.

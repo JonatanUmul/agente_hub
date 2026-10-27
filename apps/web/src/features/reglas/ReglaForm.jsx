@@ -1,8 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { DESTINOS, MODULOS, esquemaCrearRegla, esquemaEditarRegla } from '@ecofiltro/shared';
+import {
+  DESTINOS,
+  INFO_DESTINOS,
+  MODULOS,
+  agentesAfectados,
+  esquemaCrearRegla,
+  esquemaEditarRegla,
+} from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
 import { Campo, claseControl } from '../../components/Campo.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
@@ -10,11 +17,8 @@ import { TablaCambios } from '../../components/TablaCambios.jsx';
 import { fecha } from '../../lib/formato.js';
 import { isoALocal, localAIso } from '../../lib/fechas.js';
 
-const DESCRIPCION_DESTINO = {
-  TODOS: 'todos los agentes',
-  ENRUTADOR: 'el agente que decide a qué flujo va el cliente',
-  REDACTOR: 'el agente que redacta la respuesta',
-};
+// Reglas que leen varios agentes (o el orquestador, que decide todo el flujo): cualquier cambio se confirma.
+const DESTINOS_DE_ALTO_IMPACTO = ['TODOS', 'ORQUESTADOR'];
 
 // Fechas en hora local en el formulario; se validan con el MISMO esquema de shared que usa la API.
 const desdeFormulario = (d) => ({
@@ -65,23 +69,45 @@ export function ReglaForm({ regla, categorias, mutacion, alTerminar, alCancelar 
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = useForm({ resolver: zodResolver(esquema), defaultValues: valoresIniciales(regla) });
-  const [modulo, destino] = useWatch({ control, name: ['modulo', 'destino'] });
+  const [modulo, destino, texto] = useWatch({ control, name: ['modulo', 'destino', 'regla'] });
+  const esOrquestador = destino === 'ORQUESTADOR';
+
+  // El orquestador solo lee reglas GLOBAL: al elegirlo, el módulo se fija (la API también lo valida).
+  useEffect(() => {
+    if (esOrquestador && modulo !== 'GLOBAL')
+      setValue('modulo', 'GLOBAL', { shouldValidate: true });
+  }, [esOrquestador, modulo, setValue]);
 
   const guardar = (datos) =>
     mutacion.mutate(editando ? { id: regla.id, ...datos } : datos, { onSuccess: alTerminar });
   const enviar = (datos) => {
     const cambios = editando ? cambiosSensibles(regla, datos) : [];
-    if (cambios.length > 0) setPorConfirmar({ datos, cambios });
-    else guardar(datos);
+    const altoImpacto =
+      editando && [regla.destino, datos.destino].some((d) => DESTINOS_DE_ALTO_IMPACTO.includes(d));
+    if (cambios.length > 0 || altoImpacto) {
+      const agentes = [
+        ...new Set([...agentesAfectados(regla ?? datos), ...agentesAfectados(datos)]),
+      ];
+      setPorConfirmar({ datos, cambios, agentes });
+    } else guardar(datos);
   };
 
   if (porConfirmar) {
     return (
       <div className="space-y-4 text-sm">
-        <p>Estos cambios aplican en el siguiente mensaje de cada cliente:</p>
-        <TablaCambios cambios={porConfirmar.cambios} />
+        <p>Estos cambios aplican en el siguiente mensaje de cada cliente.</p>
+        {porConfirmar.cambios.length > 0 && <TablaCambios cambios={porConfirmar.cambios} />}
+        <div className="rounded-md border border-alerta/30 bg-alerta/10 px-3 py-2">
+          <p className="mb-1 font-medium text-alerta">Agentes afectados</p>
+          <ul className="list-inside list-disc text-texto">
+            {porConfirmar.agentes.map((a) => (
+              <li key={a}>{a}</li>
+            ))}
+          </ul>
+        </div>
         <MensajeError error={mutacion.error} />
         <div className="flex justify-end gap-2">
           <Boton variante="secundario" onClick={() => setPorConfirmar(null)}>
@@ -115,20 +141,51 @@ export function ReglaForm({ regla, categorias, mutacion, alTerminar, alCancelar 
       >
         <input className={claseControl} {...register('titulo')} />
       </Campo>
-      <div className="grid grid-cols-3 gap-4">
-        <Campo etiqueta="Módulo" error={errors.modulo}>
-          <select className={claseControl} {...register('modulo')}>
-            {MODULOS.map((m) => (
-              <option key={m}>{m}</option>
-            ))}
-          </select>
-        </Campo>
-        <Campo etiqueta="Destino" error={errors.destino}>
-          <select className={claseControl} {...register('destino')}>
-            {DESTINOS.map((d) => (
-              <option key={d}>{d}</option>
-            ))}
-          </select>
+      <fieldset>
+        <legend className="mb-1.5 text-xs font-medium text-tenue">
+          Destino: qué agentes la leen
+        </legend>
+        <div className="divide-y divide-borde rounded-md border border-borde-fuerte">
+          {DESTINOS.map((d) => (
+            <label
+              key={d}
+              className={`flex cursor-pointer items-start gap-3 px-3 py-2 ${destino === d ? 'bg-acento/10' : 'hover:bg-panel-2'}`}
+            >
+              <input type="radio" value={d} className="mt-1" {...register('destino')} />
+              <span className="min-w-0">
+                <span className="font-mono text-xs font-medium">{d}</span>
+                <span className="text-sm"> · {INFO_DESTINOS[d].agentes}</span>
+                <span className="block text-xs text-tenue">{INFO_DESTINOS[d].para}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+        {errors.destino && (
+          <span className="mt-1 block text-xs text-peligro">{errors.destino.message}</span>
+        )}
+      </fieldset>
+      <div className="grid grid-cols-2 gap-4">
+        <Campo
+          etiqueta="Módulo"
+          error={errors.modulo}
+          ayuda={
+            esOrquestador
+              ? 'Fijo en GLOBAL: el orquestador decide el módulo antes de conocerlo.'
+              : modulo === 'GLOBAL'
+                ? 'Aplica en todos los módulos'
+                : `Aplica solo en conversaciones de ${modulo}`
+          }
+        >
+          {/* Con ORQUESTADOR se muestra fijo (un <select disabled> no se enviaría): el valor ya es GLOBAL. */}
+          {esOrquestador ? (
+            <div className={`${claseControl} cursor-not-allowed text-tenue`}>GLOBAL</div>
+          ) : (
+            <select className={claseControl} {...register('modulo')}>
+              {MODULOS.map((m) => (
+                <option key={m}>{m}</option>
+              ))}
+            </select>
+          )}
         </Campo>
         <Campo etiqueta="Prioridad" error={errors.prioridad} ayuda="Menor = primero">
           <input
@@ -139,10 +196,6 @@ export function ReglaForm({ regla, categorias, mutacion, alTerminar, alCancelar 
           />
         </Campo>
       </div>
-      <p className="text-xs text-tenue">
-        {modulo === 'GLOBAL' ? 'Aplica en todos los módulos' : `Aplica solo en el módulo ${modulo}`}
-        , para {DESCRIPCION_DESTINO[destino]}.
-      </p>
       <Campo etiqueta="Categoría" error={errors.categoria} ayuda="Elige una existente para agrupar">
         <input list="categorias-reglas" className={claseControl} {...register('categoria')} />
         <datalist id="categorias-reglas">
@@ -151,7 +204,11 @@ export function ReglaForm({ regla, categorias, mutacion, alTerminar, alCancelar 
           ))}
         </datalist>
       </Campo>
-      <Campo etiqueta="Regla" error={errors.regla} ayuda="Texto exacto que recibe el bot">
+      <Campo
+        etiqueta="Regla"
+        error={errors.regla}
+        ayuda={`Texto exacto que recibe el bot · ${(texto ?? '').length.toLocaleString('es-GT')} caracteres`}
+      >
         <textarea rows={6} className={`${claseControl} font-mono text-sm`} {...register('regla')} />
       </Campo>
       <div className="grid grid-cols-2 gap-4">

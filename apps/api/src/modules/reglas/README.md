@@ -13,7 +13,9 @@ Instrucciones que el bot recibe en `eco_contexto()` (`eco_reglas_bot`).
   - `eco_contexto(modulo)` incluye las `GLOBAL` + las del módulo pedido (`contextosDeRegla` en `@ecofiltro/shared`,
     verificado contra la función).
   - Entrega `codigo`, `destino`, `categoria` y `regla`. **El `titulo` no llega al bot**: es solo para identificarla aquí.
-  - `destino` indica qué agente de n8n la usa (`ENRUTADOR`, `REDACTOR` o `TODOS`).
+  - `destino` indica qué agentes de n8n la usan (`TODOS`, `ENRUTADOR`, `SELECTOR`, `REDACTOR`, `ORQUESTADOR`, `VISION`;
+    ver `INFO_DESTINOS` en `@ecofiltro/shared`). Cada agente recibe las de su destino y después las de `TODOS`.
+  - `ORQUESTADOR` solo puede ser `GLOBAL` (Zod y el service; el orquestador decide el módulo antes de conocerlo).
 - **Reglas de la app:**
   - El código no se cambia después de crear. No se borran reglas: se desactivan (con confirmación).
   - "Hasta" posterior a "desde": la base no lo valida en esta tabla, la app sí.

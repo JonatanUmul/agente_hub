@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as repo from './reglas.repository.js';
-import { cambiarActivoRegla, crearRegla } from './reglas.service.js';
+import { cambiarActivoRegla, crearRegla, editarRegla } from './reglas.service.js';
 
 vi.mock('./reglas.repository.js');
 
@@ -45,6 +45,24 @@ describe('reglas', () => {
   it('desactivar una regla ya inactiva no escribe', async () => {
     repo.obtenerEditableBloqueando.mockResolvedValue({ ...editable, activo: false });
     await cambiarActivoRegla(db, { id: 1, activo: false, version: 'v1', correo: 'c@e.com' });
+    expect(repo.actualizar).not.toHaveBeenCalled();
+  });
+
+  it('el service rechaza ORQUESTADOR fuera de GLOBAL aunque llegue sin pasar por Zod', async () => {
+    await expect(
+      crearRegla(db, {
+        datos: { ...editable, destino: 'ORQUESTADOR', modulo: 'SAC' },
+        correo: 'c@e.com',
+      }),
+    ).rejects.toMatchObject({ codigo: 'ORQUESTADOR_SOLO_GLOBAL', estadoHttp: 400 });
+    await expect(
+      editarRegla(db, {
+        id: 1,
+        datos: { ...editable, destino: 'ORQUESTADOR', modulo: 'COMPRA' },
+        correo: 'c@e.com',
+      }),
+    ).rejects.toMatchObject({ codigo: 'ORQUESTADOR_SOLO_GLOBAL' });
+    expect(repo.insertar).not.toHaveBeenCalled();
     expect(repo.actualizar).not.toHaveBeenCalled();
   });
 });

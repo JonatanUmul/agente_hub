@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { esquemaCrearPregunta } from './preguntas.js';
-import { contextosDeRegla, esquemaCrearRegla } from './reglas.js';
+import {
+  agentesAfectados,
+  contextosDeRegla,
+  esquemaCrearRegla,
+  resumenPorAgente,
+} from './reglas.js';
 
 const regla = {
   codigo: 'R1',
@@ -68,5 +73,78 @@ describe('esquemaCrearPregunta', () => {
       .repeat(3)
       .slice(0, 157);
     expect(esquemaCrearPregunta.safeParse({ ...pregunta, tema }).success).toBe(true);
+  });
+});
+
+describe('destinos nuevos', () => {
+  it('acepta SELECTOR y VISION en cualquier módulo', () => {
+    expect(
+      esquemaCrearRegla.safeParse({ ...regla, destino: 'SELECTOR', modulo: 'SAC' }).success,
+    ).toBe(true);
+    expect(esquemaCrearRegla.safeParse({ ...regla, destino: 'VISION' }).success).toBe(true);
+  });
+
+  it('ORQUESTADOR solo en GLOBAL', () => {
+    const r = esquemaCrearRegla.safeParse({ ...regla, destino: 'ORQUESTADOR', modulo: 'SAC' });
+    expect(r.success).toBe(false);
+    expect(r.error.issues[0].path).toEqual(['modulo']);
+    expect(
+      esquemaCrearRegla.safeParse({ ...regla, destino: 'ORQUESTADOR', modulo: 'GLOBAL' }).success,
+    ).toBe(true);
+  });
+
+  it('una regla TODOS afecta a todos los agentes; una propia, solo a los suyos', () => {
+    expect(agentesAfectados({ destino: 'TODOS' })).toHaveLength(5);
+    expect(agentesAfectados({ destino: 'ORQUESTADOR' })).toEqual(['Orquestador central']);
+  });
+});
+
+describe('resumenPorAgente', () => {
+  const r = (destino, modulo, largo, vigente = true) => ({
+    destino,
+    modulo,
+    regla: 'x'.repeat(largo),
+    vigente,
+  });
+  const fila = (resumen, destino, modulo) =>
+    resumen.find((f) => f.destino === destino && f.modulo === modulo);
+
+  it('suma propias + TODOS de GLOBAL y del módulo; ignora otros módulos y no vigentes', () => {
+    const resumen = resumenPorAgente([
+      r('REDACTOR', 'GLOBAL', 100),
+      r('REDACTOR', 'COMPRA', 50),
+      r('REDACTOR', 'SAC', 999), // otro módulo
+      r('TODOS', 'GLOBAL', 10),
+      r('TODOS', 'COMPRA', 5),
+      r('REDACTOR', 'GLOBAL', 7777, false), // no vigente
+    ]);
+    expect(fila(resumen, 'REDACTOR', 'COMPRA')).toMatchObject({
+      propias: 2,
+      generales: 2,
+      caracteres: 165,
+    });
+  });
+
+  it('el orquestador solo recibe GLOBAL (una sola fila)', () => {
+    const resumen = resumenPorAgente([
+      r('ORQUESTADOR', 'GLOBAL', 10),
+      r('TODOS', 'SAC', 50),
+      r('TODOS', 'GLOBAL', 5),
+    ]);
+    expect(resumen.filter((f) => f.destino === 'ORQUESTADOR')).toEqual([
+      expect.objectContaining({ modulo: 'GLOBAL', propias: 1, generales: 1, caracteres: 15 }),
+    ]);
+  });
+
+  it('advierte sin reglas propias y al pasar de 12 000 caracteres', () => {
+    const resumen = resumenPorAgente([
+      r('SELECTOR', 'GLOBAL', 11_000),
+      r('TODOS', 'GLOBAL', 1_500),
+    ]);
+    expect(fila(resumen, 'SELECTOR', 'SAC')).toMatchObject({
+      excedeLimite: true,
+      sinPropias: false,
+    });
+    expect(fila(resumen, 'VISION', 'SAC')).toMatchObject({ sinPropias: true });
   });
 });
