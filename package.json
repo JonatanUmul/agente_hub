@@ -18,7 +18,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "migrar": "npm run migrar -w @ecofiltro/api --",
-    "crear-admin": "npm run crear-admin -w @ecofiltro/api"
+    "crear-admin": "npm run crear-admin -w @ecofiltro/api",
+    "dev:api:produccion": "npm run dev:produccion -w @ecofiltro/api"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

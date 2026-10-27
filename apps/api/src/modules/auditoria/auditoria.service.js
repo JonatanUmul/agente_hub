@@ -30,16 +30,18 @@ export function calcularEtiqueta({ antes, despues }) {
   return fila.codigo && texto ? `${texto} (${fila.codigo})` : (texto ?? fila.codigo ?? null);
 }
 
-// La app siempre llena actualizado_por, así que solo cuando el cambio lo hizo eco_app ese campo dice
-// quién fue. Si lo hizo otro rol (psql, n8n…), actualizado_por puede ser de una edición anterior:
-// no se lo atribuimos a nadie y se marca como cambio directo.
-export function atribuir({ usuarioDb, antes, despues }) {
-  if (usuarioDb !== 'eco_app') return { origen: 'directo', usuarioApp: null };
+// La app siempre llena actualizado_por, así que solo cuando el cambio lo hizo el rol de la app
+// (`rolApp` = DB_USER, normalmente eco_app) ese campo dice quién fue. Si lo hizo otro rol (psql, n8n…),
+// actualizado_por puede ser de una edición anterior: no se lo atribuimos a nadie y se marca como directo.
+// ⚠ Si la app comparte su rol con personas que también entran por psql, sus cambios se atribuirían mal:
+// por eso la app debe tener su propio rol.
+export function atribuir({ usuarioDb, antes, despues }, rolApp) {
+  if (usuarioDb !== rolApp) return { origen: 'directo', usuarioApp: null };
   return { origen: 'app', usuarioApp: despues?.actualizado_por ?? antes?.actualizado_por ?? null };
 }
 
-export async function buscarHistorial(db, filtros) {
-  const filas = await repo.buscar(db, filtros, Object.keys(TABLAS_AUDITADAS));
+export async function buscarHistorial(db, filtros, rolApp) {
+  const filas = await repo.buscar(db, filtros, Object.keys(TABLAS_AUDITADAS), rolApp);
   const hayMas = filas.length > filtros.limite;
   const pagina = hayMas ? filas.slice(0, filtros.limite) : filas;
 
@@ -50,7 +52,7 @@ export async function buscarHistorial(db, filtros) {
       operacion: fila.operacion,
       registroId: fila.registroId,
       etiqueta: calcularEtiqueta(fila),
-      ...atribuir(fila),
+      ...atribuir(fila, rolApp),
       usuarioDb: fila.usuarioDb,
       creadoEn: fila.creadoEn,
       cambios: calcularCambios(fila),

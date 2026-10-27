@@ -5,6 +5,6 @@ export async function rutasAuditoria(app) {
   app.get(
     '/auditoria',
     { schema: { querystring: esquemaFiltrosAuditoria, response: { 200: esquemaPaginaAuditoria } } },
-    (request) => servicio.buscarHistorial(app.db, request.query),
+    (request) => servicio.buscarHistorial(app.db, request.query, app.config.DB_USER),
   );
 }

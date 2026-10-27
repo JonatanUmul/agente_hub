@@ -172,3 +172,26 @@ Los logs no contienen contraseñas, cookies ni tokens (se redactan).
 - [ ] Respaldo de `gestion` programado en cron.
 - [ ] Recomendado (administrador de la base): revocar el privilegio por defecto de `ecofiltro_admin` sobre `eco_app` y
       crear índices en `eco_auditoria` (ver `docs/base-de-datos.md`).
+
+## Modo temporal: la app conectada con un superusuario
+
+Mientras no se apliquen los permisos de `eco_app`, la app puede conectarse con un superusuario (`DB_USER`).
+Funciona, pero:
+
+- **Riesgo:** un error o un acceso indebido a la app tiene control total de la base del bot.
+- **Historial:** los cambios hechos con ese mismo usuario desde psql se atribuirían a la última persona que editó
+  el registro en la app. Evita usar ese usuario fuera de la app mientras dure este modo.
+- Las migraciones crean el esquema `gestion` y sus tablas **como propiedad de ese superusuario**.
+
+**Para pasar a `eco_app` después** (como superusuario):
+
+```sql
+\i docs/sql/crear_rol_eco_app.sql
+ALTER SCHEMA gestion OWNER TO eco_app;
+ALTER TABLE gestion.usuarios OWNER TO eco_app;
+ALTER TABLE gestion.sesiones OWNER TO eco_app;
+ALTER TABLE gestion.migraciones OWNER TO eco_app;
+```
+
+Luego cambiar `DB_USER` / `DB_PASSWORD` a `eco_app` en `.env`, reiniciar la app y correr `verificar-datos.js`.
+Las secuencias de las columnas identity cambian de dueño junto con su tabla.

@@ -57,18 +57,28 @@ describe('calcularEtiqueta', () => {
 
 describe('atribuir', () => {
   it('cambio de la app → la persona de actualizado_por', () => {
-    expect(atribuir({ usuarioDb: 'eco_app', despues: { actualizado_por: 'ana@e.com' } })).toEqual({
+    expect(
+      atribuir({ usuarioDb: 'eco_app', despues: { actualizado_por: 'ana@e.com' } }, 'eco_app'),
+    ).toEqual({
       origen: 'app',
       usuarioApp: 'ana@e.com',
     });
   });
   it('cambio directo → no se atribuye aunque actualizado_por tenga un correo', () => {
-    expect(atribuir({ usuarioDb: 'eco_admin', despues: { actualizado_por: 'ana@e.com' } })).toEqual(
-      {
-        origen: 'directo',
-        usuarioApp: null,
-      },
-    );
+    expect(
+      atribuir({ usuarioDb: 'eco_admin', despues: { actualizado_por: 'ana@e.com' } }, 'eco_app'),
+    ).toEqual({ origen: 'directo', usuarioApp: null });
+  });
+});
+
+describe('atribuir con otro rol de la app', () => {
+  it('si la app se conecta con otro usuario, sus cambios se atribuyen igual', () => {
+    expect(
+      atribuir(
+        { usuarioDb: 'superadmin', despues: { actualizado_por: 'ana@e.com' } },
+        'superadmin',
+      ),
+    ).toMatchObject({ origen: 'app', usuarioApp: 'ana@e.com' });
   });
 });
 
@@ -86,13 +96,13 @@ describe('buscarHistorial', () => {
 
   it('pide uno de más y devuelve el cursor de la página siguiente', async () => {
     repo.buscar.mockResolvedValue([fila(30), fila(20), fila(10)]);
-    const r = await buscarHistorial({}, { limite: 2 });
+    const r = await buscarHistorial({}, { limite: 2 }, 'eco_app');
     expect(r.entradas.map((e) => e.id)).toEqual([30, 20]);
     expect(r.siguiente).toBe(20);
   });
 
   it('sin más registros, siguiente es null', async () => {
     repo.buscar.mockResolvedValue([fila(30)]);
-    expect((await buscarHistorial({}, { limite: 2 })).siguiente).toBeNull();
+    expect((await buscarHistorial({}, { limite: 2 }, 'eco_app')).siguiente).toBeNull();
   });
 });

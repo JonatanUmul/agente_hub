@@ -10,7 +10,11 @@
     "crear-admin": "node --env-file=../../.env scripts/crear-admin.js",
     "test": "vitest run",
     "test:integracion": "node --env-file=../../.env ../../node_modules/vitest/vitest.mjs run --config vitest.integracion.config.js",
-    "verificar-datos": "node --env-file=../../.env scripts/verificar-datos.js"
+    "verificar-datos": "node --env-file=../../.env scripts/verificar-datos.js",
+    "dev:produccion": "node --env-file=../../.env.produccion-tunel src/server.js",
+    "migrar:produccion": "node --env-file=../../.env.produccion-tunel scripts/migrar.js",
+    "crear-admin:produccion": "node --env-file=../../.env.produccion-tunel scripts/crear-admin.js",
+    "verificar-datos:produccion": "node --env-file=../../.env.produccion-tunel scripts/verificar-datos.js"
   },
   "dependencies": {
     "@ecofiltro/shared": "^0.0.0",
