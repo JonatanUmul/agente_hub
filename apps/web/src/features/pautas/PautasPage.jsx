@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Boton } from '../../components/Boton.jsx';
+import { EnlaceHistorial } from '../../components/EnlaceHistorial.jsx';
 import { ConfirmarModal } from '../../components/ConfirmarModal.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
 import { Modal } from '../../components/Modal.jsx';
@@ -70,19 +71,20 @@ export function PautasPage() {
         />
       ),
     },
-    ...(puedeEditar
-      ? [
-          {
-            titulo: '',
-            className: 'text-right',
-            celda: (p) => (
-              <Boton variante="enlace" onClick={() => setAccion({ tipo: 'editar', pauta: p })}>
-                Editar
-              </Boton>
-            ),
-          },
-        ]
-      : []),
+    {
+      titulo: '',
+      className: 'text-right whitespace-nowrap',
+      celda: (p) => (
+        <div className="flex justify-end gap-3">
+          <EnlaceHistorial tabla="eco_pautas" registroId={p.id} />
+          {puedeEditar && (
+            <Boton variante="enlace" onClick={() => setAccion({ tipo: 'editar', pauta: p })}>
+              Editar
+            </Boton>
+          )}
+        </div>
+      ),
+    },
   ];
 
   const pauta = accion?.pauta;

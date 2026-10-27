@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ConfirmarModal } from '../../components/ConfirmarModal.jsx';
+import { EnlaceHistorial } from '../../components/EnlaceHistorial.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
 import { Toggle } from '../../components/Toggle.jsx';
 import { fecha } from '../../lib/formato.js';
@@ -59,7 +60,8 @@ export function InterruptoresPage() {
             <p className="text-sm text-slate-600">{i.descripcion}</p>
             <p className="mt-1 text-xs text-slate-500">
               Último cambio: {fecha(i.actualizadoEn)}{' '}
-              {i.actualizadoPor && `por ${i.actualizadoPor}`}
+              {i.actualizadoPor && `por ${i.actualizadoPor}`} ·{' '}
+              <EnlaceHistorial tabla="eco_configuracion" registroId={i.clave} />
             </p>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { MODULOS } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
+import { EnlaceHistorial } from '../../components/EnlaceHistorial.jsx';
 import { claseFiltro } from '../../components/Campo.jsx';
 import { ConfirmarModal } from '../../components/ConfirmarModal.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
@@ -85,19 +86,20 @@ export function PreguntasPage() {
         />
       ),
     },
-    ...(puedeEditar
-      ? [
-          {
-            titulo: '',
-            className: 'text-right',
-            celda: (p) => (
-              <Boton variante="enlace" onClick={() => setAccion({ tipo: 'editar', pregunta: p })}>
-                Editar
-              </Boton>
-            ),
-          },
-        ]
-      : []),
+    {
+      titulo: '',
+      className: 'text-right whitespace-nowrap',
+      celda: (p) => (
+        <div className="flex justify-end gap-3">
+          <EnlaceHistorial tabla="eco_preguntas_frecuentes" registroId={p.numero} />
+          {puedeEditar && (
+            <Boton variante="enlace" onClick={() => setAccion({ tipo: 'editar', pregunta: p })}>
+              Editar
+            </Boton>
+          )}
+        </div>
+      ),
+    },
   ];
 
   const pregunta = accion?.pregunta;

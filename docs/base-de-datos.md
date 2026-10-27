@@ -200,6 +200,10 @@ Por eso el script otorga `INSERT` (sin `UPDATE`/`DELETE`) y `USAGE` sobre la sec
   `codigo`, `destino`, `categoria` y `regla`; el `titulo` no llega al bot. Replicado en `contextosDeRegla()`.
 - **Preguntas frecuentes:** no forman parte de `eco_contexto()`; el bot las lee de `eco_v_preguntas_frecuentes`.
 
+- **Índices de `eco_auditoria`:** solo tiene la llave primaria. El historial de la app filtra por tabla, registro y
+  fecha; si la tabla crece mucho, conviene que el administrador cree (fuera de la app) índices en
+  `(tabla, registro_id)` y en `creado_en`.
+
 ## Tablas operativas del bot
 
 No fueron inspeccionadas (no son `eco_*`). La app **no las toca** y `eco_app` no tiene permisos sobre ellas.

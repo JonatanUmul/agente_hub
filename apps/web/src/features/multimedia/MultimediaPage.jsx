@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { TIPOS_MULTIMEDIA, comoLoVeElBot } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
+import { EnlaceHistorial } from '../../components/EnlaceHistorial.jsx';
 import { claseFiltro } from '../../components/Campo.jsx';
 import { ConfirmarModal } from '../../components/ConfirmarModal.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
@@ -115,19 +116,20 @@ export function MultimediaPage() {
         />
       ),
     },
-    ...(puedeEditar
-      ? [
-          {
-            titulo: '',
-            className: 'text-right',
-            celda: (a) => (
-              <Boton variante="enlace" onClick={() => setAccion({ tipo: 'editar', archivo: a })}>
-                Editar
-              </Boton>
-            ),
-          },
-        ]
-      : []),
+    {
+      titulo: '',
+      className: 'text-right whitespace-nowrap',
+      celda: (a) => (
+        <div className="flex justify-end gap-3">
+          <EnlaceHistorial tabla="eco_multimedia" registroId={a.id} />
+          {puedeEditar && (
+            <Boton variante="enlace" onClick={() => setAccion({ tipo: 'editar', archivo: a })}>
+              Editar
+            </Boton>
+          )}
+        </div>
+      ),
+    },
   ];
 
   const archivo = accion?.archivo;

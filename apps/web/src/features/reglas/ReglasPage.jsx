@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { DESTINOS, ESTADOS_VIGENCIA, MODULOS } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
+import { EnlaceHistorial } from '../../components/EnlaceHistorial.jsx';
 import { claseFiltro } from '../../components/Campo.jsx';
 import { ConfirmarModal } from '../../components/ConfirmarModal.jsx';
 import { EstadoVigencia } from '../../components/EstadoVigencia.jsx';
@@ -83,19 +84,20 @@ export function ReglasPage() {
         />
       ),
     },
-    ...(puedeEditar
-      ? [
-          {
-            titulo: '',
-            className: 'text-right',
-            celda: (r) => (
-              <Boton variante="enlace" onClick={() => setAccion({ tipo: 'editar', regla: r })}>
-                Editar
-              </Boton>
-            ),
-          },
-        ]
-      : []),
+    {
+      titulo: '',
+      className: 'text-right whitespace-nowrap',
+      celda: (r) => (
+        <div className="flex justify-end gap-3">
+          <EnlaceHistorial tabla="eco_reglas_bot" registroId={r.id} />
+          {puedeEditar && (
+            <Boton variante="enlace" onClick={() => setAccion({ tipo: 'editar', regla: r })}>
+              Editar
+            </Boton>
+          )}
+        </div>
+      ),
+    },
   ];
 
   const regla = accion?.regla;

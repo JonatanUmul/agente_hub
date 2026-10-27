@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ESTADOS_PRODUCTO, TIPOS_PRODUCTO } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
+import { EnlaceHistorial } from '../../components/EnlaceHistorial.jsx';
 import { BotonCopiar } from '../../components/BotonCopiar.jsx';
 import { claseFiltro } from '../../components/Campo.jsx';
 import { ConfirmarModal } from '../../components/ConfirmarModal.jsx';
@@ -104,19 +105,20 @@ export function ProductosPage() {
         />
       ),
     },
-    ...(puedeEditar
-      ? [
-          {
-            titulo: '',
-            className: 'text-right',
-            celda: (p) => (
-              <Boton variante="enlace" onClick={() => setAccion({ tipo: 'editar', producto: p })}>
-                Editar
-              </Boton>
-            ),
-          },
-        ]
-      : []),
+    {
+      titulo: '',
+      className: 'text-right whitespace-nowrap',
+      celda: (p) => (
+        <div className="flex justify-end gap-3">
+          <EnlaceHistorial tabla="eco_productos" registroId={p.id} />
+          {puedeEditar && (
+            <Boton variante="enlace" onClick={() => setAccion({ tipo: 'editar', producto: p })}>
+              Editar
+            </Boton>
+          )}
+        </div>
+      ),
+    },
   ];
 
   const producto = accion?.producto;
