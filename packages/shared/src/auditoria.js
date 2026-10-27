@@ -9,6 +9,9 @@ export const TABLAS_AUDITADAS = {
   eco_multimedia: 'Multimedia',
   eco_reglas_bot: 'Reglas del bot',
   eco_preguntas_frecuentes: 'Preguntas frecuentes',
+  eco_productos_pautas: 'Pautas de productos',
+  eco_agentes_horario: 'Horarios de agentes',
+  eco_agentes_descanso: 'Descansos de agentes',
 };
 const nombresTablas = Object.keys(TABLAS_AUDITADAS);
 

@@ -16,15 +16,16 @@ export const esquemaProducto = z.object({
   estado: z.enum(ESTADOS_PRODUCTO),
   precioBase: z.number().nullable(),
   descuentoPct: z.number(),
-  pauta: z
-    .object({
+  // Pautas asociadas (puede haber varias). `vigente` = activa y dentro de sus fechas.
+  pautas: z.array(
+    z.object({
       id: z.number().int(),
       codigo: z.string(),
       nombre: z.string(),
       descuentoPct: z.number().nullable(),
       vigente: z.boolean(),
-    })
-    .nullable(),
+    }),
+  ),
   // Descuento que aplica hoy según eco_v_catalogo; null si el producto está inactivo (el bot no lo ve).
   descuentoVigentePct: z.number().nullable(),
   precioFinal: z.number().nullable(),
@@ -49,7 +50,11 @@ export const esquemaEditarProducto = z.object({
   estado: z.enum(ESTADOS_PRODUCTO),
   colores: listaDeTextos,
   palabrasClave: listaDeTextos,
-  pautaId: z.number().int().positive().nullable(),
+  // Sin repetidos y ordenadas, para comparar sin importar el orden en que se marcaron.
+  pautaIds: z
+    .array(z.number().int().positive())
+    .max(50)
+    .transform((ids) => [...new Set(ids)].sort((a, b) => a - b)),
   orden,
   activo: z.boolean(),
   version,

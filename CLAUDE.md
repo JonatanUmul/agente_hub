@@ -88,6 +88,11 @@ Los métodos que modifican exigen la cabecera `x-csrf-token` (el cliente web la 
 - `eco_productos.codigo` es el **ItemCode** (uso interno: órdenes de venta, facturas). En la UI se llama "ItemCode".
 - Historial (`eco_auditoria`): un cambio se atribuye a una persona (`actualizado_por`) **solo si `usuario_db = eco_app`**;
   si no, es "cambio directo en la base" (actualizado_por puede ser de una edición anterior).
+- Cambios de estructura en la base del bot: scripts numerados en `docs/sql/00N_*.sql` (idempotentes, `SET LOCAL ROLE
+eco_admin`), probados en una base desechable igual a producción, y replicados en `docker/postgres/init/`. Los
+  aplica una persona en producción; la app nunca altera estructuras por su cuenta.
+- Producto ↔ pautas: `eco_productos_pautas` (varias por producto). Horarios: `eco_agentes_horario` /
+  `eco_agentes_descanso` + `eco_agente_en_horario()`; `hubspot_agentes` es de n8n y la app solo la lee.
 - Solo `precios_habilitados` y `promociones_habilitadas` son editables en `eco_configuracion`; las demás claves son de n8n.
 - Preferir desactivar (`activo = false`) antes que borrar.
 - No tocar tablas operativas del bot (`eventos`, `work`, `hubspot_*`, `*_locks`, `chat_asignados`, `menu*`...).

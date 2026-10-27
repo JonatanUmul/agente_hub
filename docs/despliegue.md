@@ -37,6 +37,14 @@ psql -X -c "SELECT has_table_privilege('eco_app', 'eco_productos', 'UPDATE'), ha
 #  t | f
 ```
 
+### 1b. Cambios de estructura de la app (una sola vez, en orden)
+
+```bash
+psql -X -f docs/sql/002_pautas_multiples_y_horarios.sql   # varias pautas por producto + horarios de agentes
+```
+
+Idempotente. Después de aplicarlo, actualizar los flujos de n8n que usen horarios (ver `prompt_claude_desktop_n8n.md`).
+
 ## 2. Datos del servidor
 
 En el servidor, identificar la red de Docker y el contenedor de PostgreSQL:

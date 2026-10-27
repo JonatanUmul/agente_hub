@@ -5,6 +5,7 @@ import pluginDb from './plugins/db.js';
 import pluginErrores from './plugins/errores.js';
 import pluginRateLimit from './plugins/rate-limit.js';
 import pluginSeguridad from './plugins/seguridad.js';
+import moduloAgentes from './modules/agentes/index.js';
 import moduloAuditoria from './modules/auditoria/index.js';
 import moduloAuth from './modules/auth/index.js';
 import moduloConfiguracion from './modules/configuracion/index.js';
@@ -60,6 +61,7 @@ export async function crearApp({ config, pool, logger = true, registrar }) {
       await api.register(moduloPreguntas);
       await api.register(moduloAuditoria);
       await api.register(moduloContexto);
+      await api.register(moduloAgentes);
       if (registrar) await api.register(registrar);
     },
     { prefix: '/api' },

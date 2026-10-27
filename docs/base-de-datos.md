@@ -149,8 +149,7 @@ Cada una de las 6 tablas tiene dos:
 - **`eco_v_catalogo`**: productos `activo` con `descuento_vigente_pct`:
   - sin pauta → `descuento_pct` del producto;
   - con pauta activa y vigente → `GREATEST(descuento_pct, pauta.descuento_pct)`;
-  - con pauta **inactiva o vencida → 0**. ⚠ El producto pierde también su propio descuento mientras siga asociado
-    a una pauta vencida. La app debe advertirlo.
+  - con pauta **inactiva o vencida → 0** (regla original; cambiada por docs/sql/002, ver abajo).
 - **`eco_v_reglas_activas`**: reglas activas y dentro de vigencia, ordenadas por `prioridad, id`.
 - **`eco_v_preguntas_frecuentes`**: preguntas activas, ordenadas por `orden, numero`.
 - **`eco_contexto(p_modulo text DEFAULT 'GLOBAL') → jsonb`** (`STABLE`, no `SECURITY DEFINER`): devuelve
@@ -203,6 +202,21 @@ Por eso el script otorga `INSERT` (sin `UPDATE`/`DELETE`) y `USAGE` sobre la sec
 - **Índices de `eco_auditoria`:** solo tiene la llave primaria. El historial de la app filtra por tabla, registro y
   fecha; si la tabla crece mucho, conviene que el administrador cree (fuera de la app) índices en
   `(tabla, registro_id)` y en `creado_en`.
+
+## Cambios aplicados por la app (docs/sql/002_pautas_multiples_y_horarios.sql)
+
+- **`eco_productos_pautas`** (`producto_id`, `pauta_id`, PK compuesta): un producto puede tener varias pautas.
+  `eco_productos.pauta_id` se conserva por compatibilidad (la app guarda ahí la primera pauta), pero la fuente de
+  verdad es la tabla nueva.
+- **`eco_v_catalogo`** (misma forma): `descuento_vigente_pct` = el mayor entre el descuento propio y el de las pautas
+  **vigentes**. Las pautas vencidas o inactivas ya no anulan el descuento propio. `pauta_nombre` = la pauta vigente
+  de mayor descuento.
+- **`eco_agentes_horario`** (`agente_id`, `dia_semana` ISO 1–7, `hora_inicio`, `hora_fin` exclusiva, `24:00` = fin
+  del día) y **`eco_agentes_descanso`** (`agente_id`, `desde`, `hasta`, `motivo`). `agente_id` = `hubspot_agentes.id`
+  sin llave foránea (n8n sincroniza esa tabla).
+- **`eco_agente_en_horario(agente_id, momento DEFAULT now())`** → boolean, hora de Guatemala; un descanso gana sobre
+  el horario semanal. **`eco_v_agentes_en_horario`**: agentes no archivados en horario ahora.
+- Permisos: `eco_app` administra lo nuevo (con `DELETE` en estas tres tablas); `eco_n8n` solo lee.
 
 ## Tablas operativas del bot
 

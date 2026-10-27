@@ -11,6 +11,7 @@ export const PERMISOS = Object.freeze({
   'multimedia:editar': ['admin', 'comercial'],
   'reglas:editar': ['admin', 'contenido'],
   'preguntas:editar': ['admin', 'contenido'],
+  'horarios:editar': ['admin'],
 });
 
 export function tienePermiso(rol, permiso) {

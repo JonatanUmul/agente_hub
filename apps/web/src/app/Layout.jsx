@@ -22,6 +22,7 @@ const SECCIONES = [
       { ruta: '/interruptores', texto: 'Interruptores', icono: 'interruptor' },
       { ruta: '/reglas', texto: 'Reglas', icono: 'lista' },
       { ruta: '/preguntas', texto: 'Preguntas frecuentes', icono: 'pregunta' },
+      { ruta: '/horarios', texto: 'Horarios de agentes', icono: 'reloj' },
       { ruta: '/que-ve-el-bot', texto: '¿Qué ve el bot?', icono: 'bot' },
     ],
   },

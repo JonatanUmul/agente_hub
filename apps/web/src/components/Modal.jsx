@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 
 // Usa <dialog> nativo: el navegador se encarga del foco, la tecla Escape y el fondo.
-export function Modal({ abierto, titulo, alCerrar, children }) {
+// `ancho`: clase de Tailwind para formularios más grandes (p. ej. el horario semanal).
+export function Modal({ abierto, titulo, alCerrar, children, ancho = 'max-w-lg' }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -14,7 +15,7 @@ export function Modal({ abierto, titulo, alCerrar, children }) {
     <dialog
       ref={ref}
       onClose={alCerrar}
-      className="m-auto w-full max-w-lg rounded-lg border border-borde bg-panel p-0 text-texto shadow-2xl shadow-black/60 backdrop:bg-black/70 backdrop:backdrop-blur-[1px]"
+      className={`m-auto w-full ${ancho} rounded-lg border border-borde bg-panel p-0 text-texto shadow-2xl shadow-black/60 backdrop:bg-black/70 backdrop:backdrop-blur-[1px]`}
     >
       {abierto && (
         <>

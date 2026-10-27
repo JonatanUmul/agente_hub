@@ -23,8 +23,17 @@ export function calcularCambios({ operacion, antes, despues }) {
   return cambios;
 }
 
+const DIAS = ['', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+
 export function calcularEtiqueta({ antes, despues }) {
   const fila = despues ?? antes ?? {};
+  // Tablas sin nombre propio: se describe la fila.
+  if (fila.dia_semana)
+    return `Agente ${fila.agente_id}: ${DIAS[fila.dia_semana]} ${fila.hora_inicio.slice(0, 5)}–${fila.hora_fin.slice(0, 5)}`;
+  if (fila.desde && fila.agente_id)
+    return `Agente ${fila.agente_id}: descanso ${fila.desde} a ${fila.hasta}`;
+  if (fila.producto_id && fila.pauta_id)
+    return `Producto ${fila.producto_id} ↔ pauta ${fila.pauta_id}`;
   const texto = CAMPOS_ETIQUETA.map((c) => fila[c]).find(Boolean) ?? null;
   // En productos y pautas el código (ItemCode en productos) ayuda a distinguir nombres parecidos.
   return fila.codigo && texto ? `${texto} (${fila.codigo})` : (texto ?? fila.codigo ?? null);

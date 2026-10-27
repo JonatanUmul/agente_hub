@@ -31,15 +31,15 @@ SELECT eco_contexto($1) AS contexto;   -- $1 = 'SAC' | 'COMPRA' | 'DISTRIBUIDOR'
 
 Devuelve un JSON:
 
-| Clave | Contenido |
-|---|---|
-| `precios_habilitados` | `true` si el bot puede dar precios. Si es `false`, **cualquier consulta de precio pasa a un asesor**. |
-| `promociones_habilitadas` | `true` si el bot puede mencionar descuentos y pautas. |
-| `configuracion` | Objeto `{ clave: valor }` con todas las claves (ver abajo). Los valores son texto. |
-| `reglas` | `[{ codigo, destino, categoria, regla }]`, ya ordenadas por prioridad. Incluye las `GLOBAL` + las del módulo. |
-| `catalogo` | `[{ codigo, nombre, tipo, familia, capacidad_litros, colores, estado, palabras_clave, precio_base?, descuento_pct?, precio_final?, moneda?, pauta? }]`. Solo productos activos. |
-| `pautas` | `[{ codigo, nombre, mensaje, descuento_pct, vigente_hasta, imagenes: [file_id…] }]`. Vacío si las promociones están apagadas. |
-| `multimedia` | `[{ tipo: 'imagen'|'video', file_id, descripcion, producto, color, tema }]`. `file_id` es el ID de archivo de HubSpot. |
+| Clave                     | Contenido                                                                                                                                                                       |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `precios_habilitados`     | `true` si el bot puede dar precios. Si es `false`, **cualquier consulta de precio pasa a un asesor**.                                                                           |
+| `promociones_habilitadas` | `true` si el bot puede mencionar descuentos y pautas.                                                                                                                           |
+| `configuracion`           | Objeto `{ clave: valor }` con todas las claves (ver abajo). Los valores son texto.                                                                                              |
+| `reglas`                  | `[{ codigo, destino, categoria, regla }]`, ya ordenadas por prioridad. Incluye las `GLOBAL` + las del módulo.                                                                   |
+| `catalogo`                | `[{ codigo, nombre, tipo, familia, capacidad_litros, colores, estado, palabras_clave, precio_base?, descuento_pct?, precio_final?, moneda?, pauta? }]`. Solo productos activos. |
+| `pautas`                  | `[{ codigo, nombre, mensaje, descuento_pct, vigente_hasta, imagenes: [file_id…] }]`. Vacío si las promociones están apagadas.                                                   |
+| `multimedia`              | `[{ tipo: 'imagen'                                                                                                                                                              | 'video', file_id, descripcion, producto, color, tema }]`. `file_id` es el ID de archivo de HubSpot. |
 
 Reglas que el bot debe respetar al usar el catálogo:
 
@@ -71,6 +71,30 @@ WHERE modulos && ARRAY['GLOBAL', $1]::text[];   -- $1 = módulo del flujo
 
 La vista ya devuelve solo las activas, ordenadas.
 
+### Horarios de agentes (reemplaza la lógica de horario escrita en n8n)
+
+Cada agente (`hubspot_agentes.id`) tiene su horario por día de la semana y sus días de descanso, que el equipo
+administra desde la app. Los flujos **ya no deben** usar `hubspot_agentes.hora_inicio / hora_fin` ni reglas de días
+escritas a mano (hoy existen avisos como `fuera_de_horario_lunes_viernes`, `_sabado`, `_domingo`).
+
+```sql
+-- ¿Este agente está en horario ahora? (hora de Guatemala; un día de descanso gana sobre el horario)
+SELECT eco_agente_en_horario($1);              -- $1 = hubspot_agentes.id → true / false
+
+-- Agentes en horario ahora, para repartir conversaciones (filtrar además por bandeja y estado_agente)
+SELECT id, actor_id, nombre, apellido, email, bandeja, canal, estado_agente, limite_chats
+FROM eco_v_agentes_en_horario
+WHERE bandeja = $1 AND estado_agente = 'activo';
+```
+
+Si nadie de la bandeja está en horario, es "fuera de horario": el flujo debe enviar el aviso que ya usa. Antes de
+cambiar algo, identifica en el inventario **dónde** se decide hoy si es horario hábil y propón el reemplazo.
+
+### Varias pautas por producto
+
+Un producto puede tener varias pautas. Para el bot no cambia nada: `eco_contexto()` sigue entregando en cada producto
+`descuento_pct`, `precio_final` y `pauta` (la pauta vigente con mayor descuento) con la misma forma.
+
 ### Buenas prácticas en los nodos PostgreSQL de n8n
 
 - **Consultas parametrizadas** (`$1` + "Query Parameters"). Nunca concatenar texto del cliente en el SQL.
@@ -84,7 +108,8 @@ Para cada flujo del bot:
 
 1. Nombre, si está activo y qué hace (SAC, compras, distribuidores, pautas, enrutador…).
 2. Qué datos tiene **escritos a mano** que deberían venir de la base: precios, descuentos, lista de productos,
-   reglas o instrucciones en prompts, preguntas frecuentes, IDs de archivos de HubSpot, bandejas, tiempos, IDs de menú.
+   reglas o instrucciones en prompts, preguntas frecuentes, IDs de archivos de HubSpot, bandejas, tiempos, IDs de menú,
+   **horarios de atención y días hábiles**.
 3. Qué consultas a PostgreSQL hace hoy (tablas y SQL), y con qué credencial/usuario.
 4. Qué módulo (`SAC`, `COMPRA`, `DISTRIBUIDOR`, `PAUTAS`) le corresponde.
 5. Cambios propuestos, nodo por nodo, y cualquier diferencia entre lo escrito a mano y lo que hay en la base

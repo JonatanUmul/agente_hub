@@ -90,12 +90,6 @@ export function PautaForm({ pauta, mutacion, alTerminar, alCancelar }) {
             ))}
           </tbody>
         </table>
-        {pauta.productosConDescuentoPropio > 0 && (
-          <p className="text-alerta">
-            Si la pauta deja de estar vigente, {pauta.productosConDescuentoPropio} producto(s)
-            asociado(s) perderán también su descuento propio.
-          </p>
-        )}
         <MensajeError error={mutacion.error} />
         <div className="flex justify-end gap-2">
           <Boton variante="secundario" onClick={() => setPorConfirmar(null)}>

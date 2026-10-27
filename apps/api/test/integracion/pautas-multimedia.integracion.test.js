@@ -22,13 +22,14 @@ afterAll(async () => {
   // eco_app no puede borrar: limpiamos con el superusuario del contenedor de desarrollo.
   const admin = ctx.poolAdmin;
   await admin.query(`DELETE FROM eco_multimedia WHERE hubspot_file_id LIKE $1`, [`${codigo()}%`]);
-  await admin.query(`DELETE FROM eco_productos WHERE codigo = $1`, [codigo()]);
+  await admin.query(`DELETE FROM eco_productos WHERE codigo = $1`, [codigo()]); // borra también sus pautas (CASCADE)
   await admin.query(`DELETE FROM eco_pautas WHERE codigo = $1`, [codigo()]);
   await admin.query(
     `DELETE FROM eco_auditoria
      WHERE (tabla = 'eco_multimedia' AND registro_id = ANY($1::text[]))
         OR (tabla = 'eco_productos' AND registro_id = $2)
-        OR (tabla = 'eco_pautas' AND registro_id = $3)`,
+        OR (tabla = 'eco_pautas' AND registro_id = $3)
+        OR (tabla = 'eco_productos_pautas' AND registro_id = $2)`,
     [ids.archivos.map(String), String(productoId), String(pauta?.id)],
   );
   await ctx?.cerrar();
@@ -93,26 +94,30 @@ describe('integración: pautas', () => {
     expect(invertida.statusCode).toBe(400);
   });
 
-  it('desactivar la pauta deja a sus productos sin descuento, también el propio', async () => {
+  it('desactivar la pauta quita su descuento, pero el producto conserva el propio', async () => {
     const { rows } = await ctx.pool.query(
-      `INSERT INTO eco_productos (codigo, nombre, tipo, familia, precio_base, descuento_pct, pauta_id, actualizado_por)
-       VALUES ($1, 'Producto con pauta', 'equipo', 'prueba', 1000, 10, $2, 'test') RETURNING id`,
-      [codigo(), pauta.id],
+      `INSERT INTO eco_productos (codigo, nombre, tipo, familia, precio_base, descuento_pct, actualizado_por)
+       VALUES ($1, 'Producto con pauta', 'equipo', 'prueba', 1000, 10, 'test') RETURNING id`,
+      [codigo()],
     );
     productoId = rows[0].id;
+    await ctx.pool.query(
+      `INSERT INTO eco_productos_pautas (producto_id, pauta_id) VALUES ($1, $2)`,
+      [productoId, pauta.id],
+    );
     const producto = async () =>
       (await comercial.pedir({ url: `/api/productos/${productoId}` })).json();
     expect((await producto()).descuentoVigentePct).toBe(25); // mayor entre 10 y 25
 
     const actual = (await comercial.pedir({ url: `/api/pautas/${pauta.id}` })).json();
-    expect(actual.productosConDescuentoPropio).toBe(1);
+    expect(actual.productosActivos).toBe(1);
     const res = await comercial.pedir({
       method: 'PATCH',
       url: `/api/pautas/${pauta.id}/activo`,
       payload: { activo: false, version: actual.version },
     });
     expect(res.json().estadoVigencia).toBe('inactiva');
-    expect(await producto()).toMatchObject({ descuentoVigentePct: 0, precioFinal: 1000 });
+    expect(await producto()).toMatchObject({ descuentoVigentePct: 10, precioFinal: 900 });
 
     // Reactivamos para la siguiente prueba.
     await comercial.pedir({

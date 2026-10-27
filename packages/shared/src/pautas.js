@@ -28,8 +28,6 @@ export const esquemaPauta = esquemaPautaResumen.extend({
   vigenteHasta: fechaIso.nullable(),
   estadoVigencia: z.enum(ESTADOS_VIGENCIA),
   productosActivos: z.number().int(),
-  // Productos con descuento propio que lo pierden mientras la pauta no esté vigente (regla de eco_v_catalogo).
-  productosConDescuentoPropio: z.number().int(),
   archivosActivos: z.number().int(),
   actualizadoEn: fechaIso,
   actualizadoPor: z.string().nullable(),

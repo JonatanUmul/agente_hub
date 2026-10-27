@@ -43,7 +43,7 @@ describe('integración: auditoría', () => {
         estado: actual.estado,
         colores: actual.colores,
         palabrasClave: actual.palabrasClave,
-        pautaId: null,
+        pautaIds: [],
         orden: actual.orden,
         activo: actual.activo,
         version: actual.version,

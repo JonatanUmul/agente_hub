@@ -12,7 +12,7 @@ const editable = {
   estado: 'disponible',
   colores: ['azul'],
   palabrasClave: [],
-  pautaId: null,
+  pautaIds: [],
   orden: 100,
   activo: true,
   version: 'v1',
@@ -60,7 +60,9 @@ describe('editarProducto', () => {
 
   it('traduce una pauta inexistente a 400', async () => {
     repo.actualizar.mockRejectedValue(Object.assign(new Error('fk'), { code: '23503' }));
-    await expect(editar({ pautaId: 999 })).rejects.toMatchObject({ codigo: 'PAUTA_INEXISTENTE' });
+    await expect(editar({ pautaIds: [999] })).rejects.toMatchObject({
+      codigo: 'PAUTA_INEXISTENTE',
+    });
   });
 
   it('responde 404 si el producto no existe', async () => {

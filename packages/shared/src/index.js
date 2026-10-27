@@ -1,4 +1,5 @@
 // Punto de entrada de @ecofiltro/shared: esquemas Zod y reglas que API y web comparten.
+export * from './agentes.js';
 export * from './auditoria.js';
 export * from './auth.js';
 export * from './comunes.js';

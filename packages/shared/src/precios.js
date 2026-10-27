@@ -11,13 +11,13 @@ export function calcularPrecioFinal(precioBase, descuentoPct) {
   return Math.floor((producto + 5_000) / 10_000) / 100;
 }
 
-// Descuento que aplicará hoy, con la misma regla que la vista eco_v_catalogo:
-//   sin pauta → el del producto; pauta vigente → el mayor de los dos; pauta inactiva o vencida → 0.
+// Descuento que aplicará hoy, con la misma regla que la vista eco_v_catalogo (docs/sql/002):
+//   el mayor entre el descuento propio y el de las pautas VIGENTES del producto.
+//   Las pautas inactivas o vencidas no cuentan (el producto conserva su descuento propio).
 // Solo para la vista previa del formulario: la API siempre devuelve el valor real de la vista.
-export function descuentoVigente({ descuentoPct, pauta }) {
-  if (!pauta) return descuentoPct;
-  if (!pauta.vigente) return 0;
-  return Math.max(descuentoPct, pauta.descuentoPct ?? 0);
+export function descuentoVigente({ descuentoPct, pautas = [] }) {
+  const deLasPautas = pautas.filter((p) => p.vigente).map((p) => p.descuentoPct ?? 0);
+  return Math.max(descuentoPct, ...deLasPautas);
 }
 
 // Lo que el bot le dirá al cliente sobre el precio de un producto, según los interruptores.

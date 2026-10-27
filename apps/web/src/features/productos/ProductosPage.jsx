@@ -219,20 +219,20 @@ export function ProductosPage() {
   );
 }
 
-// Muestra el descuento vigente y advierte cuando la pauta asociada anula el propio.
+// Muestra el descuento vigente y las pautas asociadas (las no vigentes, atenuadas).
 function Descuento({ producto: p }) {
   if (!p.activo) return porcentaje(p.descuentoPct);
-  const anulado = p.pauta && !p.pauta.vigente && p.descuentoPct > 0;
   return (
     <div>
       <div>{porcentaje(p.descuentoVigentePct)}</div>
-      {p.pauta && (
-        <div className={`text-xs ${p.pauta.vigente ? 'text-tenue' : 'text-alerta'}`}>
-          {p.pauta.nombre}
-          {!p.pauta.vigente && ' (no vigente)'}
+      {p.pautas.map((pa) => (
+        <div
+          key={pa.id}
+          className={`text-xs ${pa.vigente ? 'text-tenue' : 'text-apagado line-through'}`}
+        >
+          {pa.nombre}
         </div>
-      )}
-      {anulado && <div className="text-xs text-alerta">anula su {p.descuentoPct}% propio</div>}
+      ))}
     </div>
   );
 }

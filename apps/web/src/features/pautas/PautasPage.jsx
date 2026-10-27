@@ -154,12 +154,6 @@ function MensajeActivo({ pauta }) {
           pauta.
         </p>
       )}
-      {pauta.productosConDescuentoPropio > 0 && (
-        <p className="text-alerta">
-          {pauta.productosConDescuentoPropio} de ellos perderán también su descuento propio mientras
-          sigan asociados a una pauta inactiva.
-        </p>
-      )}
     </div>
   );
 }

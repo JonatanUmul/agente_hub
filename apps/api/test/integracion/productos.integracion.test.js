@@ -37,7 +37,7 @@ const datosEditables = (p, cambios = {}) => ({
   estado: p.estado,
   colores: p.colores,
   palabrasClave: p.palabrasClave,
-  pautaId: p.pauta?.id ?? null,
+  pautaIds: p.pautas.map((pa) => pa.id),
   orden: p.orden,
   activo: p.activo,
   version: p.version,

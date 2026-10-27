@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useController, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -31,10 +31,12 @@ const valoresIniciales = (p) => ({
   estado: p.estado,
   colores: p.colores.join(', '),
   palabrasClave: p.palabrasClave.join(', '),
-  pautaId: p.pauta?.id ?? null,
+  pautaIds: p.pautas.map((pa) => pa.id).sort((a, b) => a - b),
   orden: p.orden,
   activo: p.activo,
 });
+
+const nombres = (lista) => (lista.length ? lista.map((pa) => pa.nombre).join(', ') : 'Ninguna');
 
 // Cambios que alteran lo que paga el cliente o si el bot ofrece el producto: piden confirmación.
 function cambiosSensibles(antes, despues) {
@@ -43,15 +45,15 @@ function cambiosSensibles(antes, despues) {
     cambios.push(['Precio base', monto(antes.precioBase), monto(despues.precioBase)]);
   if (antes.descuentoPct !== despues.descuentoPct)
     cambios.push(['Descuento', porcentaje(antes.descuentoPct), porcentaje(despues.descuentoPct)]);
-  if ((antes.pauta?.id ?? null) !== despues.pautaId)
-    cambios.push(['Pauta', antes.pauta?.nombre ?? 'Ninguna', despues.pautaNombre]);
+  const idsAntes = antes.pautas.map((pa) => pa.id).sort((a, b) => a - b);
+  if (JSON.stringify(idsAntes) !== JSON.stringify(despues.pautaIds))
+    cambios.push(['Pautas', nombres(antes.pautas), despues.nombresPautas]);
   if (antes.activo && !despues.activo)
     cambios.push(['Activo', 'Sí', 'No (el bot dejará de ofrecerlo)']);
   return cambios;
 }
 
-// Un <select> que se dibuja antes de tener sus opciones muestra la primera ("Ninguna") aunque el
-// valor sea otro. Por eso el formulario espera a tener las pautas antes de dibujarse.
+// El formulario espera a tener la lista de pautas antes de dibujarse (para mostrar las marcadas).
 export function ProductoForm(props) {
   const { data: pautas, isPending, error } = usePautasResumen();
   if (isPending) return <Cargando />;
@@ -72,13 +74,13 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
   });
 
   // Vista previa en vivo: con los valores que se están escribiendo.
-  const [precioBase, descuentoPct, pautaId, activo] = useWatch({
+  const [precioBase, descuentoPct, pautaIds, activo] = useWatch({
     control,
-    name: ['precioBase', 'descuentoPct', 'pautaId', 'activo'],
+    name: ['precioBase', 'descuentoPct', 'pautaIds', 'activo'],
   });
-  const pauta = pautas.find((p) => p.id === pautaId) ?? null;
+  const seleccionadas = pautas.filter((pa) => pautaIds.includes(pa.id));
   const descuentoPrevio = Number.isFinite(descuentoPct)
-    ? descuentoVigente({ descuentoPct, pauta })
+    ? descuentoVigente({ descuentoPct, pautas: seleccionadas })
     : null;
   const productoPrevio = {
     activo,
@@ -95,7 +97,7 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
   const enviar = (datos) => {
     const cambios = cambiosSensibles(producto, {
       ...datos,
-      pautaNombre: pautas.find((p) => p.id === datos.pautaId)?.nombre ?? 'Ninguna',
+      nombresPautas: nombres(pautas.filter((pa) => datos.pautaIds.includes(pa.id))),
     });
     if (cambios.length > 0) setPorConfirmar({ datos, cambios });
     else guardar(datos);
@@ -173,22 +175,7 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
           />
         </Campo>
       </div>
-      <Campo etiqueta="Pauta asociada" error={errors.pautaId}>
-        <select className={claseControl} {...register('pautaId', { setValueAs: vacioANull })}>
-          <option value="">Ninguna</option>
-          {pautas.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.nombre} ({porcentaje(p.descuentoPct)}){!p.vigente && ' — no vigente'}
-            </option>
-          ))}
-        </select>
-      </Campo>
-      {pauta && !pauta.vigente && (
-        <p className="rounded-md bg-alerta/10 px-3 py-2 text-sm text-alerta">
-          Esta pauta no está vigente: mientras siga asociada, el producto{' '}
-          <strong>no tendrá ningún descuento</strong>, tampoco el propio.
-        </p>
-      )}
+      <SelectorPautas control={control} pautas={pautas} error={errors.pautaIds} />
       <Campo etiqueta="Colores" error={errors.colores} ayuda="Separados por comas">
         <input className={claseControl} {...register('colores')} />
       </Campo>
@@ -219,5 +206,48 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
         <Boton type="submit">Guardar</Boton>
       </div>
     </form>
+  );
+}
+
+// Lista de casillas para elegir varias pautas. Controlada (useController) para que el valor sea
+// siempre una lista de ids, también cuando existe una sola pauta.
+function SelectorPautas({ control, pautas, error }) {
+  const { field } = useController({ control, name: 'pautaIds' });
+  const alternar = (id) =>
+    field.onChange(
+      field.value.includes(id)
+        ? field.value.filter((x) => x !== id)
+        : [...field.value, id].sort((a, b) => a - b),
+    );
+
+  return (
+    <fieldset>
+      <legend className="mb-1.5 text-xs font-medium text-tenue">Pautas</legend>
+      {pautas.length === 0 ? (
+        <p className="text-sm text-apagado">No hay pautas creadas.</p>
+      ) : (
+        <div className="max-h-44 space-y-1 overflow-y-auto rounded-md border border-borde-fuerte bg-fondo p-2">
+          {pautas.map((pa) => (
+            <label
+              key={pa.id}
+              className="flex items-center gap-2 rounded px-1.5 py-1 text-sm hover:bg-panel-2"
+            >
+              <input
+                type="checkbox"
+                checked={field.value.includes(pa.id)}
+                onChange={() => alternar(pa.id)}
+              />
+              <span className="flex-1">{pa.nombre}</span>
+              <span className="text-xs text-tenue">{porcentaje(pa.descuentoPct)}</span>
+              {!pa.vigente && <span className="text-xs text-apagado">no vigente</span>}
+            </label>
+          ))}
+        </div>
+      )}
+      <span className="mt-1 block text-xs text-apagado">
+        Se aplica el mayor descuento entre el propio y el de las pautas vigentes.
+      </span>
+      {error && <span className="mt-1 block text-xs text-peligro">{error.message}</span>}
+    </fieldset>
   );
 }

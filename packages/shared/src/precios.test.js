@@ -59,7 +59,7 @@ describe('esquemaEditarProducto', () => {
     estado: 'disponible',
     colores: [' azul ', 'azul', '', 'rojo'],
     palabrasClave: [],
-    pautaId: null,
+    pautaIds: [],
     orden: 100,
     activo: true,
     version: 'v',
@@ -87,23 +87,19 @@ describe('esquemaEditarProducto', () => {
 });
 
 describe('descuentoVigente (igual que eco_v_catalogo)', () => {
-  it('sin pauta usa el descuento del producto', () => {
-    expect(descuentoVigente({ descuentoPct: 10, pauta: null })).toBe(10);
+  const vigente = (descuentoPct) => ({ vigente: true, descuentoPct });
+  const vencida = (descuentoPct) => ({ vigente: false, descuentoPct });
+
+  it('sin pautas usa el descuento del producto', () => {
+    expect(descuentoVigente({ descuentoPct: 10, pautas: [] })).toBe(10);
   });
-  it('con pauta vigente usa el mayor', () => {
-    expect(descuentoVigente({ descuentoPct: 10, pauta: { vigente: true, descuentoPct: 25 } })).toBe(
-      25,
-    );
-    expect(descuentoVigente({ descuentoPct: 30, pauta: { vigente: true, descuentoPct: 25 } })).toBe(
-      30,
-    );
-    expect(
-      descuentoVigente({ descuentoPct: 5, pauta: { vigente: true, descuentoPct: null } }),
-    ).toBe(5);
+  it('con pautas vigentes usa el mayor entre el propio y todas ellas', () => {
+    expect(descuentoVigente({ descuentoPct: 10, pautas: [vigente(25), vigente(35)] })).toBe(35);
+    expect(descuentoVigente({ descuentoPct: 40, pautas: [vigente(25)] })).toBe(40);
+    expect(descuentoVigente({ descuentoPct: 5, pautas: [vigente(null)] })).toBe(5);
   });
-  it('con pauta vencida o inactiva es 0, aunque el producto tenga descuento', () => {
-    expect(
-      descuentoVigente({ descuentoPct: 15, pauta: { vigente: false, descuentoPct: 30 } }),
-    ).toBe(0);
+  it('las pautas vencidas no cuentan y el producto conserva su descuento propio', () => {
+    expect(descuentoVigente({ descuentoPct: 15, pautas: [vencida(30)] })).toBe(15);
+    expect(descuentoVigente({ descuentoPct: 15, pautas: [vencida(50), vigente(20)] })).toBe(20);
   });
 });

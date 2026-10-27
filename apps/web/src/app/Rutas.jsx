@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 import { Layout } from './Layout.jsx';
 import { RutaProtegida } from './RutaProtegida.jsx';
 import { LoginPage } from '../features/auth/LoginPage.jsx';
+import { AgentesPage } from '../features/agentes/AgentesPage.jsx';
 import { AuditoriaPage } from '../features/auditoria/AuditoriaPage.jsx';
 import { MiCuentaPage } from '../features/auth/MiCuentaPage.jsx';
 import { InterruptoresPage } from '../features/configuracion/InterruptoresPage.jsx';
@@ -27,6 +28,7 @@ export function Rutas() {
           <Route path="interruptores" element={<InterruptoresPage />} />
           <Route path="reglas" element={<ReglasPage />} />
           <Route path="preguntas" element={<PreguntasPage />} />
+          <Route path="horarios" element={<AgentesPage />} />
           <Route path="que-ve-el-bot" element={<ContextoPage />} />
           <Route path="auditoria" element={<AuditoriaPage />} />
           <Route path="usuarios" element={<UsuariosPage />} />

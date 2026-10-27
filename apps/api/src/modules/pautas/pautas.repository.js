@@ -7,9 +7,8 @@ const SELECT_PAUTA = `
          pa.actualizado_en::text AS version,
          ${vigenteSql('pa')} AS vigente,
          ${estadoVigenciaSql('pa')} AS estado_vigencia,
-         (SELECT count(*)::int FROM eco_productos p WHERE p.pauta_id = pa.id AND p.activo) AS productos_activos,
-         (SELECT count(*)::int FROM eco_productos p
-           WHERE p.pauta_id = pa.id AND p.activo AND p.descuento_pct > 0) AS productos_con_descuento_propio,
+         (SELECT count(*)::int FROM eco_productos_pautas pp JOIN eco_productos p ON p.id = pp.producto_id
+           WHERE pp.pauta_id = pa.id AND p.activo) AS productos_activos,
          (SELECT count(*)::int FROM eco_multimedia m WHERE m.pauta_id = pa.id AND m.activo) AS archivos_activos
   FROM eco_pautas pa`;
 
@@ -29,7 +28,6 @@ function aPauta(fila) {
     vigente: fila.vigente,
     estadoVigencia: fila.estado_vigencia,
     productosActivos: fila.productos_activos,
-    productosConDescuentoPropio: fila.productos_con_descuento_propio,
     archivosActivos: fila.archivos_activos,
     actualizadoEn: fila.actualizado_en.toISOString(),
     actualizadoPor: fila.actualizado_por,

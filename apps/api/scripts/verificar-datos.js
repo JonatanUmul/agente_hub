@@ -67,7 +67,7 @@ try {
         'activo',
         'version',
       ]),
-      pautaId: p.pauta?.id ?? null,
+      pautaIds: p.pautas.map((pa) => pa.id),
       codigo: p.codigo,
     })),
     (p) => p.codigo,

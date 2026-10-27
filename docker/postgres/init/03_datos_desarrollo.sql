@@ -47,3 +47,11 @@ INSERT INTO eco_preguntas_frecuentes (numero, pregunta, tema, palabras_clave, re
   (1, '¿Pregunta de prueba 1?', 'prueba', '{prueba}', 'Respuesta de prueba 1.', '{GLOBAL}', 10, 'semilla-dev'),
   (2, '¿Pregunta de prueba 2?', 'prueba', '{}',       'Respuesta de prueba 2.', '{SAC,COMPRA}', 20, 'semilla-dev')
 ON CONFLICT (numero) DO NOTHING;
+
+-- Agentes ficticios (en producción los sincroniza n8n desde HubSpot).
+INSERT INTO hubspot_agentes (id, email, nombre, apellido, bandeja, canal, tipo, estado_agente, hora_inicio, hora_fin, limite_chats) VALUES
+  (9000001, 'agente.sac@prueba.local',        'Ana',   'Prueba', 'SAC',          'ventas', 'PERSON', 'activo',   '08:00', '17:00', 1),
+  (9000002, 'agente.televentas@prueba.local', 'Luis',  'Prueba', 'televentas',   'ventas', 'PERSON', 'activo',   '08:00', '17:00', 3),
+  (9000003, 'agente.noche@prueba.local',      'Marta', 'Prueba', 'televentas',   'ventas', 'PERSON', 'activo',   '21:00', '23:59:59', 1),
+  (9000004, 'agente.inactivo@prueba.local',   'Pedro', 'Prueba', NULL,           NULL,     'PERSON', 'inactivo', NULL,    NULL,    1)
+ON CONFLICT (id) DO NOTHING;

@@ -9,7 +9,7 @@ const CAMPOS_EDITABLES = [
   'estado',
   'colores',
   'palabrasClave',
-  'pautaId',
+  'pautaIds',
   'orden',
   'activo',
 ];
@@ -47,7 +47,7 @@ async function editar(db, opciones) {
     if (esViolacionLlaveForanea(error)) {
       throw new AppError({
         codigo: 'PAUTA_INEXISTENTE',
-        mensaje: 'La pauta seleccionada no existe',
+        mensaje: 'Alguna de las pautas seleccionadas no existe',
         estadoHttp: 400,
       });
     }
