@@ -189,6 +189,10 @@ Por eso el script otorga `INSERT` (sin `UPDATE`/`DELETE`) y `USAGE` sobre la sec
 - `eco_reglas_bot` no impide que `vigente_hasta < vigente_desde`: lo valida la app.
 - `eco_preguntas_frecuentes.modulos` no valida sus valores: la app los restringe a los módulos de `eco_reglas_bot.modulo`.
 
+- **Multimedia en `eco_contexto()`:** la lista `multimedia` solo incluye `imagen` y `video` activos. Las `imagenes` de
+  una pauta incluyen **cualquier** archivo activo con ese `pauta_id` (no solo `promocion`). Un archivo `promocion` sin
+  pauta nunca llega al bot. Regla replicada en `comoLoVeElBot()` de `@ecofiltro/shared` y verificada contra la función.
+
 ## Tablas operativas del bot
 
 No fueron inspeccionadas (no son `eco_*`). La app **no las toca** y `eco_app` no tiene permisos sobre ellas.

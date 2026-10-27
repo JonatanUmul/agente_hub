@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import {
-  esquemaCambiarActivoProducto,
-  esquemaEditarProducto,
-  esquemaProducto,
-} from '@ecofiltro/shared';
+import { esquemaCambiarActivo, esquemaEditarProducto, esquemaProducto } from '@ecofiltro/shared';
 import * as servicio from './productos.service.js';
 
 const params = z.object({ id: z.coerce.number().int().positive() });
@@ -36,7 +32,7 @@ export async function rutasProductos(app) {
     '/productos/:id/activo',
     {
       config: editar,
-      schema: { params, body: esquemaCambiarActivoProducto, response: { 200: esquemaProducto } },
+      schema: { params, body: esquemaCambiarActivo, response: { 200: esquemaProducto } },
     },
     (request) =>
       servicio.cambiarActivo(app.db, {

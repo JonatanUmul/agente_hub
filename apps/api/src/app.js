@@ -7,6 +7,7 @@ import pluginRateLimit from './plugins/rate-limit.js';
 import pluginSeguridad from './plugins/seguridad.js';
 import moduloAuth from './modules/auth/index.js';
 import moduloConfiguracion from './modules/configuracion/index.js';
+import moduloMultimedia from './modules/multimedia/index.js';
 import moduloPautas from './modules/pautas/index.js';
 import moduloProductos from './modules/productos/index.js';
 import moduloSalud from './modules/salud/index.js';
@@ -50,6 +51,7 @@ export async function crearApp({ config, pool, logger = true, registrar }) {
       await api.register(moduloConfiguracion);
       await api.register(moduloPautas);
       await api.register(moduloProductos);
+      await api.register(moduloMultimedia);
       if (registrar) await api.register(registrar);
     },
     { prefix: '/api' },

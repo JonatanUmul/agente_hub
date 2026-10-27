@@ -22,6 +22,12 @@ export function Layout() {
             <NavLink to="/productos" className={claseEnlace}>
               Productos
             </NavLink>
+            <NavLink to="/pautas" className={claseEnlace}>
+              Pautas
+            </NavLink>
+            <NavLink to="/multimedia" className={claseEnlace}>
+              Multimedia
+            </NavLink>
             <NavLink to="/interruptores" className={claseEnlace}>
               Interruptores
             </NavLink>

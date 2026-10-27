@@ -73,6 +73,10 @@ Los métodos que modifican exigen la cabecera `x-csrf-token` (el cliente web la 
   de paridad contra PostgreSQL). El descuento vigente real sale de la vista `eco_v_catalogo`.
 - Ediciones de registros `eco_*` usan **concurrencia optimista**: el cliente envía `version` (`actualizado_en::text`);
   si no coincide → 409 `CONFLICTO_VERSION`. Guardar sin cambios no hace `UPDATE` (no ensucia la auditoría).
+- Reglas de "qué ve el bot" viven en `@ecofiltro/shared` (`precioQueVeElBot`, `descuentoVigente`, `comoLoVeElBot`) y
+  cada una tiene una prueba de integración contra `eco_v_catalogo` / `eco_contexto()`. Si cambias una, cambia su prueba.
+- Formularios web: convertir texto del formulario con `z.any().transform(...).pipe(esquemaDeShared)`, así se valida con
+  el mismo esquema que la API (Zod 4 no permite `.omit`/`.pick` sobre objetos con `.refine`).
 - Solo `precios_habilitados` y `promociones_habilitadas` son editables en `eco_configuracion`; las demás claves son de n8n.
 - Preferir desactivar (`activo = false`) antes que borrar.
 - No tocar tablas operativas del bot (`eventos`, `work`, `hubspot_*`, `*_locks`, `chat_asignados`, `menu*`...).

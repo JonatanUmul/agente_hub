@@ -27,3 +27,6 @@ export const conflictoDeVersion = () =>
       'Otra persona modificó este registro mientras lo editabas. Recarga y vuelve a intentarlo.',
     estadoHttp: 409,
   });
+
+// Código de PostgreSQL para violación de CHECK.
+export const esViolacionCheck = (error) => error?.code === '23514';

@@ -29,3 +29,10 @@ INSERT INTO eco_productos (codigo, nombre, tipo, familia, capacidad_litros, colo
   ('DEV-AC-1',  'Accesorio de prueba',   'accesorio', 'prueba-accesorios', NULL, '{}',          NULL,   0,  NULL, '{}', 40, 'semilla-dev'),
   ('DEV-RE-1',  'Repuesto de prueba',    'repuesto',  'prueba-repuestos',  NULL, '{}',          95.50,  0,  NULL, '{}', 50, 'semilla-dev')
 ON CONFLICT (codigo) DO NOTHING;
+
+INSERT INTO eco_multimedia (tipo, hubspot_file_id, descripcion, producto_id, color, tema, pauta_id, orden, actualizado_por) VALUES
+  ('imagen',    'DEV-FILE-1', 'Foto de prueba del equipo 1 en azul', (SELECT id FROM eco_productos WHERE codigo = 'DEV-EQ-1'), 'azul', NULL, NULL, 10, 'semilla-dev'),
+  ('video',     'DEV-FILE-2', 'Video de prueba de instalación',       NULL, NULL, 'instalacion', NULL, 20, 'semilla-dev'),
+  ('promocion', 'DEV-FILE-3', 'Arte de prueba de la pauta vigente',   NULL, NULL, NULL, (SELECT id FROM eco_pautas WHERE codigo = 'DEV-VIGENTE'), 10, 'semilla-dev'),
+  ('promocion', 'DEV-FILE-4', 'Arte de prueba sin pauta (el bot no lo ve)', NULL, NULL, NULL, NULL, 20, 'semilla-dev')
+ON CONFLICT (tipo, hubspot_file_id) DO NOTHING;
