@@ -106,7 +106,7 @@ function FormularioArchivo({ archivo, productos, pautas, mutacion, alTerminar, a
             <option value="">Ninguno</option>
             {productos.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.nombre} ({p.codigo})
+                {p.nombre} — ItemCode {p.codigo}
               </option>
             ))}
           </select>

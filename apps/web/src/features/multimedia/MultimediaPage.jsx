@@ -28,6 +28,7 @@ function filtrar(archivos, f) {
       a.color,
       a.tema,
       a.producto?.nombre,
+      a.producto?.codigo,
       a.pauta?.nombre,
     ];
     return (
@@ -84,6 +85,7 @@ export function MultimediaPage() {
       celda: (a) => (
         <div className="text-xs">
           <div>{a.producto?.nombre ?? '—'}</div>
+          {a.producto && <div className="font-mono text-slate-500">{a.producto.codigo}</div>}
           {a.color && <div className="text-slate-500">{a.color}</div>}
         </div>
       ),
@@ -149,7 +151,7 @@ export function MultimediaPage() {
 
       <div className="flex flex-wrap gap-2">
         <input
-          placeholder="Buscar descripción, ID, producto, pauta…"
+          placeholder="Buscar descripción, ID, producto, ItemCode, pauta…"
           {...filtro('texto')}
           className={`${claseFiltro} w-72`}
         />

@@ -132,7 +132,8 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
   return (
     <form onSubmit={handleSubmit(enviar)} className="space-y-4" noValidate>
       <p className="text-sm text-slate-600">
-        {producto.codigo} · {producto.tipo} · {producto.familia}
+        ItemCode <span className="font-mono">{producto.codigo}</span> · {producto.tipo} ·{' '}
+        {producto.familia}
       </p>
       <div className="grid grid-cols-2 gap-4">
         <Campo etiqueta="Precio base (Q)" error={errors.precioBase} ayuda="Vacío = sin precio">

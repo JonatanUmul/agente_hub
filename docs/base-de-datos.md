@@ -34,6 +34,9 @@ Las columnas `actualizado_por` son `text` sin restricción: la app debe llenarla
 
 ### `eco_productos`
 
+`codigo` guarda el **ItemCode** del producto: el código interno con el que se crean órdenes de venta y facturas.
+La app lo muestra como "ItemCode", permite buscarlo y copiarlo, y no lo modifica (`eco_contexto()` lo entrega al bot).
+
 | Columna                       | Tipo             | Nulo | Por defecto / restricción                                       |
 | ----------------------------- | ---------------- | ---- | --------------------------------------------------------------- |
 | `id` **PK**                   | integer (serial) | no   | `eco_productos_id_seq`                                          |

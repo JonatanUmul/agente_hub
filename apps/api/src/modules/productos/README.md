@@ -7,6 +7,7 @@ Catálogo que el bot ofrece (`eco_productos`), con el precio final que calcula i
   - `GET /api/productos` y `GET /api/productos/:id` (cualquier rol).
   - `PUT /api/productos/:id` (permiso `productos:editar`) con todos los campos editables + `version`.
   - `PATCH /api/productos/:id/activo` `{ activo, version }` (permiso `productos:editar`).
+- **ItemCode:** es la columna `codigo` (código interno para órdenes de venta y facturas). Solo lectura.
 - **Campos editables:** `precioBase`, `descuentoPct`, `estado`, `colores`, `palabrasClave`, `pautaId`, `orden`, `activo`.
   Código, nombre, tipo, familia, capacidad y `woo_id` son de solo lectura. No hay alta ni borrado.
 - **Reglas:**

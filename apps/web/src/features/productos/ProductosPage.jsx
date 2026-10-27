@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ESTADOS_PRODUCTO, TIPOS_PRODUCTO } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
+import { BotonCopiar } from '../../components/BotonCopiar.jsx';
 import { claseFiltro } from '../../components/Campo.jsx';
 import { ConfirmarModal } from '../../components/ConfirmarModal.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
@@ -67,8 +68,15 @@ export function ProductosPage() {
       celda: (p) => (
         <>
           <div className="font-medium">{p.nombre}</div>
+          <div className="flex items-center gap-1 text-xs text-slate-500">
+            <span className="whitespace-nowrap">
+              ItemCode{' '}
+              <span className="font-mono whitespace-nowrap text-slate-700">{p.codigo}</span>
+            </span>
+            <BotonCopiar texto={p.codigo} />
+          </div>
           <div className="text-xs text-slate-500">
-            {p.codigo} · {p.tipo} · {p.familia}
+            {p.tipo} · {p.familia}
           </div>
         </>
       ),
@@ -127,7 +135,7 @@ export function ProductosPage() {
 
       <div className="flex flex-wrap gap-2">
         <input
-          placeholder="Buscar código, nombre o palabra clave"
+          placeholder="Buscar ItemCode, nombre o palabra clave"
           {...filtro('texto')}
           className={`${claseFiltro} w-64`}
         />

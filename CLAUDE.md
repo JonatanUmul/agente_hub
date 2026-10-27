@@ -81,6 +81,7 @@ Los métodos que modifican exigen la cabecera `x-csrf-token` (el cliente web la 
   afectadas también tras un error (p. ej. 409).
 - Formularios web: convertir texto del formulario con `z.any().transform(...).pipe(esquemaDeShared)`, así se valida con
   el mismo esquema que la API (Zod 4 no permite `.omit`/`.pick` sobre objetos con `.refine`).
+- `eco_productos.codigo` es el **ItemCode** (uso interno: órdenes de venta, facturas). En la UI se llama "ItemCode".
 - Solo `precios_habilitados` y `promociones_habilitadas` son editables en `eco_configuracion`; las demás claves son de n8n.
 - Preferir desactivar (`activo = false`) antes que borrar.
 - No tocar tablas operativas del bot (`eventos`, `work`, `hubspot_*`, `*_locks`, `chat_asignados`, `menu*`...).
