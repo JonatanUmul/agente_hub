@@ -29,7 +29,8 @@ afterAll(async () => {
      WHERE (tabla = 'eco_multimedia' AND registro_id = ANY($1::text[]))
         OR (tabla = 'eco_productos' AND registro_id = $2)
         OR (tabla = 'eco_pautas' AND registro_id = $3)
-        OR (tabla = 'eco_productos_pautas' AND registro_id = $2)`,
+        OR (tabla = 'eco_productos_pautas' AND registro_id = $2)
+        OR (tabla = 'eco_multimedia_pautas' AND registro_id = ANY($1::text[]))`,
     [ids.archivos.map(String), String(productoId), String(pauta?.id)],
   );
   await ctx?.cerrar();
@@ -145,7 +146,7 @@ describe('integración: multimedia', () => {
         productoId: null,
         color: null,
         tema: null,
-        pautaId: conPauta ? pauta.id : null,
+        pautaIds: conPauta ? [pauta.id] : [],
         orden: 100,
         activo: true,
       },
@@ -188,7 +189,7 @@ describe('integración: multimedia', () => {
         const esperado = comoLoVeElBot({
           tipo: a.tipo,
           activo: a.activo,
-          pautaId: a.pauta?.id ?? null,
+          pautaIds: a.pautas.map((p) => p.id),
         });
         expect([a.hubspotFileId, a.tipo, loVe]).toEqual([
           a.hubspotFileId,

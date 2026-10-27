@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useController, useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -12,6 +12,7 @@ import { Boton } from '../../components/Boton.jsx';
 import { Campo, claseControl } from '../../components/Campo.jsx';
 import { Cargando } from '../../components/Cargando.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
+import { SelectorPautas } from '../../components/SelectorPautas.jsx';
 import { monto, porcentaje } from '../../lib/formato.js';
 import { usePautasResumen } from '../pautas/hooks.js';
 import { LoQueVeElBot } from './LoQueVeElBot.jsx';
@@ -175,7 +176,13 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
           />
         </Campo>
       </div>
-      <SelectorPautas control={control} pautas={pautas} error={errors.pautaIds} />
+      <SelectorPautas
+        control={control}
+        pautas={pautas}
+        error={errors.pautaIds}
+        ayuda="Se aplica el mayor descuento entre el propio y el de las pautas vigentes."
+        mostrarDescuento
+      />
       <Campo etiqueta="Colores" error={errors.colores} ayuda="Separados por comas">
         <input className={claseControl} {...register('colores')} />
       </Campo>
@@ -206,48 +213,5 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
         <Boton type="submit">Guardar</Boton>
       </div>
     </form>
-  );
-}
-
-// Lista de casillas para elegir varias pautas. Controlada (useController) para que el valor sea
-// siempre una lista de ids, también cuando existe una sola pauta.
-function SelectorPautas({ control, pautas, error }) {
-  const { field } = useController({ control, name: 'pautaIds' });
-  const alternar = (id) =>
-    field.onChange(
-      field.value.includes(id)
-        ? field.value.filter((x) => x !== id)
-        : [...field.value, id].sort((a, b) => a - b),
-    );
-
-  return (
-    <fieldset>
-      <legend className="mb-1.5 text-xs font-medium text-tenue">Pautas</legend>
-      {pautas.length === 0 ? (
-        <p className="text-sm text-apagado">No hay pautas creadas.</p>
-      ) : (
-        <div className="max-h-44 space-y-1 overflow-y-auto rounded-md border border-borde-fuerte bg-fondo p-2">
-          {pautas.map((pa) => (
-            <label
-              key={pa.id}
-              className="flex items-center gap-2 rounded px-1.5 py-1 text-sm hover:bg-panel-2"
-            >
-              <input
-                type="checkbox"
-                checked={field.value.includes(pa.id)}
-                onChange={() => alternar(pa.id)}
-              />
-              <span className="flex-1">{pa.nombre}</span>
-              <span className="text-xs text-tenue">{porcentaje(pa.descuentoPct)}</span>
-              {!pa.vigente && <span className="text-xs text-apagado">no vigente</span>}
-            </label>
-          ))}
-        </div>
-      )}
-      <span className="mt-1 block text-xs text-apagado">
-        Se aplica el mayor descuento entre el propio y el de las pautas vigentes.
-      </span>
-      {error && <span className="mt-1 block text-xs text-peligro">{error.message}</span>}
-    </fieldset>
   );
 }

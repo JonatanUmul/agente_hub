@@ -41,7 +41,7 @@ describe('esquemaCrearArchivo', () => {
         productoId: null,
         color: null,
         tema: null,
-        pautaId: null,
+        pautaIds: [],
         orden: 100,
         activo: true,
       }).success,
@@ -51,24 +51,29 @@ describe('esquemaCrearArchivo', () => {
 
 describe('comoLoVeElBot (reglas de eco_contexto)', () => {
   it('imagen sin pauta → lista general', () => {
-    expect(comoLoVeElBot({ tipo: 'imagen', activo: true, pautaId: null })).toMatchObject({
+    expect(comoLoVeElBot({ tipo: 'imagen', activo: true, pautaIds: [] })).toMatchObject({
       visible: true,
       detalle: 'Aparece en: lista de multimedia',
     });
   });
   it('imagen con pauta → en ambos lugares', () => {
-    expect(comoLoVeElBot({ tipo: 'imagen', activo: true, pautaId: 3 }).detalle).toContain(' y ');
+    expect(comoLoVeElBot({ tipo: 'imagen', activo: true, pautaIds: [3] }).detalle).toContain(' y ');
   });
   it('promoción con pauta → solo en la pauta', () => {
-    expect(comoLoVeElBot({ tipo: 'promocion', activo: true, pautaId: 3 })).toMatchObject({
+    expect(comoLoVeElBot({ tipo: 'promocion', activo: true, pautaIds: [3] })).toMatchObject({
       visible: true,
       detalle: 'Aparece en: imágenes de su pauta',
     });
   });
+  it('con varias pautas lo indica', () => {
+    expect(comoLoVeElBot({ tipo: 'promocion', activo: true, pautaIds: [3, 4] }).detalle).toBe(
+      'Aparece en: imágenes de sus 2 pautas',
+    );
+  });
   it('promoción sin pauta → el bot no la ve', () => {
-    expect(comoLoVeElBot({ tipo: 'promocion', activo: true, pautaId: null }).visible).toBe(false);
+    expect(comoLoVeElBot({ tipo: 'promocion', activo: true, pautaIds: [] }).visible).toBe(false);
   });
   it('inactivo → el bot no lo ve', () => {
-    expect(comoLoVeElBot({ tipo: 'imagen', activo: false, pautaId: null }).visible).toBe(false);
+    expect(comoLoVeElBot({ tipo: 'imagen', activo: false, pautaIds: [] }).visible).toBe(false);
   });
 });

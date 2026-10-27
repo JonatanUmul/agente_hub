@@ -218,6 +218,13 @@ Por eso el script otorga `INSERT` (sin `UPDATE`/`DELETE`) y `USAGE` sobre la sec
   el horario semanal. **`eco_v_agentes_en_horario`**: agentes no archivados en horario ahora.
 - Permisos: `eco_app` administra lo nuevo (con `DELETE` en estas tres tablas); `eco_n8n` solo lee.
 
+## Cambios aplicados por la app (docs/sql/003_multimedia_varias_pautas.sql)
+
+- **`eco_multimedia_pautas`** (`multimedia_id`, `pauta_id`): un archivo puede aparecer en las imágenes de varias pautas.
+  `eco_multimedia.pauta_id` se conserva por compatibilidad (la app guarda ahí la primera).
+- **`eco_contexto()`**: solo cambia la consulta de `imagenes` de cada pauta (ahora desde la tabla nueva). Verificado:
+  mismo JSON antes y después en los 5 módulos.
+
 ## Tablas operativas del bot
 
 No fueron inspeccionadas (no son `eco_*`). La app **no las toca** y `eco_app` no tiene permisos sobre ellas.

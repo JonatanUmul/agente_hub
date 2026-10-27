@@ -83,7 +83,7 @@ try {
     archivos.map((a) => ({
       ...tomar(a, ['descripcion', 'color', 'tema', 'orden', 'activo', 'version', 'hubspotFileId']),
       productoId: a.producto?.id ?? null,
-      pautaId: a.pauta?.id ?? null,
+      pautaIds: a.pautas.map((pa) => pa.id),
     })),
     (a) => a.hubspotFileId,
   );

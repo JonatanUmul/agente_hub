@@ -9,7 +9,8 @@ const SELECT_PAUTA = `
          ${estadoVigenciaSql('pa')} AS estado_vigencia,
          (SELECT count(*)::int FROM eco_productos_pautas pp JOIN eco_productos p ON p.id = pp.producto_id
            WHERE pp.pauta_id = pa.id AND p.activo) AS productos_activos,
-         (SELECT count(*)::int FROM eco_multimedia m WHERE m.pauta_id = pa.id AND m.activo) AS archivos_activos
+         (SELECT count(*)::int FROM eco_multimedia_pautas mp JOIN eco_multimedia m ON m.id = mp.multimedia_id
+           WHERE mp.pauta_id = pa.id AND m.activo) AS archivos_activos
   FROM eco_pautas pa`;
 
 const fechaONull = (fecha) => fecha?.toISOString() ?? null;

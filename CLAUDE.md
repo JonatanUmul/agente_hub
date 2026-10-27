@@ -91,7 +91,8 @@ Los métodos que modifican exigen la cabecera `x-csrf-token` (el cliente web la 
 - Cambios de estructura en la base del bot: scripts numerados en `docs/sql/00N_*.sql` (idempotentes, `SET LOCAL ROLE
 eco_admin`), probados en una base desechable igual a producción, y replicados en `docker/postgres/init/`. Los
   aplica una persona en producción; la app nunca altera estructuras por su cuenta.
-- Producto ↔ pautas: `eco_productos_pautas` (varias por producto). Horarios: `eco_agentes_horario` /
+- Producto ↔ pautas: `eco_productos_pautas`; multimedia ↔ pautas: `eco_multimedia_pautas` (varias en ambos; las columnas
+  `pauta_id` viejas guardan la primera por compatibilidad). Horarios: `eco_agentes_horario` /
   `eco_agentes_descanso` + `eco_agente_en_horario()`; `hubspot_agentes` es de n8n y la app solo la lee.
 - Solo `precios_habilitados` y `promociones_habilitadas` son editables en `eco_configuracion`; las demás claves son de n8n.
 - Preferir desactivar (`activo = false`) antes que borrar.

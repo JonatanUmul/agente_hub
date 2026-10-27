@@ -12,6 +12,7 @@ import { Boton } from '../../components/Boton.jsx';
 import { Campo, claseControl } from '../../components/Campo.jsx';
 import { Cargando } from '../../components/Cargando.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
+import { SelectorPautas } from '../../components/SelectorPautas.jsx';
 import { usePautasResumen } from '../pautas/hooks.js';
 import { useProductos } from '../productos/hooks.js';
 
@@ -33,7 +34,7 @@ const valoresIniciales = (a) => ({
   productoId: a?.producto?.id ?? null,
   color: a?.color ?? '',
   tema: a?.tema ?? '',
-  pautaId: a?.pauta?.id ?? null,
+  pautaIds: a?.pautas.map((pa) => pa.id).sort((x, y) => x - y) ?? [],
   orden: a?.orden ?? 100,
   activo: a?.activo ?? true,
 });
@@ -58,11 +59,11 @@ function FormularioArchivo({ archivo, productos, pautas, mutacion, alTerminar, a
     formState: { errors },
   } = useForm({ resolver: zodResolver(esquema), defaultValues: valoresIniciales(archivo) });
 
-  const [tipo, activo, pautaId, productoId] = useWatch({
+  const [tipo, activo, pautaIds, productoId] = useWatch({
     control,
-    name: ['tipo', 'activo', 'pautaId', 'productoId'],
+    name: ['tipo', 'activo', 'pautaIds', 'productoId'],
   });
-  const visibilidad = comoLoVeElBot({ tipo, activo, pautaId });
+  const visibilidad = comoLoVeElBot({ tipo, activo, pautaIds });
   // Sugerimos los colores del producto elegido, sin obligar (la base no lo exige).
   const coloresSugeridos = productos.find((p) => p.id === productoId)?.colores ?? [];
 
@@ -137,17 +138,12 @@ function FormularioArchivo({ archivo, productos, pautas, mutacion, alTerminar, a
           />
         </Campo>
       </div>
-      <Campo etiqueta="Pauta" error={errors.pautaId}>
-        <select className={claseControl} {...register('pautaId', { setValueAs: vacioANull })}>
-          <option value="">Ninguna</option>
-          {pautas.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.nombre}
-              {!p.vigente && ' — no vigente'}
-            </option>
-          ))}
-        </select>
-      </Campo>
+      <SelectorPautas
+        control={control}
+        pautas={pautas}
+        error={errors.pautaIds}
+        ayuda="El archivo aparece en las imágenes de cada pauta vigente (con promociones encendidas)."
+      />
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" {...register('activo')} /> Activo
       </label>

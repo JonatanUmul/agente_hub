@@ -41,6 +41,7 @@ psql -X -c "SELECT has_table_privilege('eco_app', 'eco_productos', 'UPDATE'), ha
 
 ```bash
 psql -X -f docs/sql/002_pautas_multiples_y_horarios.sql   # varias pautas por producto + horarios de agentes
+psql -X -f docs/sql/003_multimedia_varias_pautas.sql       # varias pautas por archivo de multimedia
 ```
 
 Idempotente. Después de aplicarlo, actualizar los flujos de n8n que usen horarios (ver `prompt_claude_desktop_n8n.md`).

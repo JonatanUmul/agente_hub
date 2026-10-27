@@ -30,7 +30,7 @@ function filtrar(archivos, f) {
       a.tema,
       a.producto?.nombre,
       a.producto?.codigo,
-      a.pauta?.nombre,
+      ...a.pautas.map((pa) => pa.nombre),
     ];
     return (
       (!texto || campos.some((v) => v?.toLowerCase().includes(texto))) &&
@@ -41,7 +41,7 @@ function filtrar(archivos, f) {
   });
 }
 const visibilidad = (a) =>
-  comoLoVeElBot({ tipo: a.tipo, activo: a.activo, pautaId: a.pauta?.id ?? null });
+  comoLoVeElBot({ tipo: a.tipo, activo: a.activo, pautaIds: a.pautas.map((pa) => pa.id) });
 
 export function MultimediaPage() {
   const { data: archivos, isPending, error } = useArchivos();
@@ -92,7 +92,19 @@ export function MultimediaPage() {
       ),
     },
     { titulo: 'Tema', celda: (a) => a.tema ?? '—' },
-    { titulo: 'Pauta', celda: (a) => a.pauta?.nombre ?? '—' },
+    {
+      titulo: 'Pautas',
+      celda: (a) =>
+        a.pautas.length ? (
+          <div className="text-xs">
+            {a.pautas.map((pa) => (
+              <div key={pa.id}>{pa.nombre}</div>
+            ))}
+          </div>
+        ) : (
+          <span className="text-apagado">—</span>
+        ),
+    },
     { titulo: 'Orden', className: 'text-right', celda: (a) => a.orden },
     {
       titulo: 'El bot',

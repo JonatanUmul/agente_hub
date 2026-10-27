@@ -11,7 +11,7 @@ Imágenes, videos y artes de promociones que el bot envía (`eco_multimedia`), i
   - `PATCH /api/multimedia/:id/activo` `{ activo, version }`.
 - **Cómo lo usa el bot** (`eco_contexto()`, ver `comoLoVeElBot` en `@ecofiltro/shared`):
   - `imagen` y `video` activos → lista general (`multimedia`), con producto, color y tema.
-  - Cualquier archivo activo con `pauta_id` → `imagenes` de esa pauta, solo si la pauta está vigente y las
+  - Cualquier archivo activo asociado a pautas (`eco_multimedia_pautas`, puede tener varias) → `imagenes` de cada pauta, solo si la pauta está vigente y las
     promociones encendidas.
   - ⚠ `promocion` **sin pauta** no llega nunca al bot. La web lo advierte.
 - **Límites:** la app no verifica que el ID exista en HubSpot (no tiene acceso a su API). No se borran registros.

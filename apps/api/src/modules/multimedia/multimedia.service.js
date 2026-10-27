@@ -13,7 +13,7 @@ const CAMPOS_EDITABLES = [
   'productoId',
   'color',
   'tema',
-  'pautaId',
+  'pautaIds',
   'orden',
   'activo',
 ];

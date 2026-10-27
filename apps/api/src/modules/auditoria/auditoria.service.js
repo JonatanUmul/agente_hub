@@ -34,6 +34,8 @@ export function calcularEtiqueta({ antes, despues }) {
     return `Agente ${fila.agente_id}: descanso ${fila.desde} a ${fila.hasta}`;
   if (fila.producto_id && fila.pauta_id)
     return `Producto ${fila.producto_id} ↔ pauta ${fila.pauta_id}`;
+  if (fila.multimedia_id && fila.pauta_id)
+    return `Archivo ${fila.multimedia_id} ↔ pauta ${fila.pauta_id}`;
   const texto = CAMPOS_ETIQUETA.map((c) => fila[c]).find(Boolean) ?? null;
   // En productos y pautas el código (ItemCode en productos) ayuda a distinguir nombres parecidos.
   return fila.codigo && texto ? `${texto} (${fila.codigo})` : (texto ?? fila.codigo ?? null);

@@ -10,7 +10,7 @@ const editable = {
   productoId: 1,
   color: 'azul',
   tema: null,
-  pautaId: null,
+  pautaIds: [],
   orden: 100,
   activo: true,
   version: 'v1',
@@ -34,7 +34,7 @@ describe('multimedia', () => {
   it('traduce producto o pauta inexistente a 400', async () => {
     repo.actualizar.mockRejectedValue(Object.assign(new Error('fk'), { code: '23503' }));
     await expect(
-      editarArchivo(db, { id: 1, datos: { ...editable, pautaId: 999 }, correo: 'c@e.com' }),
+      editarArchivo(db, { id: 1, datos: { ...editable, pautaIds: [999] }, correo: 'c@e.com' }),
     ).rejects.toMatchObject({ codigo: 'REFERENCIA_INEXISTENTE' });
   });
 

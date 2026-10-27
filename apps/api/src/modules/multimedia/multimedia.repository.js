@@ -1,13 +1,19 @@
 // SQL de eco_multimedia (imágenes, videos y artes de promociones con su ID de archivo de HubSpot).
 
+// `pautas` = todas las pautas en cuyas imágenes aparece el archivo (eco_multimedia_pautas).
 const SELECT_ARCHIVO = `
   SELECT m.id, m.tipo, m.hubspot_file_id, m.descripcion, m.color, m.tema, m.orden, m.activo,
          m.actualizado_en, m.actualizado_por, m.actualizado_en::text AS version,
          p.id AS producto_id, p.codigo AS producto_codigo, p.nombre AS producto_nombre,
-         pa.id AS pauta_id, pa.codigo AS pauta_codigo, pa.nombre AS pauta_nombre
+         COALESCE((
+           SELECT json_agg(json_build_object('id', pa.id, 'codigo', pa.codigo, 'nombre', pa.nombre)
+                  ORDER BY pa.nombre, pa.id)
+           FROM eco_multimedia_pautas mp
+           JOIN eco_pautas pa ON pa.id = mp.pauta_id
+           WHERE mp.multimedia_id = m.id
+         ), '[]') AS pautas
   FROM eco_multimedia m
-  LEFT JOIN eco_productos p ON p.id = m.producto_id
-  LEFT JOIN eco_pautas pa ON pa.id = m.pauta_id`;
+  LEFT JOIN eco_productos p ON p.id = m.producto_id`;
 
 function aArchivo(fila) {
   return {
@@ -20,9 +26,7 @@ function aArchivo(fila) {
       : null,
     color: fila.color,
     tema: fila.tema,
-    pauta: fila.pauta_id
-      ? { id: fila.pauta_id, codigo: fila.pauta_codigo, nombre: fila.pauta_nombre }
-      : null,
+    pautas: fila.pautas,
     orden: fila.orden,
     activo: fila.activo,
     actualizadoEn: fila.actualizado_en.toISOString(),
@@ -55,19 +59,21 @@ export async function insertar(db, datos, actualizadoPor) {
       datos.productoId,
       datos.color,
       datos.tema,
-      datos.pautaId,
+      datos.pautaIds[0] ?? null,
       datos.orden,
       datos.activo,
       actualizadoPor,
     ],
   );
+  await sincronizarPautas(db, rows[0].id, datos.pautaIds, actualizadoPor);
   return rows[0].id;
 }
 
 // Campos editables + versión, bloqueando la fila hasta el fin de la transacción.
 export async function obtenerEditableBloqueando(db, id) {
   const { rows } = await db.query(
-    `SELECT descripcion, producto_id, color, tema, pauta_id, orden, activo, actualizado_en::text AS version
+    `SELECT descripcion, producto_id, color, tema, orden, activo, actualizado_en::text AS version,
+            ARRAY(SELECT pauta_id FROM eco_multimedia_pautas WHERE multimedia_id = $1 ORDER BY pauta_id) AS pauta_ids
      FROM eco_multimedia WHERE id = $1 FOR UPDATE`,
     [id],
   );
@@ -78,7 +84,7 @@ export async function obtenerEditableBloqueando(db, id) {
     productoId: fila.producto_id,
     color: fila.color,
     tema: fila.tema,
-    pautaId: fila.pauta_id,
+    pautaIds: fila.pauta_ids,
     orden: fila.orden,
     activo: fila.activo,
     version: fila.version,
@@ -97,10 +103,26 @@ export async function actualizar(db, id, datos, actualizadoPor) {
       datos.productoId,
       datos.color,
       datos.tema,
-      datos.pautaId,
+      datos.pautaIds[0] ?? null,
       datos.orden,
       datos.activo,
       actualizadoPor,
     ],
+  );
+  await sincronizarPautas(db, id, datos.pautaIds, actualizadoPor);
+}
+
+// Deja las pautas del archivo exactamente como `pautaIds`. eco_multimedia.pauta_id (columna anterior a
+// docs/sql/003) guarda la primera por compatibilidad; la fuente de verdad es eco_multimedia_pautas.
+async function sincronizarPautas(db, multimediaId, pautaIds, actualizadoPor) {
+  await db.query(
+    `DELETE FROM eco_multimedia_pautas WHERE multimedia_id = $1 AND NOT (pauta_id = ANY($2::int[]))`,
+    [multimediaId, pautaIds],
+  );
+  await db.query(
+    `INSERT INTO eco_multimedia_pautas (multimedia_id, pauta_id, actualizado_por)
+     SELECT $1, unnest($2::int[]), $3
+     ON CONFLICT DO NOTHING`,
+    [multimediaId, pautaIds, actualizadoPor],
   );
 }
