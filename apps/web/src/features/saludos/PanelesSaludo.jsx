@@ -1,47 +1,12 @@
 import { useState } from 'react';
-import {
-  MODULOS_SALUDO,
-  MODULOS_SALUDO_HOY,
-  NOMBRES_MODULO_SALUDO,
-  ahoraEnGuatemala,
-} from '@ecofiltro/shared';
+import { MODULOS_SALUDO, NOMBRES_MODULO_SALUDO, ahoraEnGuatemala } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
 import { claseControl, claseFiltro } from '../../components/Campo.jsx';
 import { GloboWhatsapp } from '../../components/GloboWhatsapp.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
-import { useGuardarTextoMenu, useSaludoVigente, useSimulacion, useTextoMenu } from './hooks.js';
+import { useGuardarTextoMenu, useSimulacion, useTextoMenu } from './hooks.js';
 
 const SIN_SALUDO = 'Sin saludo: el bot usará el saludo por defecto';
-
-function SaludoDeHoy({ modulo, textoMenu }) {
-  const { data } = useSaludoVigente(modulo);
-  return (
-    <div className="space-y-2 rounded-lg border border-borde bg-panel p-4">
-      <h3 className="text-sm font-medium">{NOMBRES_MODULO_SALUDO[modulo]}</h3>
-      {data && (
-        <GloboWhatsapp>
-          {data.saludo ?? <span className="text-[#667781]">{SIN_SALUDO}</span>}
-          {modulo === 'MENU' && textoMenu && `\n\n${textoMenu}`}
-        </GloboWhatsapp>
-      )}
-    </div>
-  );
-}
-
-// Tarjetas «Hoy el bot saluda así».
-export function SaludosDeHoy() {
-  const { data: menu } = useTextoMenu();
-  return (
-    <div className="space-y-2">
-      <h3 className="font-medium">Hoy el bot saluda así</h3>
-      <div className="grid gap-3 md:grid-cols-3">
-        {MODULOS_SALUDO_HOY.map((m) => (
-          <SaludoDeHoy key={m} modulo={m} textoMenu={menu?.texto} />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export function Simulador() {
   const ahora = ahoraEnGuatemala();

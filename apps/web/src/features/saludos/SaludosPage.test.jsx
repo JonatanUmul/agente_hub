@@ -71,10 +71,10 @@ const pagina = () =>
   );
 
 describe('SaludosPage', () => {
-  it('muestra el saludo de hoy con el texto del menú, la vigencia y la etiqueta Vigente hoy', () => {
+  it('muestra la vigencia, la etiqueta Vigente hoy y el texto del menú, sin las vistas por módulo', () => {
     pagina();
-    expect(screen.getAllByText(/Buenos días! Normal/).length).toBe(3);
-    expect(screen.getAllByText(/Elige una opción:/).length).toBeGreaterThan(0);
+    expect(screen.queryByText('Hoy el bot saluda así')).toBeNull();
+    expect(screen.getByDisplayValue('Elige una opción:')).toBeTruthy();
     expect(screen.getByText('Cada año del 15 dic al 26 dic')).toBeTruthy();
     expect(screen.getAllByText('Vigente hoy')).toHaveLength(1);
     expect(screen.queryByRole('alert')).toBeNull();

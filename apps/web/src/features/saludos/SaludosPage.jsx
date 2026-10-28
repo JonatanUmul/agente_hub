@@ -23,7 +23,7 @@ import {
 } from './hooks.js';
 import { LineaTiempo } from './LineaTiempo.jsx';
 import { SaludoForm } from './SaludoForm.jsx';
-import { SaludosDeHoy, Simulador, TextoMenu } from './PanelesSaludo.jsx';
+import { Simulador, TextoMenu } from './PanelesSaludo.jsx';
 
 // Sin fechas = al principio al ordenar por fecha.
 const ORDENES = {
@@ -128,8 +128,6 @@ export function SaludosPage() {
           Sin saludo base: el bot usará el saludo por defecto.
         </p>
       )}
-
-      <SaludosDeHoy />
 
       <div className="flex items-center justify-end gap-2 text-sm text-tenue">
         Ordenar por

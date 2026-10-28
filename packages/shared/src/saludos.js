@@ -13,8 +13,6 @@ export const NOMBRES_MODULO_SALUDO = {
   SAC: 'Atención al cliente',
   DISTRIBUIDOR: 'Distribuidores',
 };
-// Módulos con tarjeta «Hoy el bot saluda así».
-export const MODULOS_SALUDO_HOY = ['MENU', 'COMPRA', 'SAC'];
 export const EMOJIS_SALUDO = ['😊', '🎄', '🎉', '🇬🇹', '💐', '💧', '🙌', '✨', '🎃', '❤️'];
 export const COMODIN_MOMENTO = '{momento}';
 export const PRIORIDAD_TEMPORADA = 10;
