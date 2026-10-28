@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { INTERRUPTORES_COMERCIALES } from '@ecofiltro/shared';
 import { ConfirmarModal } from '../../components/ConfirmarModal.jsx';
 import { EnlaceHistorial } from '../../components/EnlaceHistorial.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
@@ -39,33 +40,36 @@ export function InterruptoresPage() {
         </p>
       </div>
 */}
-      {interruptores.map((i) => (
-        <div
-          key={i.clave}
-          className="flex items-start gap-4 rounded-lg border border-borde bg-panel p-4"
-        >
-          <Toggle
-            activo={i.habilitado}
-            etiqueta={TITULOS[i.clave]}
-            deshabilitado={!puedeEditar}
-            alCambiar={(habilitado) => setPendiente({ clave: i.clave, habilitado })}
-          />
-          <div className="flex-1">
-            <h3 className="font-medium">
-              {TITULOS[i.clave]}{' '}
-              <span className={i.habilitado ? 'text-acento' : 'text-tenue'}>
-                · {i.habilitado ? 'Encendido' : 'Apagado'}
-              </span>
-            </h3>
-            <p className="text-sm text-tenue">{i.descripcion}</p>
-            <p className="mt-1 text-xs text-tenue">
-              Último cambio: {fecha(i.actualizadoEn)}{' '}
-              {i.actualizadoPor && `por ${i.actualizadoPor}`} ·{' '}
-              <EnlaceHistorial tabla="eco_configuracion" registroId={i.clave} />
-            </p>
+      {/* cierre_automatico se administra en Frases de cierre. */}
+      {interruptores
+        .filter((i) => INTERRUPTORES_COMERCIALES.includes(i.clave))
+        .map((i) => (
+          <div
+            key={i.clave}
+            className="flex items-start gap-4 rounded-lg border border-borde bg-panel p-4"
+          >
+            <Toggle
+              activo={i.habilitado}
+              etiqueta={TITULOS[i.clave]}
+              deshabilitado={!puedeEditar}
+              alCambiar={(habilitado) => setPendiente({ clave: i.clave, habilitado })}
+            />
+            <div className="flex-1">
+              <h3 className="font-medium">
+                {TITULOS[i.clave]}{' '}
+                <span className={i.habilitado ? 'text-acento' : 'text-tenue'}>
+                  · {i.habilitado ? 'Encendido' : 'Apagado'}
+                </span>
+              </h3>
+              <p className="text-sm text-tenue">{i.descripcion}</p>
+              <p className="mt-1 text-xs text-tenue">
+                Último cambio: {fecha(i.actualizadoEn)}{' '}
+                {i.actualizadoPor && `por ${i.actualizadoPor}`} ·{' '}
+                <EnlaceHistorial tabla="eco_configuracion" registroId={i.clave} />
+              </p>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
 
       <ConfirmarModal
         abierto={Boolean(pendiente)}

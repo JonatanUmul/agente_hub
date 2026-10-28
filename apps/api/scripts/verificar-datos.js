@@ -8,6 +8,8 @@ import {
   esquemaArchivo,
   esquemaContexto,
   esquemaEditarArchivo,
+  esquemaEditarFrase,
+  esquemaFrase,
   esquemaEditarPregunta,
   esquemaEditarProducto,
   esquemaEditarRegla,
@@ -19,6 +21,7 @@ import {
 } from '@ecofiltro/shared';
 import { cargarEnv } from '../src/config/env.js';
 import { listarInterruptores } from '../src/modules/configuracion/configuracion.service.js';
+import * as frases from '../src/modules/frases/frases.repository.js';
 import * as multimedia from '../src/modules/multimedia/multimedia.repository.js';
 import * as pautas from '../src/modules/pautas/pautas.repository.js';
 import * as preguntas from '../src/modules/preguntas/preguntas.repository.js';
@@ -101,6 +104,15 @@ try {
     esquemaEditarPregunta,
     listaPreguntas,
     (q) => `#${q.numero}`,
+  );
+
+  const listaFrases = await frases.listar(pool);
+  validar('frases de cierre', esquemaFrase, listaFrases, (f) => `#${f.id}`);
+  validar(
+    'frases de cierre (guardar sin cambios)',
+    esquemaEditarFrase,
+    listaFrases,
+    (f) => `#${f.id}`,
   );
 
   validar('interruptores', esquemaInterruptor, await listarInterruptores(pool), (i) => i.clave);

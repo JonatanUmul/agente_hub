@@ -98,7 +98,10 @@ eco_admin`), probados en una base desechable igual a producción, y replicados e
 - Ficha de producto (descripción, características, medidas, peso…): columnas opcionales de `eco_productos` que el bot
   recibe en `eco_contexto()`; los vacíos no se envían. Reglas en `@ecofiltro/shared/ficha.js` (`fichaQueVeElBot`,
   `faltantesFicha`, `contradiccionesFicha`, `TIPOS_POR_CAMPO`), con prueba de paridad contra `eco_contexto()`.
-- Solo `precios_habilitados` y `promociones_habilitadas` son editables en `eco_configuracion`; las demás claves son de n8n.
+- Editables en `eco_configuracion`: `precios_habilitados` y `promociones_habilitadas` (Interruptores) y
+  `cierre_automatico` (desde Frases de cierre, permiso `frases:editar`); las demás claves son de n8n.
+- Frases de cierre (`eco_frases_cierre`, módulo `frases`): n8n elige una al azar entre las activas de GLOBAL + el módulo
+  y la situación (`frasesParaElBot` en `@ecofiltro/shared/frases.js`, con prueba contra `eco_contexto()`).
 - Preferir desactivar (`activo = false`) antes que borrar.
 - No tocar tablas operativas del bot (`eventos`, `work`, `hubspot_*`, `*_locks`, `chat_asignados`, `menu*`...).
 - Cambios sensibles (encender precios, cambiar un precio, desactivar una regla) piden confirmación en la UI.

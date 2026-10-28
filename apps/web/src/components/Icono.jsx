@@ -30,6 +30,7 @@ const TRAZOS = {
     'M15 13v2',
     'M9 13v2',
   ],
+  mensaje: ['M7.9 20A9 9 0 1 0 4 16.1L2 22Z'],
   grafico: ['M3 3v16a2 2 0 0 0 2 2h16', 'M18 17V9', 'M13 17V5', 'M8 17v-3'],
   historial: ['M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8', 'M3 3v5h5', 'M12 7v5l4 2'],
   usuarios: [

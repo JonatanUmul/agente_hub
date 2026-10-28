@@ -9,6 +9,7 @@ export const TABLAS_AUDITADAS = {
   eco_multimedia: 'Multimedia',
   eco_reglas_bot: 'Reglas del bot',
   eco_preguntas_frecuentes: 'Preguntas frecuentes',
+  eco_frases_cierre: 'Frases de cierre',
   eco_productos_pautas: 'Pautas de productos',
   eco_multimedia_pautas: 'Pautas de multimedia',
   eco_agentes_horario: 'Horarios de agentes',

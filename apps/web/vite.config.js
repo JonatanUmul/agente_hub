@@ -11,4 +11,6 @@ export default defineConfig({
     // API_URL permite apuntar a otra API (p. ej. una segunda copia local en otro puerto).
     proxy: { '/api': process.env.API_URL ?? 'http://localhost:3000' },
   },
+  // Pruebas de componentes (npm test): navegador simulado con jsdom.
+  test: { environment: 'jsdom', include: ['src/**/*.test.jsx'] },
 });

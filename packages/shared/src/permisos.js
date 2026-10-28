@@ -11,6 +11,8 @@ export const PERMISOS = Object.freeze({
   'multimedia:editar': ['admin', 'comercial'],
   'reglas:editar': ['admin', 'contenido'],
   'preguntas:editar': ['admin', 'contenido'],
+  // Frases de cierre y su interruptor (cierre_automatico).
+  'frases:editar': ['admin', 'contenido'],
   'horarios:editar': ['admin'],
   // El dashboard lo ven todos (permiso 'ver'); exportar a CSV, solo estos roles.
   'reportes:exportar': ['admin', 'comercial'],

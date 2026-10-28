@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MODULOS } from '@ecofiltro/shared';
+import { INFO_SITUACIONES, MODULOS, SITUACIONES_FRASE } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
 import { BotonCopiar } from '../../components/BotonCopiar.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
@@ -187,6 +187,8 @@ function VistaLegible({ contexto: c }) {
         </ul>
       </Seccion>
 
+      <FrasesCierre contexto={c} />
+
       <Seccion titulo="Multimedia" cantidad={c.multimedia.length}>
         <ul className="space-y-1 text-sm">
           {c.multimedia.map((m) => (
@@ -223,5 +225,47 @@ function VistaLegible({ contexto: c }) {
         ).
       </p>
     </div>
+  );
+}
+
+// eco_contexto(modulo)->'frases_cierre': activas de GLOBAL + el módulo. Cada elemento puede venir como texto o
+// como objeto ({ frase, situacion, modulo }); se muestran agrupadas por situación cuando la traen.
+function FrasesCierre({ contexto: c }) {
+  if (!Array.isArray(c.frases_cierre)) return null;
+  const frases = c.frases_cierre.map((f) => (typeof f === 'string' ? { frase: f } : f));
+  const cierreEncendido = c.configuracion?.cierre_automatico?.toLowerCase() !== 'false';
+  const grupos = [
+    ...SITUACIONES_FRASE.map((s) => [s, frases.filter((f) => f.situacion === s)]),
+    ['otras', frases.filter((f) => !SITUACIONES_FRASE.includes(f.situacion))],
+  ].filter(([, lista]) => lista.length);
+  return (
+    <Seccion titulo="Frases de cierre" cantidad={frases.length}>
+      {!cierreEncendido && (
+        <p className="text-sm text-tenue">Cierre automático apagado: el bot no agrega cierre.</p>
+      )}
+      {frases.length === 0 && (
+        <p className="text-sm text-tenue">Sin frases activas: el bot no agrega cierre.</p>
+      )}
+      <div className="space-y-2">
+        {grupos.map(([situacion, lista]) => (
+          <div key={situacion}>
+            <p className="text-xs text-tenue">
+              {INFO_SITUACIONES[situacion]?.titulo ?? 'Sin situación'}
+            </p>
+            <ul className="list-disc pl-5 text-sm">
+              {lista.map((f, i) => (
+                <li key={`${f.modulo}-${f.frase}-${i}`}>
+                  {f.frase}
+                  {f.modulo && <span className="text-xs text-tenue"> · {f.modulo}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <Link to="/frases-cierre" className="mt-2 inline-block text-sm text-acento underline">
+        Administrar frases de cierre
+      </Link>
+    </Seccion>
   );
 }

@@ -8,6 +8,7 @@ import { useAgentes } from '../agentes/hooks.js';
 import { usePermiso } from '../auth/hooks.js';
 import { urlExportar } from './api.js';
 import { Barras } from './Barras.jsx';
+import { FrasesActivas } from './FrasesActivas.jsx';
 import { FiltrosReporte } from './FiltrosReporte.jsx';
 import { GraficosPorDia } from './GraficosPorDia.jsx';
 import { MapaCalor } from './MapaCalor.jsx';
@@ -161,6 +162,7 @@ function Contenido({ reporte, exportar }) {
           ]}
         />
       </Tarjeta>
+      <FrasesActivas />
       <Tarjeta titulo="Preguntas frecuentes más usadas" acciones={exportar('preguntas')}>
         <Tabla
           clave={(q) => q.numero}

@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import { INTERRUPTORES, esquemaCambiarInterruptor, esquemaInterruptor } from '@ecofiltro/shared';
+import {
+  INTERRUPTORES_COMERCIALES,
+  esquemaCambiarInterruptor,
+  esquemaInterruptor,
+} from '@ecofiltro/shared';
 import * as servicio from './configuracion.service.js';
 
 export async function rutasConfiguracion(app) {
@@ -14,7 +18,8 @@ export async function rutasConfiguracion(app) {
     {
       config: { permiso: 'configuracion:editar' },
       schema: {
-        params: z.object({ clave: z.enum(INTERRUPTORES) }),
+        // cierre_automatico se cambia en /frases-cierre/cierre-automatico (otro permiso).
+        params: z.object({ clave: z.enum(INTERRUPTORES_COMERCIALES) }),
         body: esquemaCambiarInterruptor,
         response: { 200: esquemaInterruptor },
       },

@@ -10,6 +10,7 @@ import moduloAuditoria from './modules/auditoria/index.js';
 import moduloAuth from './modules/auth/index.js';
 import moduloConfiguracion from './modules/configuracion/index.js';
 import moduloContexto from './modules/contexto/index.js';
+import moduloFrases from './modules/frases/index.js';
 import moduloMultimedia from './modules/multimedia/index.js';
 import moduloPautas from './modules/pautas/index.js';
 import moduloPreguntas from './modules/preguntas/index.js';
@@ -64,6 +65,7 @@ export async function crearApp({ config, pool, poolReportes = null, logger = tru
       await api.register(moduloContexto);
       await api.register(moduloAgentes);
       await api.register(moduloReportes);
+      await api.register(moduloFrases);
       if (registrar) await api.register(registrar);
     },
     { prefix: '/api' },

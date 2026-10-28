@@ -6,10 +6,12 @@ import {
   DESTINOS,
   INFO_DESTINOS,
   MODULOS,
+  REGLA_CIERRE,
   agentesAfectados,
   esquemaCrearRegla,
   esquemaEditarRegla,
 } from '@ecofiltro/shared';
+import { Link } from 'react-router-dom';
 import { Boton } from '../../components/Boton.jsx';
 import { Campo, claseControl } from '../../components/Campo.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
@@ -124,7 +126,18 @@ export function ReglaForm({ regla, categorias, mutacion, alTerminar, alCancelar 
   return (
     <form onSubmit={handleSubmit(enviar)} className="space-y-4" noValidate>
       {editando ? (
-        <p className="text-sm text-tenue">Código: {regla.codigo}</p>
+        <>
+          <p className="text-sm text-tenue">Código: {regla.codigo}</p>
+          {regla.codigo === REGLA_CIERRE && (
+            <p className="rounded-md border border-info/30 bg-info/10 px-3 py-2 text-sm">
+              La IA ya no escribe el cierre de los mensajes. Las frases de cierre se administran en{' '}
+              <Link to="/frases-cierre" className="text-acento underline">
+                Frases de cierre
+              </Link>
+              .
+            </p>
+          )}
+        </>
       ) : (
         <Campo
           etiqueta="Código"

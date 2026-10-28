@@ -276,6 +276,30 @@ tabla de arriba). El administrador aplicó el cambio directamente en producción
   `eco_v_catalogo` y `eco_contexto()` (claves del JSON y cómo omiten los vacíos). Si difieren, actualizar la réplica,
   la prueba `productos.integracion.test.js` y esta sección.
 
+## Frases de cierre (aplicado por el administrador, 28-10-2026)
+
+`eco_frases_cierre`: las preguntas con que el bot termina sus mensajes. n8n elige una al azar, sin repetir en la
+conversación, entre las activas de `GLOBAL` + el módulo (compras `COMPRA`, atención `SAC`) y de la situación de la
+respuesta; si no hay de esa situación, usa `general`. Sin frases activas o con `cierre_automatico = false`, no agrega cierre.
+
+| Columna                       | Tipo             | Notas                                                            |
+| ----------------------------- | ---------------- | ---------------------------------------------------------------- |
+| `id` **PK**                   | integer (serial) |                                                                  |
+| `modulo`                      | text             | CHECK `GLOBAL`, `COMPRA`, `SAC`, `DISTRIBUIDOR`                  |
+| `situacion`                   | text             | CHECK `general`, `producto`, `problema`                          |
+| `frase`                       | text             | CHECK 3–200 caracteres · UNIQUE (`modulo`, `situacion`, `frase`) |
+| `activo`                      | boolean          | `true`                                                           |
+| `orden`                       | integer          | `100`                                                            |
+| `creado_en`, `actualizado_en` | timestamptz      | `actualizado_en` lo pone el trigger                              |
+| `actualizado_por`             | text             |                                                                  |
+
+- Trigger de auditoría (`registro_id` = `id`). `eco_app` tiene `SELECT, INSERT, UPDATE, DELETE`.
+- Interruptor `eco_configuracion.cierre_automatico` (`booleano`).
+- `eco_contexto(modulo)` devuelve `frases_cierre`: activas de `GLOBAL` + el módulo, por `orden, id`.
+  ⚠ La forma de cada elemento en producción no se inspeccionó; la réplica
+  ([`10_frases_cierre.sql`](../docker/postgres/init/10_frases_cierre.sql)) usa `{modulo, situacion, frase}` y la vista
+  previa de la app acepta también texto simple.
+
 ## Tablas operativas del bot (inspeccionadas el 27-10-2026, solo lectura)
 
 La app **no escribe** en ellas. El módulo de reportes (fase 5) las lee con un rol propio de solo lectura.
