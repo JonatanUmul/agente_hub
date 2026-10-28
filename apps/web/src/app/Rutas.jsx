@@ -1,4 +1,5 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { InicioPage } from './InicioPage.jsx';
 import { Layout } from './Layout.jsx';
 import { RutaProtegida } from './RutaProtegida.jsx';
 import { LoginPage } from '../features/auth/LoginPage.jsx';
@@ -12,8 +13,13 @@ import { PautasPage } from '../features/pautas/PautasPage.jsx';
 import { PreguntasPage } from '../features/preguntas/PreguntasPage.jsx';
 import { ProductosPage } from '../features/productos/ProductosPage.jsx';
 import { ReglasPage } from '../features/reglas/ReglasPage.jsx';
-import { SaludPage } from '../features/salud/SaludPage.jsx';
 import { UsuariosPage } from '../features/usuarios/UsuariosPage.jsx';
+
+// /reportes ahora es el inicio; se conserva para enlaces guardados (con sus filtros).
+function AlInicio() {
+  const { search } = useLocation();
+  return <Navigate to={`/${search}`} replace />;
+}
 
 export function Rutas() {
   return (
@@ -21,7 +27,8 @@ export function Rutas() {
       <Route path="/login" element={<LoginPage />} />
       <Route element={<RutaProtegida />}>
         <Route element={<Layout />}>
-          <Route index element={<SaludPage />} />
+          <Route index element={<InicioPage />} />
+          <Route path="reportes" element={<AlInicio />} />
           <Route path="productos" element={<ProductosPage />} />
           <Route path="pautas" element={<PautasPage />} />
           <Route path="multimedia" element={<MultimediaPage />} />

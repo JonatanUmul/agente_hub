@@ -20,6 +20,7 @@ La especificación completa está en `prompt_claude_code_app_gestion.md`. `index
 nvm use                      # Node 22
 npm run dev:db               # PostgreSQL 18 de desarrollo (127.0.0.1:5433), réplica del esquema eco_* + datos ficticios
                              # (docker/postgres/init/03_datos_desarrollo.sql; solo corre con volumen nuevo)
+                             # 09_actividad_desarrollo.sql: actividad ficticia del bot para ver el dashboard de reportes
 npm run migrar               # aplica migraciones de gestion (npm run migrar -- down revierte la última)
 npm run crear-admin          # crea un admin por consola
 npm run dev:api              # API en :3000 (lee .env de la raíz)
@@ -94,6 +95,9 @@ eco_admin`), probados en una base desechable igual a producción, y replicados e
 - Producto ↔ pautas: `eco_productos_pautas`; multimedia ↔ pautas: `eco_multimedia_pautas` (varias en ambos; las columnas
   `pauta_id` viejas guardan la primera por compatibilidad). Horarios: `eco_agentes_horario` /
   `eco_agentes_descanso` + `eco_agente_en_horario()`; `hubspot_agentes` es de n8n y la app solo la lee.
+- Ficha de producto (descripción, características, medidas, peso…): columnas opcionales de `eco_productos` que el bot
+  recibe en `eco_contexto()`; los vacíos no se envían. Reglas en `@ecofiltro/shared/ficha.js` (`fichaQueVeElBot`,
+  `faltantesFicha`, `contradiccionesFicha`, `TIPOS_POR_CAMPO`), con prueba de paridad contra `eco_contexto()`.
 - Solo `precios_habilitados` y `promociones_habilitadas` son editables en `eco_configuracion`; las demás claves son de n8n.
 - Preferir desactivar (`activo = false`) antes que borrar.
 - No tocar tablas operativas del bot (`eventos`, `work`, `hubspot_*`, `*_locks`, `chat_asignados`, `menu*`...).

@@ -21,6 +21,10 @@
   --color-alerta: var(--alerta); /* naranja de marca: avisos */
   --color-peligro: var(--peligro);
   --color-info: var(--info);
+  /* Series de gráficos (reportes). Validadas para daltonismo y contraste en cada modo; no son colores de estado. */
+  --color-serie-1: var(--serie-1);
+  --color-serie-2: var(--serie-2);
+  --color-cuadricula: var(--cuadricula); /* líneas de la cuadrícula y ejes: discretas */
 }
 
 @theme {
@@ -45,6 +49,9 @@
   --alerta: #c25a00;
   --peligro: #c62828;
   --info: #007fa6;
+  --serie-1: #2a78d6;
+  --serie-2: #eb6834;
+  --cuadricula: #e6ebef;
 }
 
 /* Modo oscuro: fondo con un leve tono azul Ecofiltro; el celeste de marca como acento (se lee bien sobre oscuro). */
@@ -64,6 +71,9 @@
   --alerta: #f98a2b;
   --peligro: #ef6461;
   --info: #7fcbe9;
+  --serie-1: #3987e5;
+  --serie-2: #d95926;
+  --cuadricula: #1a2934;
 }
 
 body {

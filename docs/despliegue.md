@@ -42,9 +42,14 @@ psql -X -c "SELECT has_table_privilege('eco_app', 'eco_productos', 'UPDATE'), ha
 ```bash
 psql -X -f docs/sql/002_pautas_multiples_y_horarios.sql   # varias pautas por producto + horarios de agentes
 psql -X -f docs/sql/003_multimedia_varias_pautas.sql       # varias pautas por archivo de multimedia
+psql -X -f docs/sql/004_destinos_reglas.sql                # destinos SELECTOR, ORQUESTADOR y VISION
+psql -X -f docs/sql/rol_eco_reportes.sql                   # rol de solo lectura del dashboard de reportes
+psql -X -c "ALTER ROLE eco_reportes PASSWORD '<contraseña generada>'"
 ```
 
-Idempotente. Después de aplicarlo, actualizar los flujos de n8n que usen horarios (ver `prompt_claude_desktop_n8n.md`).
+Idempotente. Los que ya estén aplicados en producción (al 28-10-2026: 002, 003, 004 y `rol_eco_reportes`) no hace
+falta repetirlos. La ficha de productos (columnas nuevas de `eco_productos`) la aplicó el administrador y no tiene
+script en `docs/sql`. Después de aplicarlo, actualizar los flujos de n8n que usen horarios (ver `prompt_claude_desktop_n8n.md`).
 
 ## 2. Datos del servidor
 
@@ -66,7 +71,8 @@ cd /opt/ecofiltro-gestion
 git checkout ecofiltro-gestion        # o la rama/etiqueta a desplegar
 cp .env.produccion.example .env
 chmod 600 .env
-nano .env                              # CORS_ORIGIN, RED_BD, DB_HOST, DB_PASSWORD (de eco_app)…
+nano .env                              # CORS_ORIGIN, RED_BD, DB_HOST, DB_PASSWORD (de eco_app),
+                                       # DB_REPORTES_USER / DB_REPORTES_PASSWORD (de eco_reportes)…
 ```
 
 ## 4. Construir, migrar y verificar
@@ -175,6 +181,8 @@ Los logs no contienen contraseñas, cookies ni tokens (se redactan).
 - [ ] `crear_rol_eco_app.sql` aplicado; `eco_app` tiene `UPDATE` y no `DELETE` sobre `eco_productos`.
 - [ ] `.env` con `chmod 600`, `CORS_ORIGIN` = dominio con `https://`.
 - [ ] `verificar-datos.js` termina en "Todo en orden".
+- [ ] `.env` con `DB_REPORTES_USER` y `DB_REPORTES_PASSWORD`: el inicio muestra el dashboard (sin ellas, avisa
+      «Los reportes no están configurados»).
 - [ ] `api` y `web` "healthy"; `/api/salud` responde `ok`.
 - [ ] El dominio abre la app por HTTPS y el login funciona.
 - [ ] Puerto 8080 **no** accesible desde internet (solo `127.0.0.1`).
