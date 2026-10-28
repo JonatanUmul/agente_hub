@@ -49,11 +49,7 @@ export function UsuarioForm({ usuario, mutacion, alTerminar, alCancelar }) {
         </select>
       </Campo>
       {!editando && (
-        <Campo
-          etiqueta="Contraseña inicial"
-          error={errors.contrasena}
-          ayuda="Mínimo 12 caracteres. Compártela por un canal seguro."
-        >
+        <Campo etiqueta="Contraseña inicial" error={errors.contrasena} ayuda="Mínimo 12 caracteres">
           <input
             type="password"
             autoComplete="new-password"

@@ -265,7 +265,6 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
           control={control}
           pautas={pautas}
           error={errors.pautaIds}
-          ayuda="Se aplica el mayor descuento entre el propio y el de las pautas vigentes."
           mostrarDescuento
         />
         <Campo etiqueta="Colores" error={errors.colores} ayuda="Separados por comas">
@@ -275,7 +274,7 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
           <input className={claseControl} {...register('palabrasClave')} />
         </Campo>
         <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" {...register('activo')} /> Activo (el bot lo conoce y lo ofrece)
+          <input type="checkbox" {...register('activo')} /> Activo
         </label>
       </div>
 
@@ -304,18 +303,15 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
           <span className="text-tenue">(descuento vigente {porcentaje(descuentoPrevio)})</span>
         </p>
         <p>
-          Lo que dirá el bot ahora:{' '}
+          Precio que da el bot:{' '}
           <LoQueVeElBot producto={productoPrevio} interruptores={interruptores} />
         </p>
         <div className="border-t border-borde pt-2">
-          <p className="mb-1 text-xs text-tenue">
-            Ficha que recibe cuando el cliente pregunta por el detalle:
-          </p>
+          <p className="mb-1 text-xs text-tenue">Ficha</p>
           <FichaDelBot producto={enVivo} />
           {contradicciones.length > 0 && (
             <p className="mt-2 text-xs text-alerta">
-              ⚠ {contradicciones.length} característica(s) podrían contradecir los campos del
-              producto (ver pestaña Ficha).
+              ⚠ {contradicciones.length} posible(s) contradicción(es) en las características.
             </p>
           )}
         </div>

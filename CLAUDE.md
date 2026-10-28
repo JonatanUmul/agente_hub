@@ -102,6 +102,8 @@ eco_admin`), probados en una base desechable igual a producción, y replicados e
   `cierre_automatico` (desde Frases de cierre, permiso `frases:editar`); las demás claves son de n8n.
 - Frases de cierre (`eco_frases_cierre`, módulo `frases`): n8n elige una al azar entre las activas de GLOBAL + el módulo
   y la situación (`frasesParaElBot` en `@ecofiltro/shared/frases.js`, con prueba contra `eco_contexto()`).
+- Saludos (`eco_saludos`, módulo `saludos`): el bot usa `eco_saludo(modulo)`. La simulación replica esa función en
+  `candidatosSaludo` (`@ecofiltro/shared/saludos.js`), con prueba de paridad. `menu_bienvenida_texto` se edita en Saludos.
 - Preferir desactivar (`activo = false`) antes que borrar.
 - No tocar tablas operativas del bot (`eventos`, `work`, `hubspot_*`, `*_locks`, `chat_asignados`, `menu*`...).
 - Cambios sensibles (encender precios, cambiar un precio, desactivar una regla) piden confirmación en la UI.

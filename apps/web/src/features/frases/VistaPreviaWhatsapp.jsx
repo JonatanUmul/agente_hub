@@ -5,7 +5,6 @@ import { EJEMPLOS_SITUACION } from '@ecofiltro/shared';
 export function VistaPreviaWhatsapp({ situacion, frase }) {
   return (
     <div className="rounded-md bg-panel-2 p-3">
-      <p className="mb-2 text-xs text-tenue">Así se vería en WhatsApp (mensaje de ejemplo)</p>
       <div className="max-w-sm rounded-lg rounded-tl-none bg-[#d9fdd3] px-3 py-2 text-sm text-[#111b21] shadow-sm">
         <p>{EJEMPLOS_SITUACION[situacion] ?? EJEMPLOS_SITUACION.general}</p>
         <p className="mt-4">

@@ -32,14 +32,6 @@ export function InterruptoresPage() {
 
   return (
     <section className="max-w-2xl space-y-4">
-      {/**  <div>
-        <h2 className="text-lg font-semibold">Interruptores comerciales</h2>
-        <p className="text-sm text-tenue">
-          El bot lee estos valores en cada mensaje: un cambio aplica en el siguiente mensaje de cada
-          cliente.
-        </p>
-      </div>
-*/}
       {/* cierre_automatico se administra en Frases de cierre. */}
       {interruptores
         .filter((i) => INTERRUPTORES_COMERCIALES.includes(i.clave))

@@ -16,7 +16,6 @@ export function FrasesActivas() {
   return (
     <Tarjeta
       titulo="Frases de cierre activas"
-      subtitulo="Estado actual, sin importar el rango de fechas"
       acciones={
         <Link to="/frases-cierre" className="text-sm text-acento hover:underline">
           Administrar

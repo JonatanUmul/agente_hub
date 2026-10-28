@@ -119,7 +119,7 @@ export function GraficosPorDia({ porDia }) {
           </ResponsiveContainer>
         </div>
       </Tarjeta>
-      <Tarjeta titulo="Mensajes en la bandeja por día" subtitulo="Todos, con o sin bot">
+      <Tarjeta titulo="Mensajes en la bandeja por día">
         <div className="mt-2 h-60">
           <ResponsiveContainer>
             <BarChart data={porDia} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>

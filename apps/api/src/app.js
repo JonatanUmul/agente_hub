@@ -18,6 +18,7 @@ import moduloProductos from './modules/productos/index.js';
 import moduloReglas from './modules/reglas/index.js';
 import moduloReportes from './modules/reportes/index.js';
 import moduloSalud from './modules/salud/index.js';
+import moduloSaludos from './modules/saludos/index.js';
 import moduloUsuarios from './modules/usuarios/index.js';
 
 // Rutas de datos que nunca deben aparecer en los logs.
@@ -66,6 +67,7 @@ export async function crearApp({ config, pool, poolReportes = null, logger = tru
       await api.register(moduloAgentes);
       await api.register(moduloReportes);
       await api.register(moduloFrases);
+      await api.register(moduloSaludos);
       if (registrar) await api.register(registrar);
     },
     { prefix: '/api' },

@@ -18,7 +18,6 @@ export function ResumenAgentes({ reglas, alElegir }) {
             key={destino}
             type="button"
             onClick={() => alElegir(destino)}
-            title="Ver las reglas que recibe este agente"
             className={`rounded-lg border bg-panel p-3 text-left transition-colors hover:bg-panel-2/60 ${
               sinPropias ? 'border-peligro/50' : 'border-borde'
             }`}
@@ -51,11 +50,6 @@ export function ResumenAgentes({ reglas, alElegir }) {
                 {miles(LIMITE_CARACTERES_AGENTE)} caracteres
               </p>
             )}
-            {/**   <p className="mt-1 text-[11px] text-alerta">
-                Pasa de {miles(LIMITE_CARACTERES_AGENTE)} caracteres: más tokens y el modelo obedece
-                peor.
-              </p>
-              */}
           </button>
         );
       })}

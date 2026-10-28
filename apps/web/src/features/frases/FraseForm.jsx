@@ -77,11 +77,7 @@ export function FraseForm({ frase, inicial, mutacion, alTerminar, alCancelar }) 
             ))}
           </select>
         </Campo>
-        <Campo
-          etiqueta="Situación"
-          error={errors.situacion}
-          ayuda={INFO_SITUACIONES[situacion]?.cuando}
-        >
+        <Campo etiqueta="Situación" error={errors.situacion}>
           <select className={claseControl} {...register('situacion')}>
             {SITUACIONES_FRASE.map((s) => (
               <option key={s} value={s}>

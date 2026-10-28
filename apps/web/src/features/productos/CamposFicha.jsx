@@ -18,25 +18,17 @@ export const vacioANull = (valor) => (valor === '' || valor === null ? null : Nu
 export function PestanaFicha({ producto, register, control, errors, contradicciones, enVivo }) {
   // Un campo que no aplica a este tipo se oculta, salvo que ya tenga un valor: hay que poder vaciarlo.
   const mostrar = (campo) => campoAplica(campo, producto.tipo) || Boolean(enVivo[campo]);
-  const ayudaNoAplica = (campo, ayuda) =>
+  const ayudaNoAplica = (campo) =>
     campoAplica(campo, producto.tipo)
-      ? ayuda
-      : `No aplica a ${producto.tipo}: solo a ${TIPOS_POR_CAMPO[campo].join(' y ')}. Déjalo vacío para guardar.`;
+      ? undefined
+      : `Solo para ${TIPOS_POR_CAMPO[campo].join(' y ')}: déjalo vacío.`;
 
   return (
     <div className="space-y-4">
-      <Campo
-        etiqueta="Descripción corta"
-        error={errors.descripcionCorta}
-        ayuda="Resumen en una frase"
-      >
+      <Campo etiqueta="Descripción corta" error={errors.descripcionCorta}>
         <input className={claseControl} {...register('descripcionCorta')} />
       </Campo>
-      <Campo
-        etiqueta="Descripción"
-        error={errors.descripcion}
-        ayuda="Descripción comercial que el bot puede usar. Texto simple, sin HTML."
-      >
+      <Campo etiqueta="Descripción" error={errors.descripcion}>
         <textarea rows={4} className={claseControl} {...register('descripcion')} />
       </Campo>
       <ListaCaracteristicas
@@ -60,7 +52,7 @@ export function PestanaFicha({ producto, register, control, errors, contradiccio
           <Campo
             etiqueta={`${ETIQUETAS_FICHA.capacidadPurificadorLitros} (L)`}
             error={errors.capacidadPurificadorLitros}
-            ayuda={ayudaNoAplica('capacidadPurificadorLitros', 'Unidad filtrante: 10 o 1.5')}
+            ayuda={ayudaNoAplica('capacidadPurificadorLitros')}
           >
             <input
               type="number"
@@ -83,7 +75,7 @@ export function PestanaFicha({ producto, register, control, errors, contradiccio
         <Campo
           etiqueta={ETIQUETAS_FICHA.compatibleCon}
           error={errors.compatibleCon}
-          ayuda={ayudaNoAplica('compatibleCon', 'Con qué equipos se usa')}
+          ayuda={ayudaNoAplica('compatibleCon')}
         >
           <input className={claseControl} {...register('compatibleCon')} />
         </Campo>
@@ -106,7 +98,7 @@ export function PestanaMedidas({ register, errors, enVivo }) {
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         {MEDIDAS.map(([campo, etiqueta]) => (
-          <Campo key={campo} etiqueta={etiqueta} error={errors[campo]} ayuda="Máximo 1 decimal">
+          <Campo key={campo} etiqueta={etiqueta} error={errors[campo]}>
             <input
               type="number"
               step="0.1"
@@ -132,11 +124,7 @@ export function PestanaWeb({ register, errors, enVivo }) {
   const url = (enVivo.urlWeb ?? '').trim();
   return (
     <div className="space-y-2">
-      <Campo
-        etiqueta="Página del producto"
-        error={errors.urlWeb}
-        ayuda={`Solo referencia: el bot ya no consulta la tienda. Debe empezar con ${URL_TIENDA}`}
-      >
+      <Campo etiqueta="Página del producto" error={errors.urlWeb} ayuda={URL_TIENDA}>
         <input
           type="url"
           placeholder={`${URL_TIENDA}producto/…`}

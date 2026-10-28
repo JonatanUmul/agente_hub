@@ -18,10 +18,6 @@ export function ContextoPage() {
     <section className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">¿Qué ve el bot ahora?</h2>
-        <p className="text-sm text-tenue">
-          Es exactamente lo que recibe el bot en su próximo mensaje, generado con{' '}
-          <code>eco_contexto()</code>.
-        </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -216,14 +212,6 @@ function VistaLegible({ contexto: c }) {
           </tbody>
         </table>
       </Seccion>
-
-      <p className="text-xs text-tenue">
-        Las preguntas frecuentes no forman parte de este contexto: el bot las lee aparte (
-        <Link to="/preguntas" className="underline">
-          ver preguntas
-        </Link>
-        ).
-      </p>
     </div>
   );
 }

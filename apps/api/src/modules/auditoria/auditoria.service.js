@@ -6,7 +6,7 @@ const CAMPOS_IGNORADOS = new Set(['actualizado_en', 'actualizado_por', 'creado_e
 
 // Campos con los que una persona reconoce el registro, en orden de preferencia.
 // En configuración, la clave va antes que la descripción (que es un texto largo).
-const CAMPOS_ETIQUETA = ['nombre', 'titulo', 'pregunta', 'frase', 'clave', 'descripcion'];
+const CAMPOS_ETIQUETA = ['nombre', 'titulo', 'pregunta', 'frase', 'saludo', 'clave', 'descripcion'];
 
 // Qué cambió: en UPDATE solo lo distinto; en INSERT todo lo nuevo; en DELETE todo lo que había.
 export function calcularCambios({ operacion, antes, despues }) {

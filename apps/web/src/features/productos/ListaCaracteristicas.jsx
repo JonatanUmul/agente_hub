@@ -15,9 +15,6 @@ export function ListaCaracteristicas({ control, register, errors, contradiccione
       <legend className="mb-1.5 text-xs font-medium text-tenue">
         Características ({fields.length} de {MAX_CARACTERISTICAS})
       </legend>
-      <p className="mb-2 text-xs text-apagado">
-        Datos que el bot puede afirmar, uno por fila. Las vacías no se guardan.
-      </p>
       <ol className="space-y-2">
         {fields.map((field, i) => {
           const error = errors?.[i]?.message ?? errors?.[i]?.texto?.message;

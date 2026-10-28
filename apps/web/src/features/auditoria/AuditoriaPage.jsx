@@ -38,10 +38,6 @@ export function AuditoriaPage() {
     <section className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">Historial de cambios</h2>
-        <p className="text-sm text-tenue">
-          Todo cambio en productos, interruptores, pautas, multimedia, reglas y preguntas queda
-          registrado por la base de datos, también los hechos fuera de esta app.
-        </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -145,9 +141,7 @@ function Entrada({ entrada: e }) {
         </time>
       </div>
       {e.origen === 'directo' && (
-        <p className="mt-1 text-xs text-alerta">
-          Hecho fuera de esta app: no se sabe qué persona fue.
-        </p>
+        <p className="mt-1 text-xs text-alerta">Cambio directo en la base.</p>
       )}
       {e.cambios.length > 0 &&
         (e.operacion === 'UPDATE' ? (

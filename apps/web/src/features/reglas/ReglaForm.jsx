@@ -7,6 +7,7 @@ import {
   INFO_DESTINOS,
   MODULOS,
   REGLA_CIERRE,
+  REGLA_SALUDO,
   agentesAfectados,
   esquemaCrearRegla,
   esquemaEditarRegla,
@@ -128,9 +129,18 @@ export function ReglaForm({ regla, categorias, mutacion, alTerminar, alCancelar 
       {editando ? (
         <>
           <p className="text-sm text-tenue">Código: {regla.codigo}</p>
+          {regla.codigo === REGLA_SALUDO && (
+            <p className="rounded-md border border-info/30 bg-info/10 px-3 py-2 text-sm">
+              El saludo se administra en{' '}
+              <Link to="/saludos" className="text-acento underline">
+                Saludos
+              </Link>
+              .
+            </p>
+          )}
           {regla.codigo === REGLA_CIERRE && (
             <p className="rounded-md border border-info/30 bg-info/10 px-3 py-2 text-sm">
-              La IA ya no escribe el cierre de los mensajes. Las frases de cierre se administran en{' '}
+              Las frases de cierre se administran en{' '}
               <Link to="/frases-cierre" className="text-acento underline">
                 Frases de cierre
               </Link>
@@ -139,25 +149,15 @@ export function ReglaForm({ regla, categorias, mutacion, alTerminar, alCancelar 
           )}
         </>
       ) : (
-        <Campo
-          etiqueta="Código"
-          error={errors.codigo}
-          ayuda="El bot lo recibe; no se puede cambiar después"
-        >
+        <Campo etiqueta="Código" error={errors.codigo}>
           <input className={claseControl} {...register('codigo')} />
         </Campo>
       )}
-      <Campo
-        etiqueta="Título"
-        error={errors.titulo}
-        ayuda="Solo para identificarla aquí: el bot no lo recibe"
-      >
+      <Campo etiqueta="Título" error={errors.titulo}>
         <input className={claseControl} {...register('titulo')} />
       </Campo>
       <fieldset>
-        <legend className="mb-1.5 text-xs font-medium text-tenue">
-          Destino: qué agentes la leen
-        </legend>
+        <legend className="mb-1.5 text-xs font-medium text-tenue">Destino</legend>
         <div className="divide-y divide-borde rounded-md border border-borde-fuerte">
           {DESTINOS.map((d) => (
             <label
@@ -168,7 +168,6 @@ export function ReglaForm({ regla, categorias, mutacion, alTerminar, alCancelar 
               <span className="min-w-0">
                 <span className="font-mono text-xs font-medium">{d}</span>
                 <span className="text-sm"> · {INFO_DESTINOS[d].agentes}</span>
-                <span className="block text-xs text-tenue">{INFO_DESTINOS[d].para}</span>
               </span>
             </label>
           ))}
@@ -178,18 +177,7 @@ export function ReglaForm({ regla, categorias, mutacion, alTerminar, alCancelar 
         )}
       </fieldset>
       <div className="grid grid-cols-2 gap-4">
-        <Campo
-          etiqueta="Módulo"
-          error={errors.modulo}
-          ayuda={
-            esOrquestador
-              ? 'Fijo en GLOBAL: el orquestador decide el módulo antes de conocerlo.'
-              : modulo === 'GLOBAL'
-                ? 'Aplica en todos los módulos'
-                : `Aplica solo en conversaciones de ${modulo}`
-          }
-        >
-          {/* Con ORQUESTADOR se muestra fijo (un <select disabled> no se enviaría): el valor ya es GLOBAL. */}
+        <Campo etiqueta="Módulo" error={errors.modulo}>
           {esOrquestador ? (
             <div className={`${claseControl} cursor-not-allowed text-tenue`}>GLOBAL</div>
           ) : (
@@ -209,7 +197,7 @@ export function ReglaForm({ regla, categorias, mutacion, alTerminar, alCancelar 
           />
         </Campo>
       </div>
-      <Campo etiqueta="Categoría" error={errors.categoria} ayuda="Elige una existente para agrupar">
+      <Campo etiqueta="Categoría" error={errors.categoria}>
         <input list="categorias-reglas" className={claseControl} {...register('categoria')} />
         <datalist id="categorias-reglas">
           {categorias.map((c) => (
@@ -220,7 +208,7 @@ export function ReglaForm({ regla, categorias, mutacion, alTerminar, alCancelar 
       <Campo
         etiqueta="Regla"
         error={errors.regla}
-        ayuda={`Texto exacto que recibe el bot · ${(texto ?? '').length.toLocaleString('es-GT')} caracteres`}
+        ayuda={`${(texto ?? '').length.toLocaleString('es-GT')} caracteres`}
       >
         <textarea rows={6} className={`${claseControl} font-mono text-sm`} {...register('regla')} />
       </Campo>

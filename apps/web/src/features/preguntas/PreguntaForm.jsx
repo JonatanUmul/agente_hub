@@ -84,11 +84,7 @@ function FormularioPregunta({ pregunta, numeroSugerido, mutacion, alTerminar, al
       <Campo etiqueta="Pregunta" error={errors.pregunta}>
         <input className={claseControl} {...register('pregunta')} />
       </Campo>
-      <Campo
-        etiqueta="Respuesta"
-        error={errors.respuesta}
-        ayuda="Texto que usa el bot para responder"
-      >
+      <Campo etiqueta="Respuesta" error={errors.respuesta}>
         <textarea rows={6} className={claseControl} {...register('respuesta')} />
       </Campo>
       <Campo etiqueta="Palabras clave" error={errors.palabrasClave} ayuda="Separadas por comas">

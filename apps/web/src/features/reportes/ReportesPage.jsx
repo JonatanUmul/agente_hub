@@ -9,6 +9,7 @@ import { usePermiso } from '../auth/hooks.js';
 import { urlExportar } from './api.js';
 import { Barras } from './Barras.jsx';
 import { FrasesActivas } from './FrasesActivas.jsx';
+import { SaludoTemporada } from './SaludoTemporada.jsx';
 import { FiltrosReporte } from './FiltrosReporte.jsx';
 import { GraficosPorDia } from './GraficosPorDia.jsx';
 import { MapaCalor } from './MapaCalor.jsx';
@@ -50,10 +51,6 @@ export function ReportesPage() {
     <section className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">Reportes del bot</h2>
-        <p className="text-sm text-tenue">
-          Cómo está funcionando el bot de WhatsApp. Solo datos agregados: ningún mensaje ni dato de
-          clientes. Se actualiza cada 5 minutos.
-        </p>
       </div>
 
       <FiltrosReporte filtros={filtros} alCambiar={setFiltros} agentes={agentes} />
@@ -62,8 +59,7 @@ export function ReportesPage() {
       )}
       {error?.codigo === 'REPORTES_NO_CONFIGURADOS' ? (
         <p className="rounded-md border border-alerta/30 bg-alerta/10 px-3 py-2 text-sm">
-          {error.message} Lo configura el administrador con{' '}
-          <code>docs/sql/rol_eco_reportes.sql</code>.
+          {error.message}
         </p>
       ) : (
         <MensajeError error={error} />
@@ -74,14 +70,12 @@ export function ReportesPage() {
         // Al cambiar un filtro se conservan los datos anteriores, atenuados, hasta que llegan los nuevos.
         <div className={`space-y-4 transition-opacity ${isFetching ? 'opacity-60' : ''}`}>
           <p className="text-xs text-apagado">
-            Del {diaCorto(reporte.periodo.desde)} al {diaCorto(reporte.periodo.hasta)}, comparado
-            con el {diaCorto(reporte.periodoAnterior.desde)} al{' '}
-            {diaCorto(reporte.periodoAnterior.hasta)} · calculado {fechaHora(reporte.generadoEn)}
+            {diaCorto(reporte.periodo.desde)} – {diaCorto(reporte.periodo.hasta)} · anterior:{' '}
+            {diaCorto(reporte.periodoAnterior.desde)} – {diaCorto(reporte.periodoAnterior.hasta)}
           </p>
           <Tarjetas tarjetas={reporte.tarjetas} tiempoAsignacion={reporte.tiempoAsignacion} />
           <Contenido reporte={reporte} exportar={exportar} />
           <Detalle filtros={filtros} exportar={exportar} />
-          <Limitaciones />
         </div>
       )}
     </section>
@@ -92,17 +86,10 @@ function Contenido({ reporte, exportar }) {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <GraficosPorDia porDia={reporte.porDia} />
-      <Tarjeta
-        titulo="Horas pico"
-        subtitulo="Mensajes de la bandeja por día de la semana y hora (Guatemala)"
-        className="lg:col-span-2"
-      >
+      <Tarjeta titulo="Horas pico" className="lg:col-span-2">
         <MapaCalor horasPico={reporte.horasPico} />
       </Tarjeta>
-      <Tarjeta
-        titulo="Conversaciones por módulo"
-        subtitulo="Una conversación puede pasar por varios"
-      >
+      <Tarjeta titulo="Conversaciones por módulo">
         <Barras
           filas={reporte.porModulo.map((m) => ({
             clave: m.modulo,
@@ -120,11 +107,7 @@ function Contenido({ reporte, exportar }) {
           }))}
         />
       </Tarjeta>
-      <Tarjeta
-        titulo="Transferencias por agente"
-        subtitulo="Chats asignados a cada asesor"
-        acciones={exportar('agentes')}
-      >
+      <Tarjeta titulo="Transferencias por agente" acciones={exportar('agentes')}>
         <Barras
           filas={reporte.porAgente.map((a) => ({
             clave: a.agenteId,
@@ -134,15 +117,11 @@ function Contenido({ reporte, exportar }) {
           }))}
         />
       </Tarjeta>
-      <Tarjeta
-        titulo="Pautas"
-        subtitulo="Conversaciones que llegaron por cada pauta"
-        acciones={exportar('pautas')}
-      >
+      <Tarjeta titulo="Pautas" acciones={exportar('pautas')}>
         <Tabla
           clave={(p) => p.codigo}
           filas={reporte.porPauta}
-          vacio="Ninguna conversación llegó por una pauta"
+          vacio="Sin datos"
           columnas={[
             {
               titulo: 'Pauta',
@@ -162,12 +141,13 @@ function Contenido({ reporte, exportar }) {
           ]}
         />
       </Tarjeta>
+      <SaludoTemporada />
       <FrasesActivas />
       <Tarjeta titulo="Preguntas frecuentes más usadas" acciones={exportar('preguntas')}>
         <Tabla
           clave={(q) => q.numero}
           filas={reporte.preguntas}
-          vacio="El bot no usó preguntas frecuentes"
+          vacio="Sin datos"
           columnas={[
             { titulo: '#', className: 'tabular-nums', celda: (q) => q.numero },
             { titulo: 'Pregunta', celda: (q) => q.pregunta },
@@ -179,15 +159,11 @@ function Contenido({ reporte, exportar }) {
           ]}
         />
       </Tarjeta>
-      <Tarjeta
-        titulo="Fotos y videos más enviados"
-        subtitulo="Es la mejor aproximación a los productos más consultados"
-        acciones={exportar('multimedia')}
-      >
+      <Tarjeta titulo="Fotos y videos más enviados" acciones={exportar('multimedia')}>
         <Tabla
           clave={(m) => `${m.tipo}-${m.descripcion}-${m.productoCodigo}`}
           filas={reporte.multimedia}
-          vacio="El bot no envió fotos ni videos"
+          vacio="Sin datos"
           columnas={[
             {
               titulo: 'Archivo',
@@ -222,7 +198,6 @@ function Detalle({ filtros, exportar }) {
   return (
     <Tarjeta
       titulo="Detalle por conversación"
-      subtitulo="Sin teléfono, nombre ni mensajes. Máximo 500, las más recientes."
       acciones={
         <>
           {exportar('detalle')}
@@ -253,26 +228,5 @@ function Detalle({ filtros, exportar }) {
         />
       )}
     </Tarjeta>
-  );
-}
-
-// Lo que se pidió pero los datos actuales no permiten medir (docs/reportes-indicadores.md).
-function Limitaciones() {
-  return (
-    <details className="rounded-lg border border-borde bg-panel p-4 text-sm">
-      <summary className="cursor-pointer font-medium">Qué no se puede medir todavía</summary>
-      <ul className="mt-2 list-disc space-y-1 pl-5 text-tenue">
-        <li>El motivo por el que una conversación pasa a asesor: n8n no lo registra.</li>
-        <li>Cuánto dura la atención del asesor: la hora de cierre de los chats no se guarda.</li>
-        <li>
-          Qué producto consultó el cliente: se aproxima con las fotos y videos enviados de cada
-          producto.
-        </li>
-        <li>
-          «Cambiaron de módulo» cuenta conversaciones que pasaron por más de un módulo, sin el orden
-          ni el motivo.
-        </li>
-      </ul>
-    </details>
   );
 }

@@ -1,10 +1,5 @@
 import { useState } from 'react';
-import {
-  FRASES_RECOMENDADAS,
-  INFO_SITUACIONES,
-  SITUACIONES_FRASE,
-  botsSinFrasesGenerales,
-} from '@ecofiltro/shared';
+import { INFO_SITUACIONES, SITUACIONES_FRASE, botsSinFrasesGenerales } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
 import { ConfirmarModal } from '../../components/ConfirmarModal.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
@@ -60,13 +55,7 @@ export function FrasesPage() {
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <h2 className="text-lg font-semibold">Frases de cierre</h2>
-          <p className="text-sm text-tenue">
-            Las preguntas con que el bot termina sus mensajes. Un cambio aplica en el siguiente
-            mensaje, sin tocar n8n.
-          </p>
-        </div>
+        <h2 className="text-lg font-semibold">Frases de cierre</h2>
         {puedeEditar && (
           <Boton onClick={() => setAccion({ tipo: 'crear', inicial: { modulo: moduloNuevo } })}>
             Agregar frase
@@ -81,10 +70,9 @@ export function FrasesPage() {
           role="alert"
           className="rounded-md border border-alerta/30 bg-alerta/10 px-3 py-2 text-sm"
         >
-          ⚠ El bot de {bot} no tiene frases de cierre generales activas (ni propias ni GLOBAL).
+          ⚠ El bot de {bot} no tiene frases de cierre generales activas.
         </p>
       ))}
-      <Ayuda />
 
       <Pestanas pestanas={PESTANAS} activa={pestana} alCambiar={setPestana} />
       <MensajeError error={reordenar.error} />
@@ -97,9 +85,7 @@ export function FrasesPage() {
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h3 className="font-medium">
                 {INFO_SITUACIONES[situacion].titulo}{' '}
-                <span className="text-sm font-normal text-tenue">
-                  · {activas} activa(s) · {INFO_SITUACIONES[situacion].cuando}
-                </span>
+                <span className="text-sm font-normal text-tenue">· {activas} activa(s)</span>
               </h3>
               {puedeEditar && (
                 <Boton
@@ -113,9 +99,7 @@ export function FrasesPage() {
               )}
             </div>
             {situacion !== 'general' && activas === 0 && (
-              <p className="text-xs text-apagado">
-                Sin frases activas: en esta situación el bot usa las de General.
-              </p>
+              <p className="text-xs text-apagado">Sin frases activas: se usan las de General.</p>
             )}
             <GrupoFrases
               frases={delGrupo}
@@ -168,10 +152,7 @@ export function FrasesPage() {
       <Modal abierto={accion?.tipo === 'eliminar'} titulo="Eliminar frase" alCerrar={cerrar}>
         {accion?.tipo === 'eliminar' && (
           <div className="space-y-4 text-sm">
-            <p>
-              ¿Eliminar «{frase.frase}»? No se puede deshacer.{' '}
-              {frase.activo && 'Si solo quieres que el bot deje de usarla, mejor desactívala.'}
-            </p>
+            <p>¿Eliminar «{frase.frase}»? No se puede deshacer. </p>
             <MensajeError error={eliminar.error ?? cambiarActivo.error} />
             <div className="flex flex-wrap justify-end gap-2">
               <Boton variante="secundario" onClick={cerrar}>
@@ -241,10 +222,6 @@ function CierreAutomatico({ puedeEditar }) {
             · {cierre.habilitado ? 'Encendido' : 'Apagado'}
           </span>
         </h3>
-        <p className="text-sm text-tenue">
-          Encendido, el bot termina sus mensajes con una de estas frases. Apagado, no agrega
-          ninguna.
-        </p>
       </div>
       <ConfirmarModal
         abierto={confirmar !== null}
@@ -261,34 +238,5 @@ function CierreAutomatico({ puedeEditar }) {
         alCancelar={cerrar}
       />
     </div>
-  );
-}
-
-function Ayuda() {
-  return (
-    <details className="rounded-lg border border-borde bg-panel p-4 text-sm">
-      <summary className="cursor-pointer font-medium">Cómo elige el bot la frase</summary>
-      <ul className="mt-2 list-disc space-y-1 pl-5 text-tenue">
-        <li>
-          El bot de compras usa las frases GLOBAL + Compras; el de atención al cliente, GLOBAL +
-          Atención.
-        </li>
-        {SITUACIONES_FRASE.map((s) => (
-          <li key={s}>
-            <strong className="text-texto">{INFO_SITUACIONES[s].titulo}:</strong>{' '}
-            {INFO_SITUACIONES[s].cuando}
-          </li>
-        ))}
-        <li>Si no hay frases activas para la situación, usa las de General.</li>
-        <li>Elige al azar entre las que todavía no usó en esa conversación: no las repite.</li>
-        <li>
-          No pone cierre cuando pide el nombre, cuando pasa con un asesor, cuando el cliente se
-          despide o cuando el mensaje ya termina con una pregunta.
-        </li>
-        <li>
-          Recomendación: al menos {FRASES_RECOMENDADAS} frases por situación para que suene variado.
-        </li>
-      </ul>
-    </details>
   );
 }

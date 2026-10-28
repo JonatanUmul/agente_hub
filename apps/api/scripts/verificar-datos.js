@@ -9,6 +9,7 @@ import {
   esquemaContexto,
   esquemaEditarArchivo,
   esquemaEditarFrase,
+  esquemaEditarSaludo,
   esquemaFrase,
   esquemaEditarPregunta,
   esquemaEditarProducto,
@@ -22,6 +23,7 @@ import {
 import { cargarEnv } from '../src/config/env.js';
 import { listarInterruptores } from '../src/modules/configuracion/configuracion.service.js';
 import * as frases from '../src/modules/frases/frases.repository.js';
+import * as saludos from '../src/modules/saludos/saludos.repository.js';
 import * as multimedia from '../src/modules/multimedia/multimedia.repository.js';
 import * as pautas from '../src/modules/pautas/pautas.repository.js';
 import * as preguntas from '../src/modules/preguntas/preguntas.repository.js';
@@ -114,6 +116,11 @@ try {
     listaFrases,
     (f) => `#${f.id}`,
   );
+
+  const listaSaludos = await saludos.listar(pool);
+  validar('saludos (guardar sin cambios)', esquemaEditarSaludo, listaSaludos, (x) => x.nombre);
+  const { rows: saludoHoy } = await pool.query(`SELECT eco_saludo('MENU') AS s`);
+  console.log(`✓ eco_saludo('MENU'): ${saludoHoy[0].s === null ? 'sin saludo' : 'responde'}`);
 
   validar('interruptores', esquemaInterruptor, await listarInterruptores(pool), (i) => i.clave);
 

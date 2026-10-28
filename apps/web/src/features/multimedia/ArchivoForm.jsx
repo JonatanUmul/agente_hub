@@ -94,11 +94,7 @@ function FormularioArchivo({ archivo, productos, pautas, mutacion, alTerminar, a
           </Campo>
         </div>
       )}
-      <Campo
-        etiqueta="Descripción"
-        error={errors.descripcion}
-        ayuda="El bot la usa para elegir qué archivo enviar"
-      >
+      <Campo etiqueta="Descripción" error={errors.descripcion}>
         <input className={claseControl} {...register('descripcion')} />
       </Campo>
       <div className="grid grid-cols-2 gap-4">
@@ -138,12 +134,7 @@ function FormularioArchivo({ archivo, productos, pautas, mutacion, alTerminar, a
           />
         </Campo>
       </div>
-      <SelectorPautas
-        control={control}
-        pautas={pautas}
-        error={errors.pautaIds}
-        ayuda="El archivo aparece en las imágenes de cada pauta vigente (con promociones encendidas)."
-      />
+      <SelectorPautas control={control} pautas={pautas} error={errors.pautaIds} />
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" {...register('activo')} /> Activo
       </label>

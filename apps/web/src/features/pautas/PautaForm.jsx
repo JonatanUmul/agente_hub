@@ -115,11 +115,7 @@ export function PautaForm({ pauta, mutacion, alTerminar, alCancelar }) {
       <Campo etiqueta="Nombre" error={errors.nombre}>
         <input className={claseControl} {...register('nombre')} />
       </Campo>
-      <Campo
-        etiqueta="Mensaje para el cliente"
-        error={errors.mensajeCliente}
-        ayuda="El bot lo usa al mencionar la pauta"
-      >
+      <Campo etiqueta="Mensaje para el cliente" error={errors.mensajeCliente}>
         <textarea rows={3} className={claseControl} {...register('mensajeCliente')} />
       </Campo>
       <div className="grid grid-cols-2 gap-4">

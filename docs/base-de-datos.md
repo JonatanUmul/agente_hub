@@ -300,6 +300,19 @@ respuesta; si no hay de esa situación, usa `general`. Sin frases activas o con 
   ([`10_frases_cierre.sql`](../docker/postgres/init/10_frases_cierre.sql)) usa `{modulo, situacion, frase}` y la vista
   previa de la app acepta también texto simple.
 
+## Saludos (aplicado por el administrador, 28-10-2026)
+
+`eco_saludos`: saludo del primer mensaje por módulo (`GLOBAL`, `MENU`, `COMPRA`, `SAC`, `DISTRIBUIDOR`) y temporada.
+Columnas: `nombre` (UNIQUE por módulo), `modulo`, `saludo` (3–300, admite `{momento}`), `fecha_inicio` / `fecha_fin`
+(ambas o ninguna), `repetir_anual` (solo mes y día; puede cruzar de diciembre a enero; si no, fin ≥ inicio),
+`prioridad` (mayor gana), `activo`, auditoría y `actualizado_en` por trigger.
+
+- `eco_saludo(modulo) → text`: activos de `GLOBAL` + el módulo, vigentes hoy (America/Guatemala); gana la mayor
+  prioridad, a igual prioridad el del módulo, y si siguen empatados uno al azar. `{momento}` = Buenos días (5–11),
+  Buenas tardes (12–18) o Buenas noches. `NULL` si no hay ninguno.
+- `eco_configuracion.menu_bienvenida_texto`: texto que sigue al saludo en el menú inicial.
+- Réplica de desarrollo: [`11_saludos.sql`](../docker/postgres/init/11_saludos.sql).
+
 ## Tablas operativas del bot (inspeccionadas el 27-10-2026, solo lectura)
 
 La app **no escribe** en ellas. El módulo de reportes (fase 5) las lee con un rol propio de solo lectura.

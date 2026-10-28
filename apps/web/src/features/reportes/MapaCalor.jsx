@@ -55,7 +55,7 @@ export function MapaCalor({ horasPico }) {
             style={{ background: colorNivel(pct) }}
           />
         ))}
-        Más · máximo {entero(maximo)} mensajes en una hora
+        Más
       </div>
     </div>
   );

@@ -17,4 +17,5 @@ export * from './reportes.js';
 export * from './reglas.js';
 export * from './roles.js';
 export * from './salud.js';
+export * from './saludos.js';
 export * from './usuarios.js';

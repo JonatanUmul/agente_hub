@@ -35,9 +35,6 @@ export function LoginPage() {
         >
           <div>
             <h1 className="text-lg font-medium">Iniciar sesión</h1>
-            {/*<p className="text-sm text-tenue">
-              Administra lo que el bot de WhatsApp le dice a los clientes.
-            </p>*/}
           </div>
           <Campo etiqueta="Correo" error={errors.correo}>
             <input
