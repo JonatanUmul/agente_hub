@@ -23,7 +23,6 @@ import {
 } from './hooks.js';
 import { LineaTiempo } from './LineaTiempo.jsx';
 import { SaludoForm } from './SaludoForm.jsx';
-import { Simulador, TextoMenu } from './PanelesSaludo.jsx';
 
 // Sin fechas = al principio al ordenar por fecha.
 const ORDENES = {
@@ -137,11 +136,6 @@ export function SaludosPage() {
         </select>
       </div>
       <Tabla columnas={columnas} filas={[...saludos].sort(ORDENES[orden])} vacio="Sin saludos" />
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Simulador />
-        <TextoMenu puedeEditar={puedeEditar} />
-      </div>
       <LineaTiempo saludos={saludos} hoy={hoy} />
 
       <Modal

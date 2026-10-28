@@ -50,14 +50,11 @@ beforeEach(() => {
   hooks.useSaludoVigente.mockImplementation((modulo) => ({
     data: { modulo, saludo: '¡Buenos días! Normal' },
   }));
-  hooks.useTextoMenu.mockReturnValue({ data: { texto: 'Elige una opción:', version: 'm1' } });
-  hooks.useSimulacion.mockReturnValue({ data: undefined });
   for (const h of [
     'useCrearSaludo',
     'useEditarSaludo',
     'useCambiarActivoSaludo',
     'useEliminarSaludo',
-    'useGuardarTextoMenu',
   ])
     hooks[h].mockReturnValue(mutacion());
 });
@@ -71,10 +68,11 @@ const pagina = () =>
   );
 
 describe('SaludosPage', () => {
-  it('muestra la vigencia, la etiqueta Vigente hoy y el texto del menú, sin las vistas por módulo', () => {
+  it('muestra la vigencia, la etiqueta Vigente hoy y el texto del menú, sin vistas por módulo, texto del menú ni simulador', () => {
     pagina();
     expect(screen.queryByText('Hoy el bot saluda así')).toBeNull();
-    expect(screen.getByDisplayValue('Elige una opción:')).toBeTruthy();
+    expect(screen.queryByText('Texto del menú inicial')).toBeNull();
+    expect(screen.queryByText('Simulador')).toBeNull();
     expect(screen.getByText('Cada año del 15 dic al 26 dic')).toBeTruthy();
     expect(screen.getAllByText('Vigente hoy')).toHaveLength(1);
     expect(screen.queryByRole('alert')).toBeNull();
