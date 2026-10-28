@@ -17,6 +17,16 @@ Internet ──HTTPS──► proxy del servidor ──► 127.0.0.1:8080 ─►
 - Un dominio con HTTPS en el proxy del servidor (la cookie de sesión es `Secure`: sin HTTPS no se puede iniciar sesión).
 - Contraseña de `eco_app` en producción.
 
+## Instalación actual (VPS `srv2065743`, 28-10-2026)
+
+- Código en `/opt/ecofiltro/gestion` (rama `ecofiltro-gestion`), `.env` con `chmod 600`.
+- `RED_BD=ecofiltro_data_net`, `DB_HOST=ecofiltro-postgres-18`, `WEB_PUERTO=8090` (el 8080 lo usa Airflow).
+- Publicada por Caddy (`ecofiltro-caddy`, `/opt/ecofiltro/caddy/Caddyfile`) en **https://gestion.ecofiltro.cloud**:
+  `reverse_proxy ecofiltro-gestion-web-1:8080`. El archivo `docker-compose.proxy.yml` (solo en el VPS) une `web` a la
+  red `ecofiltro_proxy`, así que todos los comandos usan
+  `C="docker compose -f docker-compose.prod.yml -f docker-compose.proxy.yml"`.
+- ⚠ Conectada con `ecofiltro_admin` (ver [Modo temporal](#modo-temporal-la-app-conectada-con-un-superusuario)).
+
 ## 1. Permisos en la base (una sola vez, como `eco_admin`)
 
 Desde una máquina con acceso a la base (por ejemplo, la del desarrollador con el túnel SSH y `.env.admin`):
