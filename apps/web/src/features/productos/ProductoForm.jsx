@@ -3,8 +3,10 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
+  CAMPOS_FICHA,
   ESTADOS_PRODUCTO,
   calcularPrecioFinal,
+  contradiccionesFicha,
   descuentoVigente,
   esquemaEditarProducto,
 } from '@ecofiltro/shared';
@@ -12,19 +14,85 @@ import { Boton } from '../../components/Boton.jsx';
 import { Campo, claseControl } from '../../components/Campo.jsx';
 import { Cargando } from '../../components/Cargando.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
+import { Pestanas } from '../../components/Pestanas.jsx';
 import { SelectorPautas } from '../../components/SelectorPautas.jsx';
 import { monto, porcentaje } from '../../lib/formato.js';
 import { usePautasResumen } from '../pautas/hooks.js';
+import { PestanaFicha, PestanaMedidas, PestanaWeb, vacioANull } from './CamposFicha.jsx';
+import { FichaDelBot } from './FichaDelBot.jsx';
 import { LoQueVeElBot } from './LoQueVeElBot.jsx';
 
 // En el formulario las listas se escriben separadas por comas; se validan con las reglas de shared.
 const textoALista = z.string().transform((texto) => texto.split(','));
+// Las características son filas [{ texto }] (useFieldArray necesita objetos).
+const filasALista = z
+  .array(z.object({ texto: z.string() }))
+  .transform((filas) => filas.map((f) => f.texto));
 const esquemaFormulario = esquemaEditarProducto.omit({ version: true }).extend({
   colores: textoALista.pipe(esquemaEditarProducto.shape.colores),
   palabrasClave: textoALista.pipe(esquemaEditarProducto.shape.palabrasClave),
+  caracteristicas: filasALista.pipe(esquemaEditarProducto.shape.caracteristicas),
 });
 
-const vacioANull = (valor) => (valor === '' || valor === null ? null : Number(valor));
+const NUMEROS_FICHA = ['capacidadPurificadorLitros', 'anchoCm', 'altoCm', 'largoCm', 'pesoLb'];
+const fichaInicial = (p) =>
+  Object.fromEntries(
+    CAMPOS_FICHA.map((campo) => {
+      if (campo === 'caracteristicas')
+        return [campo, p.caracteristicas.map((texto) => ({ texto }))];
+      if (NUMEROS_FICHA.includes(campo)) return [campo, p[campo]];
+      return [campo, p[campo] ?? ''];
+    }),
+  );
+
+// Pestañas del formulario y los campos de cada una (para marcar la que tiene errores).
+const PESTANAS = [
+  {
+    id: 'general',
+    titulo: 'General',
+    campos: [
+      'precioBase',
+      'descuentoPct',
+      'estado',
+      'orden',
+      'pautaIds',
+      'colores',
+      'palabrasClave',
+    ],
+  },
+  {
+    id: 'ficha',
+    titulo: 'Ficha',
+    campos: [
+      'descripcionCorta',
+      'descripcion',
+      'caracteristicas',
+      'material',
+      'capacidadTexto',
+      'capacidadPurificadorLitros',
+      'tasaFiltrado',
+      'compatibleCon',
+    ],
+  },
+  { id: 'medidas', titulo: 'Medidas', campos: ['anchoCm', 'altoCm', 'largoCm', 'pesoLb'] },
+  { id: 'web', titulo: 'Web', campos: ['urlWeb'] },
+];
+
+const aLista = (texto) =>
+  (texto ?? '')
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+// El producto tal como quedaría con lo que se está escribiendo (para avisos y vistas previas).
+const productoEnVivo = (producto, valores) => ({
+  ...valores,
+  nombre: producto.nombre,
+  tipo: producto.tipo,
+  capacidadLitros: producto.capacidadLitros,
+  colores: aLista(valores.colores),
+  caracteristicas: (valores.caracteristicas ?? []).map((f) => f.texto),
+});
 
 const valoresIniciales = (p) => ({
   precioBase: p.precioBase,
@@ -35,6 +103,7 @@ const valoresIniciales = (p) => ({
   pautaIds: p.pautas.map((pa) => pa.id).sort((a, b) => a - b),
   orden: p.orden,
   activo: p.activo,
+  ...fichaInicial(p),
 });
 
 const nombres = (lista) => (lista.length ? lista.map((pa) => pa.nombre).join(', ') : 'Ninguna');
@@ -64,6 +133,7 @@ export function ProductoForm(props) {
 
 function FormularioProducto({ producto, interruptores, pautas, mutacion, alTerminar, alCancelar }) {
   const [porConfirmar, setPorConfirmar] = useState(null);
+  const [pestana, setPestana] = useState('general');
   const {
     register,
     handleSubmit,
@@ -75,10 +145,10 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
   });
 
   // Vista previa en vivo: con los valores que se están escribiendo.
-  const [precioBase, descuentoPct, pautaIds, activo] = useWatch({
-    control,
-    name: ['precioBase', 'descuentoPct', 'pautaIds', 'activo'],
-  });
+  const valores = useWatch({ control });
+  const { precioBase, descuentoPct, pautaIds, activo } = valores;
+  const enVivo = productoEnVivo(producto, valores);
+  const contradicciones = contradiccionesFicha(enVivo);
   const seleccionadas = pautas.filter((pa) => pautaIds.includes(pa.id));
   const descuentoPrevio = Number.isFinite(descuentoPct)
     ? descuentoVigente({ descuentoPct, pautas: seleccionadas })
@@ -102,6 +172,13 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
     });
     if (cambios.length > 0) setPorConfirmar({ datos, cambios });
     else guardar(datos);
+  };
+
+  // Al guardar con errores, se abre la primera pestaña que los tiene.
+  const conError = (p) => p.campos.some((campo) => errors[campo]);
+  const alFallar = (errores) => {
+    const primera = PESTANAS.find((p) => p.campos.some((campo) => errores[campo]));
+    if (primera) setPestana(primera.id);
   };
 
   if (porConfirmar) {
@@ -133,67 +210,94 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
   }
 
   return (
-    <form onSubmit={handleSubmit(enviar)} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit(enviar, alFallar)} className="space-y-4" noValidate>
       <p className="text-sm text-tenue">
         ItemCode <span className="font-mono">{producto.codigo}</span> · {producto.tipo} ·{' '}
         {producto.familia}
       </p>
-      <div className="grid grid-cols-2 gap-4">
-        <Campo etiqueta="Precio base (Q)" error={errors.precioBase} ayuda="Vacío = sin precio">
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            className={claseControl}
-            {...register('precioBase', { setValueAs: vacioANull })}
-          />
-        </Campo>
-        <Campo etiqueta="Descuento propio (%)" error={errors.descuentoPct}>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            max="100"
-            className={claseControl}
-            {...register('descuentoPct', { valueAsNumber: true })}
-          />
-        </Campo>
-        <Campo etiqueta="Estado" error={errors.estado}>
-          <select className={claseControl} {...register('estado')}>
-            {ESTADOS_PRODUCTO.map((e) => (
-              <option key={e} value={e}>
-                {e}
-              </option>
-            ))}
-          </select>
-        </Campo>
-        <Campo etiqueta="Orden" error={errors.orden} ayuda="Menor = aparece primero">
-          <input
-            type="number"
-            step="1"
-            className={claseControl}
-            {...register('orden', { valueAsNumber: true })}
-          />
-        </Campo>
-      </div>
-      <SelectorPautas
-        control={control}
-        pautas={pautas}
-        error={errors.pautaIds}
-        ayuda="Se aplica el mayor descuento entre el propio y el de las pautas vigentes."
-        mostrarDescuento
+      <Pestanas
+        pestanas={PESTANAS.map((p) => ({ ...p, conError: conError(p) }))}
+        activa={pestana}
+        alCambiar={setPestana}
       />
-      <Campo etiqueta="Colores" error={errors.colores} ayuda="Separados por comas">
-        <input className={claseControl} {...register('colores')} />
-      </Campo>
-      <Campo etiqueta="Palabras clave" error={errors.palabrasClave} ayuda="Separadas por comas">
-        <input className={claseControl} {...register('palabrasClave')} />
-      </Campo>
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" {...register('activo')} /> Activo (el bot lo conoce y lo ofrece)
-      </label>
 
-      <div className="rounded-md bg-panel-2 p-3 text-sm">
+      {/* Las pestañas ocultas siguen montadas: sus campos se validan y se guardan igual. */}
+      <div hidden={pestana !== 'general'} className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <Campo etiqueta="Precio base (Q)" error={errors.precioBase} ayuda="Vacío = sin precio">
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              className={claseControl}
+              {...register('precioBase', { setValueAs: vacioANull })}
+            />
+          </Campo>
+          <Campo etiqueta="Descuento propio (%)" error={errors.descuentoPct}>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              className={claseControl}
+              {...register('descuentoPct', { valueAsNumber: true })}
+            />
+          </Campo>
+          <Campo etiqueta="Estado" error={errors.estado}>
+            <select className={claseControl} {...register('estado')}>
+              {ESTADOS_PRODUCTO.map((e) => (
+                <option key={e} value={e}>
+                  {e}
+                </option>
+              ))}
+            </select>
+          </Campo>
+          <Campo etiqueta="Orden" error={errors.orden} ayuda="Menor = aparece primero">
+            <input
+              type="number"
+              step="1"
+              className={claseControl}
+              {...register('orden', { valueAsNumber: true })}
+            />
+          </Campo>
+        </div>
+        <SelectorPautas
+          control={control}
+          pautas={pautas}
+          error={errors.pautaIds}
+          ayuda="Se aplica el mayor descuento entre el propio y el de las pautas vigentes."
+          mostrarDescuento
+        />
+        <Campo etiqueta="Colores" error={errors.colores} ayuda="Separados por comas">
+          <input className={claseControl} {...register('colores')} />
+        </Campo>
+        <Campo etiqueta="Palabras clave" error={errors.palabrasClave} ayuda="Separadas por comas">
+          <input className={claseControl} {...register('palabrasClave')} />
+        </Campo>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" {...register('activo')} /> Activo (el bot lo conoce y lo ofrece)
+        </label>
+      </div>
+
+      <div hidden={pestana !== 'ficha'}>
+        <PestanaFicha
+          producto={producto}
+          register={register}
+          control={control}
+          errors={errors}
+          contradicciones={contradicciones}
+          enVivo={enVivo}
+        />
+      </div>
+      <div hidden={pestana !== 'medidas'}>
+        <PestanaMedidas register={register} errors={errors} enVivo={enVivo} />
+      </div>
+      <div hidden={pestana !== 'web'}>
+        <PestanaWeb register={register} errors={errors} enVivo={enVivo} />
+      </div>
+
+      <div className="space-y-2 rounded-md bg-panel-2 p-3 text-sm">
+        <p className="font-medium">Así lo ve el bot</p>
         <p>
           Precio final:{' '}
           <strong>{monto(calcularPrecioFinal(productoPrevio.precioBase, descuentoPrevio))}</strong>{' '}
@@ -203,6 +307,18 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
           Lo que dirá el bot ahora:{' '}
           <LoQueVeElBot producto={productoPrevio} interruptores={interruptores} />
         </p>
+        <div className="border-t border-borde pt-2">
+          <p className="mb-1 text-xs text-tenue">
+            Ficha que recibe cuando el cliente pregunta por el detalle:
+          </p>
+          <FichaDelBot producto={enVivo} />
+          {contradicciones.length > 0 && (
+            <p className="mt-2 text-xs text-alerta">
+              ⚠ {contradicciones.length} característica(s) podrían contradecir los campos del
+              producto (ver pestaña Ficha).
+            </p>
+          )}
+        </div>
       </div>
 
       <MensajeError error={mutacion.error} />

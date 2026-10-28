@@ -13,6 +13,13 @@ export const listaDeTextos = z
 // numeric(p,2) guarda 2 decimales; más se redondearía en silencio.
 // La tolerancia absorbe errores de punto flotante (0.1 * 100 = 10.000000000000002).
 export const conDosDecimales = (n) => Math.abs(n * 100 - Math.round(n * 100)) < 1e-6;
+export const conUnDecimal = (n) => Math.abs(n * 10 - Math.round(n * 10)) < 1e-6;
+
+// Etiquetas (<b>, </p>, <br/>) o entidades (&nbsp;, &#39;). El bot recibe texto plano: el HTML de la
+// tienda web llegaría tal cual al cliente. Un "<" suelto ("< 2 litros") no es HTML y se permite.
+const HTML = /<\/?[a-z][^>]*>|&(#\d+|[a-z]+);/i;
+export const sinHtml = (texto) => !HTML.test(texto);
+const MENSAJE_HTML = 'Sin HTML: escribe texto simple';
 
 export const porcentaje = z
   .number('Debe ser un número')
@@ -28,6 +35,17 @@ export const textoOpcional = (max) =>
     .max(max)
     .nullable()
     .transform((t) => (t ? t : null));
+// Igual, pero rechaza HTML (textos que el bot le repite al cliente).
+export const textoPlanoOpcional = (max) =>
+  z
+    .string()
+    .trim()
+    .max(max, `Máximo ${max} caracteres`)
+    .refine(sinHtml, MENSAJE_HTML)
+    .nullable()
+    .transform((t) => (t ? t : null));
+export const textoPlano = (max) =>
+  z.string().trim().max(max, `Máximo ${max} caracteres`).refine(sinHtml, MENSAJE_HTML);
 
 export const orden = z
   .number('Debe ser un número')

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { calcularPrecioFinal, descuentoVigente, precioQueVeElBot } from './precios.js';
-import { esquemaEditarProducto } from './productos.js';
+import { CAMPOS_FICHA, esquemaEditarProducto } from './productos.js';
 
 describe('calcularPrecioFinal', () => {
   it.each([
@@ -62,6 +62,7 @@ describe('esquemaEditarProducto', () => {
     pautaIds: [],
     orden: 100,
     activo: true,
+    ...Object.fromEntries(CAMPOS_FICHA.map((c) => [c, c === 'caracteristicas' ? [] : null])),
     version: 'v',
   };
 

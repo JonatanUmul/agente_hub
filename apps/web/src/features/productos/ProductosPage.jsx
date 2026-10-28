@@ -14,6 +14,7 @@ import { monto, porcentaje } from '../../lib/formato.js';
 import { usePermiso } from '../auth/hooks.js';
 import { useEstadoInterruptores } from '../configuracion/hooks.js';
 import { useCambiarActivoProducto, useEditarProducto, useProductos } from './hooks.js';
+import { FichaCompleta } from './FichaCompleta.jsx';
 import { LoQueVeElBot } from './LoQueVeElBot.jsx';
 import { ProductoForm } from './ProductoForm.jsx';
 
@@ -92,6 +93,11 @@ export function ProductosPage() {
     {
       titulo: 'Lo que ve el bot',
       celda: (p) => <LoQueVeElBot producto={p} interruptores={interruptores} />,
+    },
+    {
+      titulo: 'Ficha completa',
+      className: 'text-xs',
+      celda: (p) => <FichaCompleta producto={p} />,
     },
     {
       titulo: 'Activo',
@@ -183,6 +189,7 @@ export function ProductosPage() {
         abierto={accion?.tipo === 'editar'}
         titulo={`Editar ${producto?.nombre}`}
         alCerrar={cerrar}
+        ancho="max-w-2xl"
       >
         {accion?.tipo === 'editar' && (
           <ProductoForm

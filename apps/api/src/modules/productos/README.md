@@ -8,11 +8,18 @@ Catálogo que el bot ofrece (`eco_productos`), con el precio final que calcula i
   - `PUT /api/productos/:id` (permiso `productos:editar`) con todos los campos editables + `version`.
   - `PATCH /api/productos/:id/activo` `{ activo, version }` (permiso `productos:editar`).
 - **ItemCode:** es la columna `codigo` (código interno para órdenes de venta y facturas). Solo lectura.
-- **Campos editables:** `precioBase`, `descuentoPct`, `estado`, `colores`, `palabrasClave`, `pautaIds` (varias pautas), `orden`, `activo`.
+- **Campos editables:** `precioBase`, `descuentoPct`, `estado`, `colores`, `palabrasClave`, `pautaIds` (varias pautas), `orden`, `activo`
+  y la **ficha** (`CAMPOS_FICHA` de `@ecofiltro/shared`): `descripcionCorta`, `descripcion`, `caracteristicas`, `material`,
+  `capacidadTexto`, `capacidadPurificadorLitros`, `tasaFiltrado`, `anchoCm`, `altoCm`, `largoCm`, `pesoLb`, `compatibleCon`, `urlWeb`.
+  El `PUT` reemplaza todos los campos: los de la ficha son obligatorios en el cuerpo (con `null` / `[]` si están vacíos).
   Código, nombre, tipo, familia, capacidad y `woo_id` son de solo lectura. No hay alta ni borrado.
 - **Reglas:**
   - Validación en `@ecofiltro/shared` (`esquemaEditarProducto`): descuento 0–100, precio ≥ 0, máximo 2 decimales,
     listas sin vacíos ni repetidos.
+  - Ficha: medidas y peso positivos con 1 decimal, URL que empiece con `https://ecofiltro.com.gt/`, textos sin HTML,
+    hasta 12 características de 200 caracteres. Sin características se guarda `NULL` (no llega al bot).
+  - **Campos por tipo (en el service):** `capacidadPurificadorLitros` solo en equipos y repuestos; `compatibleCon`
+    solo en repuestos y accesorios. Si no aplica → 400 `CAMPO_NO_APLICA` (`TIPOS_POR_CAMPO` en `@ecofiltro/shared/ficha.js`).
   - `descuentoVigentePct` viene de `eco_v_catalogo`. Con una pauta inactiva o vencida es **0**, aunque el producto
     tenga su propio descuento: la web lo advierte.
   - `precioFinal` = `calcularPrecioFinal(precioBase, descuentoVigentePct)` (`@ecofiltro/shared/precios.js`).

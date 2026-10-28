@@ -1,4 +1,10 @@
-import { calcularPrecioFinal } from '@ecofiltro/shared';
+import {
+  CAMPOS_FICHA,
+  ETIQUETAS_FICHA,
+  TIPOS_POR_CAMPO,
+  calcularPrecioFinal,
+  camposQueNoAplican,
+} from '@ecofiltro/shared';
 import { AppError, esViolacionLlaveForanea, noEncontrado } from '../../lib/app-error.js';
 import { editarConVersion } from '../../lib/edicion.js';
 import * as repo from './productos.repository.js';
@@ -12,7 +18,23 @@ const CAMPOS_EDITABLES = [
   'pautaIds',
   'orden',
   'activo',
+  ...CAMPOS_FICHA,
 ];
+
+// Purificador solo en equipos y repuestos; compatibilidad solo en repuestos y accesorios.
+// Se valida aquí porque el tipo del producto está en la base, no en el formulario.
+function validarCamposPorTipo(tipo, datos) {
+  const sobrantes = camposQueNoAplican(tipo, datos);
+  if (sobrantes.length === 0) return;
+  throw new AppError({
+    codigo: 'CAMPO_NO_APLICA',
+    mensaje: sobrantes
+      .map((c) => `«${ETIQUETAS_FICHA[c]}» solo aplica a: ${TIPOS_POR_CAMPO[c].join(', ')}`)
+      .join('. '),
+    estadoHttp: 400,
+    detalles: sobrantes.map((campo) => ({ campo, tipo })),
+  });
+}
 
 // Precio final con el descuento que aplica hoy (la misma cuenta que hace eco_contexto()).
 // Para productos inactivos es null: el bot no los ofrece.
@@ -57,7 +79,15 @@ async function editar(db, opciones) {
 
 // Reemplaza los campos editables. `version` debe coincidir con la que el usuario vio al abrir el producto.
 export const editarProducto = (db, { id, datos, correo }) =>
-  editar(db, { id, version: datos.version, correo, aplicar: () => datos });
+  editar(db, {
+    id,
+    version: datos.version,
+    correo,
+    aplicar: (actual) => {
+      validarCamposPorTipo(actual.tipo, datos);
+      return datos;
+    },
+  });
 
 // Activar / desactivar desde la tabla, sin abrir el formulario completo.
 export const cambiarActivo = (db, { id, activo, version, correo }) =>

@@ -3,6 +3,7 @@
 // Uso: npm run verificar-datos   (en el servidor: docker compose ... run --rm api node scripts/verificar-datos.js)
 import pg from 'pg';
 import {
+  CAMPOS_FICHA,
   MODULOS,
   esquemaArchivo,
   esquemaContexto,
@@ -65,6 +66,7 @@ try {
         'palabrasClave',
         'orden',
         'activo',
+        ...CAMPOS_FICHA,
         'version',
       ]),
       pautaIds: p.pautas.map((pa) => pa.id),

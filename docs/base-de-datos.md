@@ -58,6 +58,22 @@ La app lo muestra como "ItemCode", permite buscarlo y copiarlo, y no lo modifica
 | `creado_en`, `actualizado_en` | timestamptz      | no   | `now()`                                                         |
 | `actualizado_por`             | text             | sí   |                                                                 |
 
+**Ficha del producto** (columnas opcionales, ver [Ficha completa de productos](#ficha-completa-de-productos)):
+
+| Columna                           | Tipo         | Qué es                                                    |
+| --------------------------------- | ------------ | --------------------------------------------------------- |
+| `descripcion_corta`               | text         | Resumen en una frase                                      |
+| `descripcion`                     | text         | Descripción comercial que el bot puede usar               |
+| `caracteristicas`                 | text[]       | Datos que el bot puede afirmar, uno por elemento          |
+| `material`                        | text         | Material del recipiente o del accesorio                   |
+| `capacidad_texto`                 | text         | Capacidad tal como se comunica: «6 L», «500 ml»           |
+| `capacidad_purificador_litros`    | numeric(6,2) | Capacidad de la unidad filtrante (10 o 1.5)               |
+| `tasa_filtrado`                   | text         | «1-2 litros por hora»                                     |
+| `ancho_cm`, `alto_cm`, `largo_cm` | numeric(6,1) | Medidas en centímetros                                    |
+| `peso_lb`                         | numeric(6,2) | Peso en libras                                            |
+| `compatible_con`                  | text         | Repuestos y accesorios: con qué equipos se usan           |
+| `url_web`                         | text         | Página del producto en ecofiltro.com.gt (solo referencia) |
+
 ### `eco_pautas` — promociones con vigencia
 
 | Columna                          | Tipo             | Nulo   | Por defecto / restricción                              |
@@ -240,6 +256,26 @@ módulo de la conversación.
 | `ORQUESTADOR` | Orquestador central                                    | Clasifica en módulo compra, atención o distribuidor. **Solo lee reglas `GLOBAL`** |
 | `VISION`      | Análisis de fotos del cliente (en preparación)         | Cómo describir y validar una imagen                                               |
 
+## Ficha completa de productos
+
+El bot **ya no consulta la tienda web**: toda la información del producto vive en `eco_productos` (columnas de la
+tabla de arriba). El administrador aplicó el cambio directamente en producción; la app no altera estructuras.
+
+- `eco_v_catalogo` y `eco_contexto(modulo)` devuelven estos campos en cada producto del `catalogo`, con el nombre de
+  la columna como clave. **Los vacíos no se envían al bot.**
+- La app guarda `caracteristicas` vacías como `NULL` (no `'{}'`) y los textos vacíos como `NULL`.
+- Reglas de la app (`@ecofiltro/shared`, `productos.js` y `ficha.js`): medidas y peso positivos con 1 decimal; URL que
+  empiece con `https://ecofiltro.com.gt/`; textos sin HTML; hasta 12 características de 200 caracteres.
+  `capacidad_purificador_litros` solo en equipos y repuestos y `compatible_con` solo en repuestos y accesorios
+  (lo valida el service de productos; la base no lo restringe).
+- Réplica de desarrollo: [`docker/postgres/init/08_ficha_productos.sql`](../docker/postgres/init/08_ficha_productos.sql)
+  (**no** es un script para producción). La vista y la función de la réplica se escribieron a partir de 002/003 más
+  las columnas nuevas.
+- ⚠ **Pendiente de verificar contra producción** con [`sql/inspeccionar_esquema.sql`](sql/inspeccionar_esquema.sql):
+  tipos y nulabilidad reales de las columnas, si `caracteristicas` tiene valor por defecto, la definición real de
+  `eco_v_catalogo` y `eco_contexto()` (claves del JSON y cómo omiten los vacíos). Si difieren, actualizar la réplica,
+  la prueba `productos.integracion.test.js` y esta sección.
+
 ## Tablas operativas del bot (inspeccionadas el 27-10-2026, solo lectura)
 
 La app **no escribe** en ellas. El módulo de reportes (fase 5) las lee con un rol propio de solo lectura.
@@ -285,3 +321,4 @@ Volúmenes al 27-10-2026: `eventos` 1 107 filas (22–27 oct, 176 conversaciones
 
 1. Lista real de claves de `eco_configuracion` y su `tipo`. Se podrá leer cuando se apliquen los permisos.
 2. Si los productos asociados a una pauta vencida deben perder su descuento propio (comportamiento actual de la vista).
+3. Esquema real de la ficha de productos (ver [Ficha completa de productos](#ficha-completa-de-productos)).

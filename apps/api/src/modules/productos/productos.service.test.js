@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { CAMPOS_FICHA } from '@ecofiltro/shared';
 import * as repo from './productos.repository.js';
 import { cambiarActivo, editarProducto, listarProductos } from './productos.service.js';
 
@@ -6,7 +7,11 @@ vi.mock('./productos.repository.js');
 
 const db = { connect: async () => ({ query: async () => {}, release: () => {} }) };
 
+const fichaVacia = Object.fromEntries(
+  CAMPOS_FICHA.map((c) => [c, c === 'caracteristicas' ? [] : null]),
+);
 const editable = {
+  tipo: 'equipo',
   precioBase: 100,
   descuentoPct: 10,
   estado: 'disponible',
@@ -15,6 +20,7 @@ const editable = {
   pautaIds: [],
   orden: 100,
   activo: true,
+  ...fichaVacia,
   version: 'v1',
 };
 const producto = { id: 1, precioBase: 100, descuentoVigentePct: 10, activo: true };
@@ -63,6 +69,34 @@ describe('editarProducto', () => {
     await expect(editar({ pautaIds: [999] })).rejects.toMatchObject({
       codigo: 'PAUTA_INEXISTENTE',
     });
+  });
+
+  it('guarda cambios de la ficha', async () => {
+    await editar({ caracteristicas: ['Fácil de limpiar'], anchoCm: 37.5 });
+    expect(repo.actualizar).toHaveBeenCalledWith(
+      expect.anything(),
+      1,
+      expect.objectContaining({ caracteristicas: ['Fácil de limpiar'], anchoCm: 37.5 }),
+      'ana@ejemplo.com',
+    );
+  });
+
+  it('rechaza compatibilidad en un equipo y purificador en un accesorio', async () => {
+    await expect(editar({ compatibleCon: 'Tonelito' })).rejects.toMatchObject({
+      codigo: 'CAMPO_NO_APLICA',
+      estadoHttp: 400,
+    });
+    repo.obtenerEditableBloqueando.mockResolvedValue({ ...editable, tipo: 'accesorio' });
+    await expect(editar({ capacidadPurificadorLitros: 10 })).rejects.toMatchObject({
+      codigo: 'CAMPO_NO_APLICA',
+    });
+    expect(repo.actualizar).not.toHaveBeenCalled();
+  });
+
+  it('acepta compatibilidad y purificador en un repuesto', async () => {
+    repo.obtenerEditableBloqueando.mockResolvedValue({ ...editable, tipo: 'repuesto' });
+    await editar({ compatibleCon: 'Tonelito', capacidadPurificadorLitros: 1.5 });
+    expect(repo.actualizar).toHaveBeenCalled();
   });
 
   it('responde 404 si el producto no existe', async () => {
