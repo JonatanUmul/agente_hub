@@ -119,14 +119,14 @@ export function AgentesPage() {
 
   return (
     <section className="space-y-4">
-      <div>
+      {/*  <div>
         <h2 className="text-lg font-semibold">Horarios de agentes</h2>
         <p className="text-sm text-tenue">
           Días y horas en que cada agente atiende (hora de Guatemala). El bot solo pasa
           conversaciones a quien está en horario. Los agentes se sincronizan desde HubSpot.
         </p>
       </div>
-
+ */}
       <div className="flex flex-wrap items-center gap-3">
         <input
           placeholder="Buscar nombre, correo o bandeja"

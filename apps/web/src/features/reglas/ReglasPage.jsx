@@ -121,10 +121,10 @@ export function ReglasPage() {
 
       <div className="space-y-2">
         <h3 className="text-sm font-medium">Qué recibe cada agente</h3>
-        <p className="text-xs text-tenue">
+        {/*<p className="text-xs text-tenue">
           Reglas vigentes propias + las de TODOS, por módulo de conversación, y su largo total. Haz
           clic en un agente para ver sus reglas.
-        </p>
+        </p> */}
         <ResumenAgentes
           reglas={reglas}
           alElegir={(destino) =>
@@ -212,11 +212,11 @@ export function ReglasPage() {
         mensaje={
           regla && (
             <div className="space-y-2">
-              <p>
+              {/* <p>
                 {regla.activo
                   ? `El bot dejará de seguir "${regla.titulo}" (${regla.modulo}) desde el siguiente mensaje.`
                   : `El bot empezará a seguir "${regla.titulo}" (${regla.modulo}) mientras esté dentro de su vigencia.`}
-              </p>
+              </p> */}
               <p className="text-tenue">Agentes afectados:</p>
               <ul className="list-inside list-disc">
                 {agentesAfectados(regla).map((a) => (

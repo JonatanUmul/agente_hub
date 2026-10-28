@@ -144,10 +144,11 @@ export function HorarioSemanal({ agente, mutacion, puedeEditar }) {
         })}
       </div>
 
-      <p className="text-xs text-apagado">
+      {/**  <p className="text-xs text-apagado">
         Hora de Guatemala. 23:59 significa hasta medianoche. Varios rangos en un día = turno
         partido.
       </p>
+      */}
       <MensajeError error={mutacion.error} />
       {puedeEditar && (
         <div className="flex items-center justify-end gap-3">

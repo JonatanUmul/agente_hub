@@ -48,10 +48,14 @@ export function ResumenAgentes({ reglas, alElegir }) {
             </table>
             {suyas.some((f) => f.excedeLimite) && (
               <p className="mt-1 text-[11px] text-alerta">
+                {miles(LIMITE_CARACTERES_AGENTE)} caracteres
+              </p>
+            )}
+            {/**   <p className="mt-1 text-[11px] text-alerta">
                 Pasa de {miles(LIMITE_CARACTERES_AGENTE)} caracteres: más tokens y el modelo obedece
                 peor.
               </p>
-            )}
+              */}
           </button>
         );
       })}
