@@ -28,6 +28,17 @@ const esquemaEnv = z
     DB_SSL: booleano('false'),
     DB_POOL_MAX: z.coerce.number().int().positive().default(10),
 
+    // Rol de solo lectura para el módulo de reportes (docs/sql/rol_eco_reportes.sql). Opcional: sin él,
+    // /api/reportes responde 503 y el resto de la app funciona igual.
+    DB_REPORTES_USER: z
+      .string()
+      .optional()
+      .transform((v) => v || undefined),
+    DB_REPORTES_PASSWORD: z
+      .string()
+      .optional()
+      .transform((v) => v || undefined),
+
     // Sesión y login.
     COOKIE_SECURE: booleano('true'),
     SESION_TTL_HORAS: z.coerce
@@ -38,6 +49,10 @@ const esquemaEnv = z
     LOGIN_MAX_INTENTOS: z.coerce.number().int().positive().default(5),
     LOGIN_BLOQUEO_MINUTOS: z.coerce.number().int().positive().default(15),
     LOGIN_RATE_LIMIT_POR_MINUTO: z.coerce.number().int().positive().default(10),
+  })
+  .refine((c) => Boolean(c.DB_REPORTES_USER) === Boolean(c.DB_REPORTES_PASSWORD), {
+    path: ['DB_REPORTES_PASSWORD'],
+    message: 'DB_REPORTES_USER y DB_REPORTES_PASSWORD van juntos (o ninguno)',
   })
   // Una cookie sin Secure viaja en texto plano: solo se permite fuera de producción.
   .refine((c) => c.NODE_ENV !== 'production' || c.COOKIE_SECURE, {

@@ -85,11 +85,10 @@ FROM (
 
 ## 3. Asesores
 
-### 3.1 ⚠️ Conversaciones solo con bot frente a las que pasaron a asesor
+### 3.1 ✅ Conversaciones solo con bot frente a las transferidas a asesor
 
-"Pasó a asesor" = la conversación tiene la etapa `agente_asignado`. Con los datos actuales da 154 de 176 (87 %), que
-parece alto: **confírmame si `agente_asignado` significa que un asesor humano tomó la conversación** o si también se
-registra en otros casos.
+"Transferida a asesor" = la conversación tiene la etapa `agente_asignado`, que se registra cuando la conversación se
+envía a la bandeja de un asesor (confirmado). Con los datos actuales, 154 de 176 (87 %).
 
 ```sql
 SELECT count(*) FILTER (WHERE NOT con_asesor) AS solo_bot,
@@ -193,14 +192,15 @@ WHERE sent_at >= $1 AND sent_at < $2;
 
 ### 5.2 ✅ Conversaciones reactivadas después del aviso
 
-Reactivada = el cliente volvió a escribir (evento `RECEIVED` o `register`) en las 24 h siguientes al aviso.
+Reactivada = el cliente volvió a escribir (evento `RECEIVED`) en las 24 h siguientes al aviso. `register` es un
+registro interno del bot y no se cuenta.
 
 ```sql
 SELECT count(DISTINCT w.conversationsthreadid) AS con_aviso,
        count(DISTINCT w.conversationsthreadid) FILTER (WHERE EXISTS (
          SELECT 1 FROM eventos e
          WHERE e.conversationsthreadid = w.conversationsthreadid
-           AND e.status IN ('RECEIVED', 'register')
+           AND e.status = 'RECEIVED'
            AND e.fecha_registro > w.sent_at AND e.fecha_registro < w.sent_at + interval '24 hours'
        )) AS reactivadas
 FROM conversation_inactivity_control w

@@ -9,6 +9,8 @@ services:
       POSTGRES_DB: ${DB_NAME:?Falta DB_NAME en .env}
       # Los scripts de init crean el rol eco_app con esta contraseña.
       ECO_APP_PASSWORD: ${DB_PASSWORD:?Falta DB_PASSWORD en .env}
+      # Rol de solo lectura del módulo de reportes.
+      ECO_REPORTES_PASSWORD: ${DB_REPORTES_PASSWORD:?Falta DB_REPORTES_PASSWORD en .env}
     ports:
       - '127.0.0.1:5433:5432'
     volumes:

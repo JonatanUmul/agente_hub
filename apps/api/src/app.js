@@ -15,6 +15,7 @@ import moduloPautas from './modules/pautas/index.js';
 import moduloPreguntas from './modules/preguntas/index.js';
 import moduloProductos from './modules/productos/index.js';
 import moduloReglas from './modules/reglas/index.js';
+import moduloReportes from './modules/reportes/index.js';
 import moduloSalud from './modules/salud/index.js';
 import moduloUsuarios from './modules/usuarios/index.js';
 
@@ -28,7 +29,7 @@ const CAMPOS_SENSIBLES = [
 
 // Construye la app sin escuchar en un puerto: server.js la arranca y las pruebas usan app.inject().
 // `registrar` permite a las pruebas añadir rutas bajo /api con los mismos plugins.
-export async function crearApp({ config, pool, logger = true, registrar }) {
+export async function crearApp({ config, pool, poolReportes = null, logger = true, registrar }) {
   const app = Fastify({
     logger: logger && {
       level: config.LOG_LEVEL,
@@ -45,7 +46,7 @@ export async function crearApp({ config, pool, logger = true, registrar }) {
   await app.register(pluginErrores);
   await app.register(pluginSeguridad, { corsOrigin: config.CORS_ORIGIN });
   await app.register(pluginRateLimit);
-  await app.register(pluginDb, { pool });
+  await app.register(pluginDb, { pool, poolReportes });
 
   await app.register(
     async (api) => {
@@ -62,6 +63,7 @@ export async function crearApp({ config, pool, logger = true, registrar }) {
       await api.register(moduloAuditoria);
       await api.register(moduloContexto);
       await api.register(moduloAgentes);
+      await api.register(moduloReportes);
       if (registrar) await api.register(registrar);
     },
     { prefix: '/api' },

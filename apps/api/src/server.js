@@ -1,10 +1,10 @@
 import { crearApp } from './app.js';
 import { cargarEnv } from './config/env.js';
-import { crearPool } from './db/pool.js';
+import { crearPool, crearPoolReportes } from './db/pool.js';
 
 const config = cargarEnv();
 const pool = crearPool(config);
-const app = await crearApp({ config, pool });
+const app = await crearApp({ config, pool, poolReportes: crearPoolReportes(config) });
 
 // Cierre ordenado: termina peticiones en curso y libera conexiones antes de salir.
 for (const senal of ['SIGINT', 'SIGTERM']) {

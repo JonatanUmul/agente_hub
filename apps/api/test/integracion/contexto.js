@@ -1,7 +1,7 @@
 import pg from 'pg';
 import { crearApp } from '../../src/app.js';
 import { cargarEnv } from '../../src/config/env.js';
-import { crearPool } from '../../src/db/pool.js';
+import { crearPool, crearPoolReportes } from '../../src/db/pool.js';
 import { crearUsuario } from '../../src/modules/usuarios/usuarios.service.js';
 
 export const CONTRASENA_PRUEBA = 'contrasena-de-prueba-123';
@@ -18,7 +18,12 @@ export async function crearContexto() {
     user: process.env.DEV_PG_SUPERUSER,
     password: process.env.DEV_PG_SUPERPASSWORD,
   });
-  const app = await crearApp({ config, pool, logger: false });
+  const app = await crearApp({
+    config,
+    pool,
+    poolReportes: crearPoolReportes(config),
+    logger: false,
+  });
   const sufijo = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
 
   async function sesionCon(rol) {

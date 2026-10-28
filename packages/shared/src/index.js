@@ -11,6 +11,7 @@ export * from './permisos.js';
 export * from './precios.js';
 export * from './preguntas.js';
 export * from './productos.js';
+export * from './reportes.js';
 export * from './reglas.js';
 export * from './roles.js';
 export * from './salud.js';

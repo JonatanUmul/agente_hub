@@ -12,6 +12,8 @@ export const PERMISOS = Object.freeze({
   'reglas:editar': ['admin', 'contenido'],
   'preguntas:editar': ['admin', 'contenido'],
   'horarios:editar': ['admin'],
+  // El dashboard lo ven todos (permiso 'ver'); exportar a CSV, solo estos roles.
+  'reportes:exportar': ['admin', 'comercial'],
 });
 
 export function tienePermiso(rol, permiso) {
