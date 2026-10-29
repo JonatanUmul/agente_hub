@@ -1,4 +1,9 @@
-import { CLAVES_PARAMETROS, INTERRUPTORES, errorParametro } from '@ecofiltro/shared';
+import {
+  CLAVES_PARAMETROS,
+  INTERRUPTORES,
+  errorEntreParametros,
+  errorParametro,
+} from '@ecofiltro/shared';
 import { withTransaction } from '../../db/transaction.js';
 import { AppError, conflictoDeVersion, noEncontrado } from '../../lib/app-error.js';
 import * as repo from './configuracion.repository.js';
@@ -28,9 +33,15 @@ export async function cambiarParametro(db, { clave, valor, version, correo }) {
     throw new AppError({ codigo: 'VALOR_FUERA_DE_RANGO', mensaje: error, estadoHttp: 400 });
   }
   return withTransaction(db, async (client) => {
-    const [actual] = await repo.listarParametros(client, [clave], { bloquear: true });
+    const todos = await repo.listarParametros(client, CLAVES_PARAMETROS, { bloquear: true });
+    const actual = todos.find((p) => p.clave === clave);
     if (!actual) throw noEncontrado(`La clave ${clave} no existe en eco_configuracion`);
     if (actual.version !== version) throw conflictoDeVersion();
+    const valores = Object.fromEntries(todos.map((p) => [p.clave, p.valor]));
+    const errorPar = errorEntreParametros({ ...valores, [clave]: valor });
+    if (errorPar) {
+      throw new AppError({ codigo: 'VALOR_FUERA_DE_RANGO', mensaje: errorPar, estadoHttp: 400 });
+    }
     if (actual.valor !== valor) {
       await repo.actualizarParametro(client, { clave, valor, actualizadoPor: correo });
     }

@@ -5,7 +5,11 @@ import { z } from 'zod';
 export const INTERRUPTORES_COMERCIALES = ['precios_habilitados', 'promociones_habilitadas'];
 // cierre_automatico: si el bot agrega una frase de cierre (eco_frases_cierre). Se cambia desde Frases de cierre,
 // con el permiso de quien administra el contenido.
-export const INTERRUPTORES = [...INTERRUPTORES_COMERCIALES, 'cierre_automatico'];
+export const INTERRUPTORES = [
+  ...INTERRUPTORES_COMERCIALES,
+  'cierre_automatico',
+  'recuperacion_compra_activa',
+];
 
 export const esquemaInterruptor = z.object({
   clave: z.enum(INTERRUPTORES),
@@ -17,24 +21,88 @@ export const esquemaInterruptor = z.object({
 
 export const esquemaCambiarInterruptor = z.object({ habilitado: z.boolean() });
 
-// Parámetros numéricos del bot que se editan en Interruptores (eco_configuracion, tipo entero).
+// Tiempos y límites del bot (eco_configuracion, tipo entero), agrupados por bloque en la pantalla Tiempos.
+// `porDefecto`: el valor que se muestra si la base guarda algo que no es entero (null = sin valor conocido).
+const p = (bloque, titulo, unidad, minimo, maximo, ayuda = null, porDefecto = null) => ({
+  bloque,
+  titulo,
+  unidad,
+  minimo,
+  maximo,
+  ayuda,
+  porDefecto,
+});
+export const BLOQUES_TIEMPOS = [
+  'Mensajes del cliente',
+  'Inactividad y seguimiento',
+  'Asesor',
+  'Pauta',
+  'Contexto del bot',
+  'Fotos',
+];
 export const PARAMETROS_ENTEROS = {
-  max_fotos_pauta: {
-    titulo: 'Fotos por pauta sin arte',
-    ayuda: 'Fotos de producto que se envían cuando la pauta no tiene imagen propia.',
-    minimo: 0,
-    maximo: 10,
-    porDefecto: 1,
-  },
-  segundos_agrupar_mensajes: {
-    titulo: 'Segundos para agrupar mensajes',
-    ayuda:
-      'Más segundos = junta mejor los mensajes, pero el bot tarda más en responder. 0 = responde cada mensaje por separado.',
-    minimo: 0,
-    maximo: 20,
-    porDefecto: 5,
-  },
+  segundos_agrupar_mensajes: p(
+    'Mensajes del cliente',
+    'Agrupar mensajes seguidos',
+    'segundos',
+    0,
+    20,
+    'Más segundos = junta mejor los mensajes, pero el bot tarda más en responder. 0 = no agrupar.',
+    5,
+  ),
+  segundos_agrupar_saludo: p('Mensajes del cliente', 'Agrupar el saludo', 'segundos', 0, 30),
+  minutos_aviso_inactividad: p(
+    'Inactividad y seguimiento',
+    'Aviso de inactividad',
+    'minutos',
+    1,
+    1440,
+  ),
+  minutos_cierre_inactividad: p(
+    'Inactividad y seguimiento',
+    'Cierre por inactividad',
+    'minutos',
+    1,
+    1440,
+    'Debe ser mayor que el aviso.',
+  ),
+  minutos_asesor_recuperacion: p(
+    'Inactividad y seguimiento',
+    'Ofrecer asesor después del seguimiento',
+    'minutos',
+    1,
+    1440,
+  ),
+  horas_entre_seguimientos: p('Inactividad y seguimiento', 'Entre seguimientos', 'horas', 1, 720),
+  minutos_espera_nombre: p('Asesor', 'Espera del nombre', 'minutos', 1, 120),
+  minutos_repetir_pauta: p('Pauta', 'Repetir la pauta', 'minutos', 0, 1440),
+  horas_repetir_pauta: p('Pauta', 'Repetir la pauta', 'horas', 0, 720),
+  max_fotos_pauta: p(
+    'Pauta',
+    'Fotos por pauta sin arte',
+    'fotos',
+    0,
+    10,
+    'Fotos de producto que se envían cuando la pauta no tiene imagen propia.',
+    1,
+  ),
+  horas_historial_agente: p('Contexto del bot', 'Historial que lee el agente', 'horas', 1, 720),
+  max_fotos_por_respuesta: p('Fotos', 'Fotos por respuesta', 'fotos', 0, 10),
+  segundos_entre_fotos: p('Fotos', 'Entre fotos', 'segundos', 0, 30),
 };
+// Interruptor del bloque de inactividad (booleano en eco_configuracion).
+export const INTERRUPTOR_RECUPERACION = 'recuperacion_compra_activa';
+
+// Validación entre claves: el cierre por inactividad debe llegar después del aviso.
+export function errorEntreParametros(valores) {
+  const aviso = valores.minutos_aviso_inactividad;
+  const cierre = valores.minutos_cierre_inactividad;
+  if (Number.isInteger(aviso) && Number.isInteger(cierre) && cierre <= aviso) {
+    return 'El cierre por inactividad debe ser mayor que el aviso';
+  }
+  return null;
+}
+
 export const CLAVES_PARAMETROS = Object.keys(PARAMETROS_ENTEROS);
 
 export const esquemaParametro = z.object({

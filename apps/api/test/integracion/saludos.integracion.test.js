@@ -119,22 +119,4 @@ describe('integración: saludos', () => {
       expect(simulado.candidatos.map((c) => c.saludo).sort()).toEqual([...esperados].sort());
     }
   });
-
-  it('lee y guarda el texto del menú inicial con versión', async () => {
-    const actual = (await contenido.pedir({ url: '/api/saludos/menu-bienvenida' })).json();
-    const guardar = (texto, version) =>
-      contenido.pedir({
-        method: 'PUT',
-        url: '/api/saludos/menu-bienvenida',
-        payload: { texto, version },
-      });
-    try {
-      const nuevo = await guardar(`${actual.texto} (prueba)`, actual.version);
-      expect(nuevo.json()).toMatchObject({ actualizadoPor: contenido.correo });
-      expect((await guardar('otro', actual.version)).statusCode).toBe(409);
-    } finally {
-      const ahora = (await contenido.pedir({ url: '/api/saludos/menu-bienvenida' })).json();
-      await guardar(actual.texto, ahora.version);
-    }
-  });
 });

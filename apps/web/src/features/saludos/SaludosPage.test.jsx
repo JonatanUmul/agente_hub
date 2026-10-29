@@ -68,10 +68,12 @@ const pagina = () =>
   );
 
 describe('SaludosPage', () => {
-  it('muestra la vigencia, la etiqueta Vigente hoy y el texto del menú, sin vistas por módulo, texto del menú ni simulador', () => {
+  it('muestra la vigencia y la etiqueta Vigente hoy, con enlace al texto del menú y sin simulador', () => {
     pagina();
     expect(screen.queryByText('Hoy el bot saluda así')).toBeNull();
-    expect(screen.queryByText('Texto del menú inicial')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Texto del menú inicial' }).getAttribute('href')).toBe(
+      '/mensajes#menu_bienvenida',
+    );
     expect(screen.queryByText('Simulador')).toBeNull();
     expect(screen.getByText('Cada año del 15 dic al 26 dic')).toBeTruthy();
     expect(screen.getAllByText('Vigente hoy')).toHaveLength(1);

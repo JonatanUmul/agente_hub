@@ -310,7 +310,7 @@ Columnas: `nombre` (UNIQUE por módulo), `modulo`, `saludo` (3–300, admite `{m
 - `eco_saludo(modulo) → text`: activos de `GLOBAL` + el módulo, vigentes hoy (America/Guatemala); gana la mayor
   prioridad, a igual prioridad el del módulo, y si siguen empatados uno al azar. `{momento}` = Buenos días (5–11),
   Buenas tardes (12–18) o Buenas noches. `NULL` si no hay ninguno.
-- `eco_configuracion.menu_bienvenida_texto`: texto que sigue al saludo en el menú inicial.
+- El texto que sigue al saludo en el menú inicial es el mensaje `menu_bienvenida` (`eco_mensajes`).
 - Réplica de desarrollo: [`11_saludos.sql`](../docker/postgres/init/11_saludos.sql).
 
 ## Imagen de la pauta y parámetros (28-10-2026)
@@ -321,6 +321,22 @@ Columnas: `nombre` (UNIQUE por módulo), `modulo`, `saludo` (3–300, admite `{m
   arte con `POST /api/multimedia/arte-pauta` (lógica en `@ecofiltro/shared/artePauta.js`).
 - **`eco_configuracion` (tipo `entero`):** `max_fotos_pauta` (0–10, por defecto 1) y `segundos_agrupar_mensajes` (0–20,
   por defecto 5), editables en Interruptores. Réplica: [`12_parametros_pauta.sql`](../docker/postgres/init/12_parametros_pauta.sql).
+
+## Mensajes del bot y tiempos (aplicado por el administrador, 29-10-2026)
+
+- **`eco_mensajes_tipos`** (solo lectura para la app): `clave` PK, `categoria`, `titulo`, `descripcion`, `comodines`
+  (text[]), `varias`, `orden`. **`eco_mensajes`**: `id`, `clave` FK, `texto` (2–1000, UNIQUE por clave), `activo`,
+  `orden`, auditoría y `actualizado_en` por trigger. Con varias versiones activas el bot alterna; los de un solo uso
+  toman la primera por `orden`; sin versiones activas n8n usa su texto por defecto.
+- `eco_contexto(modulo)->'mensajes'` = `{ clave: [textos activos] }`.
+- Tiempos en `eco_configuracion` (enteros): `segundos_agrupar_mensajes`, `segundos_agrupar_saludo`,
+  `minutos_aviso_inactividad`, `minutos_cierre_inactividad` (> aviso), `minutos_asesor_recuperacion`,
+  `horas_entre_seguimientos`, `minutos_espera_nombre`, `minutos_repetir_pauta`, `horas_repetir_pauta`, `max_fotos_pauta`,
+  `horas_historial_agente`, `max_fotos_por_respuesta`, `segundos_entre_fotos`; y `recuperacion_compra_activa` (booleano).
+  Rangos en `PARAMETROS_ENTEROS` (`@ecofiltro/shared/configuracion.js`).
+- `menu_bienvenida_texto`, `mensaje_recuperacion_compra` y `mensaje_recuperacion_asesor` ya no existen en
+  `eco_configuracion`: son los mensajes `menu_bienvenida`, `seguimiento_compra` y `seguimiento_asesor`.
+- Réplica de desarrollo: [`13_mensajes.sql`](../docker/postgres/init/13_mensajes.sql).
 
 ## Tablas operativas del bot (inspeccionadas el 27-10-2026, solo lectura)
 

@@ -5,14 +5,12 @@ import {
   esquemaEditarSaludo,
   esquemaEliminarSaludo,
   esquemaFiltrosSaludos,
-  esquemaGuardarTextoMenu,
   esquemaModuloSaludo,
   esquemaSaludo,
   esquemaSaludoGuardado,
   esquemaSaludoVigente,
   esquemaSimulacionSaludo,
   esquemaSimularSaludo,
-  esquemaTextoMenu,
 } from '@ecofiltro/shared';
 import * as servicio from './saludos.service.js';
 
@@ -36,20 +34,6 @@ export async function rutasSaludos(app) {
     '/saludos/simular',
     { schema: { querystring: esquemaSimularSaludo, response: { 200: esquemaSimulacionSaludo } } },
     (request) => servicio.simularSaludo(app.db, request.query),
-  );
-
-  app.get('/saludos/menu-bienvenida', { schema: { response: { 200: esquemaTextoMenu } } }, () =>
-    servicio.leerTextoMenu(app.db),
-  );
-
-  app.put(
-    '/saludos/menu-bienvenida',
-    {
-      config: editar,
-      schema: { body: esquemaGuardarTextoMenu, response: { 200: esquemaTextoMenu } },
-    },
-    (request) =>
-      servicio.guardarTextoMenu(app.db, { ...request.body, correo: request.usuario.correo }),
   );
 
   app.post(

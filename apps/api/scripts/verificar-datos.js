@@ -6,6 +6,7 @@ import {
   CAMPOS_FICHA,
   CLAVES_PARAMETROS,
   errorParametro,
+  errorTextoMensaje,
   MODULOS,
   esquemaArchivo,
   esquemaContexto,
@@ -29,6 +30,7 @@ import {
 } from '../src/modules/configuracion/configuracion.service.js';
 import * as frases from '../src/modules/frases/frases.repository.js';
 import * as saludos from '../src/modules/saludos/saludos.repository.js';
+import { listarMensajes } from '../src/modules/mensajes/mensajes.service.js';
 import * as multimedia from '../src/modules/multimedia/multimedia.repository.js';
 import * as pautas from '../src/modules/pautas/pautas.repository.js';
 import * as preguntas from '../src/modules/preguntas/preguntas.repository.js';
@@ -128,6 +130,16 @@ try {
   console.log(`✓ eco_saludo('MENU'): ${saludoHoy[0].s === null ? 'sin saludo' : 'responde'}`);
 
   validar('interruptores', esquemaInterruptor, await listarInterruptores(pool), (i) => i.clave);
+
+  // Textos actuales que no pasarían la validación (editarlos obligaría a corregirlos).
+  const mensajes = await listarMensajes(pool);
+  for (const t of mensajes) {
+    for (const v of t.versiones) {
+      const problema = errorTextoMensaje(v.texto, t);
+      if (problema) problemas.push(`mensaje ${t.clave} #${v.id} → ${problema}`);
+    }
+  }
+  console.log(`✓ mensajes: ${mensajes.length} tipo(s)`);
 
   const parametros = await listarParametros(pool);
   for (const p of parametros) {

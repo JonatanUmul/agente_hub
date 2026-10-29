@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   NOMBRES_MODULO_SALUDO,
   ahoraEnGuatemala,
@@ -116,7 +117,14 @@ export function SaludosPage() {
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-semibold">Saludos</h2>
-        {puedeEditar && <Boton onClick={() => setAccion({ tipo: 'crear' })}>Agregar saludo</Boton>}
+        <div className="flex items-center gap-3">
+          <Link to="/mensajes#menu_bienvenida" className="text-sm text-acento hover:underline">
+            Texto del menú inicial
+          </Link>
+          {puedeEditar && (
+            <Boton onClick={() => setAccion({ tipo: 'crear' })}>Agregar saludo</Boton>
+          )}
+        </div>
       </div>
 
       {!tieneSaludoBase(saludos) && (

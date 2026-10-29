@@ -8,6 +8,7 @@ export * from './configuracion.js';
 export * from './contexto.js';
 export * from './ficha.js';
 export * from './frases.js';
+export * from './mensajes.js';
 export * from './multimedia.js';
 export * from './pautas.js';
 export * from './permisos.js';

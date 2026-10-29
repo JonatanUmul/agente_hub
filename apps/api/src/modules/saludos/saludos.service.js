@@ -14,7 +14,6 @@ import {
   noEncontrado,
 } from '../../lib/app-error.js';
 import { editarConVersion } from '../../lib/edicion.js';
-import * as config from '../configuracion/configuracion.repository.js';
 import * as repo from './saludos.repository.js';
 
 const CAMPOS_EDITABLES = [
@@ -28,7 +27,6 @@ const CAMPOS_EDITABLES = [
   'activo',
 ];
 const NO_ENCONTRADO = 'Saludo no encontrado';
-const CLAVE_MENU = 'menu_bienvenida_texto';
 
 function traducirError(error) {
   if (esViolacionUnica(error)) {
@@ -141,20 +139,3 @@ export async function simularSaludo(db, { modulo, fecha, hora }) {
     candidatos,
   };
 }
-
-export async function leerTextoMenu(db) {
-  const texto = await config.leerTexto(db, CLAVE_MENU);
-  if (!texto) throw noEncontrado(`La clave ${CLAVE_MENU} no existe en eco_configuracion`);
-  return texto;
-}
-
-export const guardarTextoMenu = (db, { texto, version, correo }) =>
-  withTransaction(db, async (client) => {
-    const actual = await config.leerTexto(client, CLAVE_MENU, { bloquear: true });
-    if (!actual) throw noEncontrado(`La clave ${CLAVE_MENU} no existe en eco_configuracion`);
-    if (actual.version !== version) throw conflictoDeVersion();
-    if (actual.texto !== texto) {
-      await config.actualizarTexto(client, { clave: CLAVE_MENU, texto, actualizadoPor: correo });
-    }
-    return config.leerTexto(client, CLAVE_MENU);
-  });

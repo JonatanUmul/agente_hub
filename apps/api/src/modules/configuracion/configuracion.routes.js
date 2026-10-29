@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   CLAVES_PARAMETROS,
   INTERRUPTORES_COMERCIALES,
+  INTERRUPTOR_RECUPERACION,
   esquemaCambiarParametro,
   esquemaParametro,
   esquemaCambiarInterruptor,
@@ -22,7 +23,9 @@ export async function rutasConfiguracion(app) {
       config: { permiso: 'configuracion:editar' },
       schema: {
         // cierre_automatico se cambia en /frases-cierre/cierre-automatico (otro permiso).
-        params: z.object({ clave: z.enum(INTERRUPTORES_COMERCIALES) }),
+        params: z.object({
+          clave: z.enum([...INTERRUPTORES_COMERCIALES, INTERRUPTOR_RECUPERACION]),
+        }),
         body: esquemaCambiarInterruptor,
         response: { 200: esquemaInterruptor },
       },

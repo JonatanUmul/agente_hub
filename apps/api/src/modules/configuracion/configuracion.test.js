@@ -103,6 +103,30 @@ describe('parámetros enteros', () => {
     expect(repo.actualizarParametro).not.toHaveBeenCalled();
   });
 
+  it('el cierre por inactividad debe ser mayor que el aviso', async () => {
+    repo.listarParametros.mockResolvedValue([
+      { clave: 'minutos_aviso_inactividad', valor: 10, version: 'a' },
+      { clave: 'minutos_cierre_inactividad', valor: 20, version: 'c' },
+    ]);
+    await expect(
+      cambiarParametro(db, {
+        clave: 'minutos_cierre_inactividad',
+        valor: 10,
+        version: 'c',
+        correo: 'c@e.com',
+      }),
+    ).rejects.toMatchObject({ codigo: 'VALOR_FUERA_DE_RANGO' });
+    await expect(
+      cambiarParametro(db, {
+        clave: 'minutos_aviso_inactividad',
+        valor: 25,
+        version: 'a',
+        correo: 'c@e.com',
+      }),
+    ).rejects.toMatchObject({ codigo: 'VALOR_FUERA_DE_RANGO' });
+    expect(repo.actualizarParametro).not.toHaveBeenCalled();
+  });
+
   it('responde 409 si otra persona lo cambió', async () => {
     repo.listarParametros.mockResolvedValue([actual(1)]);
     await expect(

@@ -91,18 +91,6 @@ export const esquemaSimularSaludo = z.object({
   fecha,
   hora: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Hora no válida (HH:MM)'),
 });
-// Texto que sigue al saludo en el menú inicial (eco_configuracion.menu_bienvenida_texto).
-export const esquemaTextoMenu = z.object({
-  clave: z.string(),
-  texto: z.string(),
-  actualizadoEn: fechaIso,
-  actualizadoPor: z.string().nullable(),
-  version: z.string(),
-});
-export const esquemaGuardarTextoMenu = z.object({
-  texto: z.string().trim().min(1, 'Requerido').max(2000),
-  version,
-});
 export const esquemaSaludoGuardado = esquemaSaludo.extend({
   choques: z.array(z.object({ id: z.number().int(), nombre: z.string() })),
 });
