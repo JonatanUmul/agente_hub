@@ -1,6 +1,7 @@
 import { withTransaction } from '../../db/transaction.js';
 import {
   AppError,
+  conflictoDeVersion,
   esViolacionLlaveForanea,
   esViolacionUnica,
   noEncontrado,
@@ -73,3 +74,48 @@ export const editarArchivo = (db, { id, datos, correo }) =>
 
 export const cambiarActivoArchivo = (db, { id, activo, version, correo }) =>
   editar(db, { id, version, correo, aplicar: (actual) => ({ ...actual, activo }) });
+
+// Arte de la pauta: imagen sin producto con pauta_id = la pauta. Al reemplazar, el arte anterior se desactiva
+// (no se borra) y el nuevo toma su lugar en el orden, todo en una transacción.
+export async function crearArtePauta(db, { datos, correo }) {
+  const { pautaId, hubspotFileId, descripcion, reemplaza } = datos;
+  try {
+    return await withTransaction(db, async (client) => {
+      let orden;
+      if (reemplaza) {
+        const anterior = await repo.obtenerEditableBloqueando(client, reemplaza.id);
+        if (!anterior) throw noEncontrado('El arte a reemplazar no existe');
+        if (anterior.version !== reemplaza.version) throw conflictoDeVersion();
+        if (anterior.productoId !== null || !anterior.pautaIds.includes(pautaId)) {
+          throw new AppError({
+            codigo: 'NO_ES_ARTE_DE_LA_PAUTA',
+            mensaje: 'El archivo a reemplazar no es un arte de esta pauta',
+            estadoHttp: 400,
+          });
+        }
+        await repo.actualizar(client, reemplaza.id, { ...anterior, activo: false }, correo);
+        orden = anterior.orden;
+      } else {
+        orden = await repo.siguienteOrdenDePauta(client, pautaId);
+      }
+      const id = await repo.insertar(
+        client,
+        {
+          tipo: 'imagen',
+          hubspotFileId,
+          descripcion,
+          productoId: null,
+          color: null,
+          tema: null,
+          pautaIds: [pautaId],
+          orden,
+          activo: true,
+        },
+        correo,
+      );
+      return repo.obtenerPorId(client, id);
+    });
+  } catch (error) {
+    throw traducirError(error);
+  }
+}

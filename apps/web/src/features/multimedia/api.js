@@ -6,3 +6,5 @@ export const editarArchivo = ({ id, ...datos }) =>
   api(`/multimedia/${id}`, { method: 'PUT', body: datos });
 export const cambiarActivoArchivo = ({ id, activo, version }) =>
   api(`/multimedia/${id}/activo`, { method: 'PATCH', body: { activo, version } });
+export const crearArtePauta = (datos) =>
+  api('/multimedia/arte-pauta', { method: 'POST', body: datos });

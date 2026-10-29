@@ -98,6 +98,8 @@ eco_admin`), probados en una base desechable igual a producción, y replicados e
 - Ficha de producto (descripción, características, medidas, peso…): columnas opcionales de `eco_productos` que el bot
   recibe en `eco_contexto()`; los vacíos no se envían. Reglas en `@ecofiltro/shared/ficha.js` (`fichaQueVeElBot`,
   `faltantesFicha`, `contradiccionesFicha`, `TIPOS_POR_CAMPO`), con prueba de paridad contra `eco_contexto()`.
+- Parámetros enteros `max_fotos_pauta` y `segundos_agrupar_mensajes` (`PARAMETROS_ENTEROS` en shared) se editan en
+  Interruptores. Arte de pauta = imagen sin producto con `pauta_id` = la pauta (`artePauta.js`).
 - Editables en `eco_configuracion`: `precios_habilitados` y `promociones_habilitadas` (Interruptores) y
   `cierre_automatico` (desde Frases de cierre, permiso `frases:editar`); las demás claves son de n8n.
 - Frases de cierre (`eco_frases_cierre`, módulo `frases`): n8n elige una al azar entre las activas de GLOBAL + el módulo

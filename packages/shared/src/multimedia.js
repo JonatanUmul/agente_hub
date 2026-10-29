@@ -13,6 +13,8 @@ export const esquemaArchivo = z.object({
   tema: z.string().nullable(),
   // Pautas en cuyas imágenes aparece el archivo (puede haber varias).
   pautas: z.array(z.object({ id: z.number().int(), codigo: z.string(), nombre: z.string() })),
+  // eco_multimedia.pauta_id: la pauta para la que n8n envía el archivo (la primera de `pautas`).
+  pautaIdPrincipal: z.number().int().nullable(),
   orden: z.number().int(),
   activo: z.boolean(),
   actualizadoEn: fechaIso,

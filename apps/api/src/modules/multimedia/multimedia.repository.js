@@ -2,7 +2,7 @@
 
 // `pautas` = todas las pautas en cuyas imágenes aparece el archivo (eco_multimedia_pautas).
 const SELECT_ARCHIVO = `
-  SELECT m.id, m.tipo, m.hubspot_file_id, m.descripcion, m.color, m.tema, m.orden, m.activo,
+  SELECT m.id, m.tipo, m.hubspot_file_id, m.descripcion, m.color, m.tema, m.orden, m.activo, m.pauta_id,
          m.actualizado_en, m.actualizado_por, m.actualizado_en::text AS version,
          p.id AS producto_id, p.codigo AS producto_codigo, p.nombre AS producto_nombre,
          COALESCE((
@@ -27,6 +27,7 @@ function aArchivo(fila) {
     color: fila.color,
     tema: fila.tema,
     pautas: fila.pautas,
+    pautaIdPrincipal: fila.pauta_id,
     orden: fila.orden,
     activo: fila.activo,
     actualizadoEn: fila.actualizado_en.toISOString(),
@@ -125,4 +126,13 @@ async function sincronizarPautas(db, multimediaId, pautaIds, actualizadoPor) {
      ON CONFLICT DO NOTHING`,
     [multimediaId, pautaIds, actualizadoPor],
   );
+}
+
+// Orden para un arte nuevo: al final de las imágenes de la pauta (n8n las envía por `orden`).
+export async function siguienteOrdenDePauta(db, pautaId) {
+  const { rows } = await db.query(
+    `SELECT COALESCE(max(orden), 0) + 10 AS orden FROM eco_multimedia WHERE pauta_id = $1`,
+    [pautaId],
+  );
+  return rows[0].orden;
 }

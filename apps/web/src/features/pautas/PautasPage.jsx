@@ -10,6 +10,7 @@ import { fecha, porcentaje } from '../../lib/formato.js';
 import { usePermiso } from '../auth/hooks.js';
 import { useEstadoInterruptores } from '../configuracion/hooks.js';
 import { EstadoVigencia } from '../../components/EstadoVigencia.jsx';
+import { ImagenPauta } from './ImagenPauta.jsx';
 import { PautaForm } from './PautaForm.jsx';
 import { useCambiarActivoPauta, useCrearPauta, useEditarPauta, usePautas } from './hooks.js';
 
@@ -107,6 +108,7 @@ export function PautasPage() {
         abierto={accion?.tipo === 'crear' || accion?.tipo === 'editar'}
         titulo={accion?.tipo === 'crear' ? 'Nueva pauta' : `Editar ${pauta?.nombre}`}
         alCerrar={cerrar}
+        ancho="max-w-2xl"
       >
         {(accion?.tipo === 'crear' || accion?.tipo === 'editar') && (
           <PautaForm
@@ -116,6 +118,7 @@ export function PautasPage() {
             alCancelar={cerrar}
           />
         )}
+        {accion?.tipo === 'editar' && <ImagenPauta pauta={pauta} puedeEditar={puedeEditar} />}
       </Modal>
 
       <ConfirmarModal

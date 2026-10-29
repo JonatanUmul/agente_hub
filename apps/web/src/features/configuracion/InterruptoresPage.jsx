@@ -8,6 +8,7 @@ import { fecha } from '../../lib/formato.js';
 import { usePermiso } from '../auth/hooks.js';
 import { useProductos } from '../productos/hooks.js';
 import { useCambiarInterruptor, useInterruptores } from './hooks.js';
+import { Parametros } from './Parametros.jsx';
 
 const TITULOS = {
   precios_habilitados: 'Precios',
@@ -62,6 +63,8 @@ export function InterruptoresPage() {
             </div>
           </div>
         ))}
+
+      <Parametros puedeEditar={puedeEditar} />
 
       <ConfirmarModal
         abierto={Boolean(pendiente)}

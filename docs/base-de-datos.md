@@ -313,6 +313,15 @@ Columnas: `nombre` (UNIQUE por módulo), `modulo`, `saludo` (3–300, admite `{m
 - `eco_configuracion.menu_bienvenida_texto`: texto que sigue al saludo en el menú inicial.
 - Réplica de desarrollo: [`11_saludos.sql`](../docker/postgres/init/11_saludos.sql).
 
+## Imagen de la pauta y parámetros (28-10-2026)
+
+- **Arte de la pauta:** imagen de `eco_multimedia` con `pauta_id` = la pauta y `producto_id IS NULL`. n8n, al llegar un
+  cliente por una pauta, toma las imágenes activas con ese `pauta_id` (la columna, no `eco_multimedia_pautas`) por
+  `orden`: si hay arte envía solo los artes (hasta 3); si no, hasta `max_fotos_pauta` fotos de producto. La app crea el
+  arte con `POST /api/multimedia/arte-pauta` (lógica en `@ecofiltro/shared/artePauta.js`).
+- **`eco_configuracion` (tipo `entero`):** `max_fotos_pauta` (0–10, por defecto 1) y `segundos_agrupar_mensajes` (0–20,
+  por defecto 5), editables en Interruptores. Réplica: [`12_parametros_pauta.sql`](../docker/postgres/init/12_parametros_pauta.sql).
+
 ## Tablas operativas del bot (inspeccionadas el 27-10-2026, solo lectura)
 
 La app **no escribe** en ellas. El módulo de reportes (fase 5) las lee con un rol propio de solo lectura.

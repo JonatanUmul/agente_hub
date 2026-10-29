@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import {
+  CLAVES_PARAMETROS,
   INTERRUPTORES_COMERCIALES,
+  esquemaCambiarParametro,
+  esquemaParametro,
   esquemaCambiarInterruptor,
   esquemaInterruptor,
 } from '@ecofiltro/shared';
@@ -28,6 +31,30 @@ export async function rutasConfiguracion(app) {
       servicio.cambiarInterruptor(app.db, {
         clave: request.params.clave,
         habilitado: request.body.habilitado,
+        correo: request.usuario.correo,
+      }),
+  );
+
+  app.get(
+    '/configuracion/parametros',
+    { schema: { response: { 200: z.array(esquemaParametro) } } },
+    () => servicio.listarParametros(app.db),
+  );
+
+  app.put(
+    '/configuracion/parametros/:clave',
+    {
+      config: { permiso: 'configuracion:editar' },
+      schema: {
+        params: z.object({ clave: z.enum(CLAVES_PARAMETROS) }),
+        body: esquemaCambiarParametro,
+        response: { 200: esquemaParametro },
+      },
+    },
+    (request) =>
+      servicio.cambiarParametro(app.db, {
+        clave: request.params.clave,
+        ...request.body,
         correo: request.usuario.correo,
       }),
   );

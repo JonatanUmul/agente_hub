@@ -56,3 +56,32 @@ export async function actualizarTexto(db, { clave, texto, actualizadoPor }) {
     [clave, texto, actualizadoPor],
   );
 }
+
+// Parámetros enteros (max_fotos_pauta…): el valor se guarda como texto; si no es un entero llega null.
+function aParametro(fila) {
+  const texto = fila.valor?.trim() ?? '';
+  return {
+    clave: fila.clave,
+    valor: /^-?\d+$/.test(texto) ? Number(texto) : null,
+    actualizadoEn: fila.actualizado_en.toISOString(),
+    actualizadoPor: fila.actualizado_por,
+    version: fila.version,
+  };
+}
+
+export async function listarParametros(db, claves, { bloquear = false } = {}) {
+  const { rows } = await db.query(
+    `SELECT clave, valor, actualizado_en, actualizado_por, actualizado_en::text AS version
+     FROM eco_configuracion WHERE clave = ANY($1::text[]) ORDER BY clave${bloquear ? ' FOR UPDATE' : ''}`,
+    [claves],
+  );
+  return rows.map(aParametro);
+}
+
+export async function actualizarParametro(db, { clave, valor, actualizadoPor }) {
+  await db.query(`UPDATE eco_configuracion SET valor = $2, actualizado_por = $3 WHERE clave = $1`, [
+    clave,
+    String(valor),
+    actualizadoPor,
+  ]);
+}

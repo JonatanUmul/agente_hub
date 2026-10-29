@@ -4,6 +4,8 @@
 import pg from 'pg';
 import {
   CAMPOS_FICHA,
+  CLAVES_PARAMETROS,
+  errorParametro,
   MODULOS,
   esquemaArchivo,
   esquemaContexto,
@@ -21,7 +23,10 @@ import {
   esquemaRegla,
 } from '@ecofiltro/shared';
 import { cargarEnv } from '../src/config/env.js';
-import { listarInterruptores } from '../src/modules/configuracion/configuracion.service.js';
+import {
+  listarInterruptores,
+  listarParametros,
+} from '../src/modules/configuracion/configuracion.service.js';
 import * as frases from '../src/modules/frases/frases.repository.js';
 import * as saludos from '../src/modules/saludos/saludos.repository.js';
 import * as multimedia from '../src/modules/multimedia/multimedia.repository.js';
@@ -123,6 +128,13 @@ try {
   console.log(`✓ eco_saludo('MENU'): ${saludoHoy[0].s === null ? 'sin saludo' : 'responde'}`);
 
   validar('interruptores', esquemaInterruptor, await listarInterruptores(pool), (i) => i.clave);
+
+  const parametros = await listarParametros(pool);
+  for (const p of parametros) {
+    const problema = p.valor === null ? 'no es un entero' : errorParametro(p.clave, p.valor);
+    if (problema) problemas.push(`parámetro ${p.clave} → ${problema}`);
+  }
+  console.log(`✓ parámetros: ${parametros.length} de ${CLAVES_PARAMETROS.length}`);
 
   for (const modulo of MODULOS) {
     const { rows } = await pool.query('SELECT eco_contexto($1) AS c', [modulo]);

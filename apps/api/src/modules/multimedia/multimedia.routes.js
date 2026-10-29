@@ -3,6 +3,7 @@ import {
   esquemaArchivo,
   esquemaCambiarActivo,
   esquemaCrearArchivo,
+  esquemaCrearArte,
   esquemaEditarArchivo,
 } from '@ecofiltro/shared';
 import * as servicio from './multimedia.service.js';
@@ -25,6 +26,22 @@ export async function rutasMultimedia(app) {
     async (request, reply) =>
       reply.code(201).send(
         await servicio.crearArchivo(app.db, {
+          datos: request.body,
+          correo: request.usuario.correo,
+        }),
+      ),
+  );
+
+  // Arte de una pauta (imagen sin producto). Lo administra quien edita pautas.
+  app.post(
+    '/multimedia/arte-pauta',
+    {
+      config: { permiso: 'pautas:editar' },
+      schema: { body: esquemaCrearArte, response: { 201: esquemaArchivo } },
+    },
+    async (request, reply) =>
+      reply.code(201).send(
+        await servicio.crearArtePauta(app.db, {
           datos: request.body,
           correo: request.usuario.correo,
         }),

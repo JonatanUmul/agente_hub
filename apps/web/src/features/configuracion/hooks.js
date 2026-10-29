@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { cambiarInterruptor, listarInterruptores } from './api.js';
+import { useMutacionQueRecarga } from '../../lib/mutaciones.js';
+import {
+  cambiarInterruptor,
+  cambiarParametro,
+  listarInterruptores,
+  listarParametros,
+} from './api.js';
 
 const CLAVE = ['interruptores'];
 
@@ -19,3 +25,9 @@ export function useCambiarInterruptor() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CLAVE }),
   });
 }
+
+const CLAVE_PARAMETROS = ['parametros'];
+export const useParametros = () =>
+  useQuery({ queryKey: CLAVE_PARAMETROS, queryFn: listarParametros });
+export const useCambiarParametro = () =>
+  useMutacionQueRecarga(cambiarParametro, [CLAVE_PARAMETROS]);
