@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { INTERRUPTOR_VISION } from './vision.js';
 
 // Únicas claves de eco_configuracion que la app permite cambiar. El resto son parámetros técnicos
 // de los flujos de n8n (bandejas, IDs de HubSpot, tiempos) y cambiarlos por error rompería el bot.
@@ -10,6 +11,7 @@ export const INTERRUPTORES = [
   'cierre_automatico',
   'recuperacion_compra_activa',
   'seguimiento_ia_activo',
+  INTERRUPTOR_VISION,
 ];
 
 export const esquemaInterruptor = z.object({
@@ -150,3 +152,37 @@ export function errorParametro(clave, valor) {
   if (valor < minimo || valor > maximo) return `Debe estar entre ${minimo} y ${maximo}`;
   return null;
 }
+
+// Parámetros de texto editables (eco_configuracion, tipo texto). El resto de textos son de n8n.
+export const PARAMETROS_TEXTO = {
+  vision_modelo: {
+    titulo: 'Modelo para imágenes',
+    ayuda: 'Modelo de OpenRouter para imágenes. gemini-2.5-pro fue el más preciso en las pruebas.',
+    porDefecto: 'google/gemini-2.5-pro',
+  },
+};
+export const CLAVES_TEXTO = Object.keys(PARAMETROS_TEXTO);
+
+// Identificador de OpenRouter: proveedor/modelo (google/gemini-2.5-pro, openai/gpt-4o:online).
+const MODELO_OPENROUTER = /^[a-z0-9][\w.-]*\/[\w.:-]+$/i;
+export function errorParametroTexto(clave, valor) {
+  const texto = typeof valor === 'string' ? valor.trim() : '';
+  if (!texto) return 'Requerido';
+  if (texto.length > 100) return 'Máximo 100 caracteres';
+  if (clave === 'vision_modelo' && !MODELO_OPENROUTER.test(texto))
+    return 'Usa el formato proveedor/modelo, como google/gemini-2.5-pro';
+  return null;
+}
+
+export const esquemaParametroTexto = z.object({
+  clave: z.enum(CLAVES_TEXTO),
+  valor: z.string().nullable(),
+  actualizadoEn: z.iso.datetime({ offset: true }),
+  actualizadoPor: z.string().nullable(),
+  version: z.string(),
+});
+
+export const esquemaCambiarParametroTexto = z.object({
+  valor: z.string().trim().max(100),
+  version: z.string().min(1),
+});

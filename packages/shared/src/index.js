@@ -22,3 +22,4 @@ export * from './roles.js';
 export * from './salud.js';
 export * from './saludos.js';
 export * from './usuarios.js';
+export * from './vision.js';

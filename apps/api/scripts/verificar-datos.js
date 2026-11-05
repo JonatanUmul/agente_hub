@@ -4,7 +4,11 @@
 import pg from 'pg';
 import {
   CAMPOS_FICHA,
+  CAMPOS_VISION,
   CLAVES_PARAMETROS,
+  CLAVES_TEXTO,
+  INTERRUPTORES,
+  errorParametroTexto,
   errorParametro,
   errorTextoMensaje,
   MODULOS,
@@ -28,6 +32,7 @@ import { cargarEnv } from '../src/config/env.js';
 import {
   listarInterruptores,
   listarParametros,
+  listarTextos,
 } from '../src/modules/configuracion/configuracion.service.js';
 import * as frases from '../src/modules/frases/frases.repository.js';
 import * as saludos from '../src/modules/saludos/saludos.repository.js';
@@ -80,6 +85,7 @@ try {
         'orden',
         'activo',
         ...CAMPOS_FICHA,
+        ...CAMPOS_VISION,
         'version',
       ]),
       pautaIds: p.pautas.map((pa) => pa.id),
@@ -133,7 +139,21 @@ try {
   const { rows: saludoHoy } = await pool.query(`SELECT eco_saludo('MENU') AS s`);
   console.log(`✓ eco_saludo('MENU'): ${saludoHoy[0].s === null ? 'sin saludo' : 'responde'}`);
 
-  validar('interruptores', esquemaInterruptor, await listarInterruptores(pool), (i) => i.clave);
+  const interruptores = await listarInterruptores(pool);
+  validar('interruptores', esquemaInterruptor, interruptores, (i) => i.clave);
+  for (const clave of INTERRUPTORES) {
+    if (!interruptores.some((i) => i.clave === clave))
+      problemas.push(`interruptor ${clave} → no existe`);
+  }
+
+  // Requiere eco_configuracion.vision_modelo (ecofiltro_bot_vision.sql).
+  const textos = await listarTextos(pool);
+  for (const clave of CLAVES_TEXTO) {
+    const actual = textos.find((t) => t.clave === clave);
+    const problema = actual ? errorParametroTexto(clave, actual.valor) : 'no existe';
+    if (problema) problemas.push(`texto ${clave} → ${problema}`);
+  }
+  console.log(`✓ textos de configuración: ${textos.length} de ${CLAVES_TEXTO.length}`);
 
   // Textos actuales que no pasarían la validación (editarlos obligaría a corregirlos).
   const mensajes = await listarMensajes(pool);

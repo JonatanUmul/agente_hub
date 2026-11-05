@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { CAMPOS_FICHA } from '@ecofiltro/shared';
+import { CAMPOS_FICHA, CAMPOS_VISION } from '@ecofiltro/shared';
 import { crearContexto } from './contexto.js';
 
 let ctx;
@@ -47,7 +47,7 @@ describe('integración: auditoría', () => {
         pautaIds: [],
         orden: actual.orden,
         activo: actual.activo,
-        ...Object.fromEntries(CAMPOS_FICHA.map((c) => [c, actual[c]])),
+        ...Object.fromEntries([...CAMPOS_FICHA, ...CAMPOS_VISION].map((c) => [c, actual[c]])),
         version: actual.version,
       },
     });

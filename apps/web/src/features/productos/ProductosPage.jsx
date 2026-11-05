@@ -15,6 +15,7 @@ import { usePermiso } from '../auth/hooks.js';
 import { useEstadoInterruptores } from '../configuracion/hooks.js';
 import { useCambiarActivoProducto, useEditarProducto, useProductos } from './hooks.js';
 import { FichaCompleta } from './FichaCompleta.jsx';
+import { IndicadorImagen } from './IndicadorImagen.jsx';
 import { LoQueVeElBot } from './LoQueVeElBot.jsx';
 import { ProductoForm } from './ProductoForm.jsx';
 
@@ -98,6 +99,11 @@ export function ProductosPage() {
       titulo: 'Ficha completa',
       className: 'text-xs',
       celda: (p) => <FichaCompleta producto={p} />,
+    },
+    {
+      titulo: 'Imagen',
+      className: 'text-xs',
+      celda: (p) => <IndicadorImagen producto={p} />,
     },
     {
       titulo: 'Activo',

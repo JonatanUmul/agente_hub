@@ -1,5 +1,6 @@
 import {
   CAMPOS_FICHA,
+  CAMPOS_VISION,
   ETIQUETAS_FICHA,
   TIPOS_POR_CAMPO,
   calcularPrecioFinal,
@@ -19,6 +20,7 @@ const CAMPOS_EDITABLES = [
   'orden',
   'activo',
   ...CAMPOS_FICHA,
+  ...CAMPOS_VISION,
 ];
 
 // Purificador solo en equipos y repuestos; compatibilidad solo en repuestos y accesorios.

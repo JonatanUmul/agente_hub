@@ -11,6 +11,7 @@ import {
   version,
   listaDeIds,
 } from './comunes.js';
+import { camposVision } from './vision.js';
 
 // Valores permitidos por los CHECK de eco_productos.
 export const TIPOS_PRODUCTO = ['equipo', 'accesorio', 'repuesto'];
@@ -140,6 +141,8 @@ export const esquemaProducto = z.object({
   pesoLb: z.number().nullable(),
   compatibleCon: z.string().nullable(),
   urlWeb: z.string().nullable(),
+  pistasVisuales: z.string().nullable(),
+  fotosReferencia: z.array(z.object({ url: z.string(), color: z.string().nullable() })),
   actualizadoEn: fechaIso,
   actualizadoPor: z.string().nullable(),
   // Para detectar si otra persona guardó el producto mientras lo editabas.
@@ -162,6 +165,7 @@ export const esquemaEditarProducto = z.object({
   activo: z.boolean(),
   // Qué campos aplican a cada tipo (purificador, compatibilidad) lo valida el service: el tipo no viaja en el formulario.
   ...camposFicha,
+  ...camposVision,
   version,
 });
 

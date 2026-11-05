@@ -63,6 +63,8 @@ describe('esquemaEditarProducto', () => {
     orden: 100,
     activo: true,
     ...Object.fromEntries(CAMPOS_FICHA.map((c) => [c, c === 'caracteristicas' ? [] : null])),
+    pistasVisuales: null,
+    fotosReferencia: [],
     version: 'v',
   };
 

@@ -5,17 +5,22 @@
 export const TIPOS_POR_CAMPO = {
   capacidadPurificadorLitros: ['equipo', 'repuesto'],
   compatibleCon: ['repuesto', 'accesorio'],
+  pistasVisuales: ['equipo', 'repuesto'],
+  fotosReferencia: ['equipo', 'repuesto'],
 };
 
 export const ETIQUETAS_FICHA = {
   capacidadPurificadorLitros: 'Capacidad del purificador',
   compatibleCon: 'Compatible con',
+  pistasVisuales: 'Pistas visuales',
+  fotosReferencia: 'Fotos de referencia',
 };
 
 export const campoAplica = (campo, tipo) =>
   !TIPOS_POR_CAMPO[campo] || TIPOS_POR_CAMPO[campo].includes(tipo);
 
-const tieneValor = (v) => v !== null && v !== undefined && v !== '';
+const tieneValor = (v) =>
+  v !== null && v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0);
 
 // Campos con valor que no corresponden al tipo del producto (el service los rechaza).
 export const camposQueNoAplican = (tipo, datos) =>

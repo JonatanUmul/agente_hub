@@ -53,6 +53,16 @@ export async function listarParametros(db, claves, { bloquear = false } = {}) {
   return rows.map(aParametro);
 }
 
+// Parámetros de texto (vision_modelo): el valor tal cual, sin interpretar.
+export async function listarTextos(db, claves, { bloquear = false } = {}) {
+  const { rows } = await db.query(
+    `SELECT clave, valor, actualizado_en, actualizado_por, actualizado_en::text AS version
+     FROM eco_configuracion WHERE clave = ANY($1::text[]) ORDER BY clave${bloquear ? ' FOR UPDATE' : ''}`,
+    [claves],
+  );
+  return rows.map((fila) => ({ ...aParametro(fila), valor: fila.valor }));
+}
+
 export async function actualizarParametro(db, { clave, valor, actualizadoPor }) {
   await db.query(`UPDATE eco_configuracion SET valor = $2, actualizado_por = $3 WHERE clave = $1`, [
     clave,

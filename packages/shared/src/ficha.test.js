@@ -22,6 +22,8 @@ const fichaVacia = {
   pesoLb: null,
   compatibleCon: null,
   urlWeb: null,
+  pistasVisuales: null,
+  fotosReferencia: [],
 };
 const editable = {
   precioBase: 10,

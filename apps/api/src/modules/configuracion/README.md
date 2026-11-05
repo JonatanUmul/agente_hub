@@ -6,6 +6,8 @@ Interruptores comerciales del bot en `eco_configuracion`.
 - **Endpoints:**
   - `GET /api/configuracion/interruptores` (cualquier rol) → `[{ clave, descripcion, habilitado, actualizadoEn, actualizadoPor }]`.
   - `PUT /api/configuracion/interruptores/:clave` `{ habilitado }` (permiso `configuracion:editar`: admin, comercial).
+  - `GET /api/configuracion/textos` → `[{ clave, valor, actualizadoEn, actualizadoPor, version }]` (`PARAMETROS_TEXTO`).
+  - `PUT /api/configuracion/textos/:clave` `{ valor, version }`: hoy solo `vision_modelo` (formato `proveedor/modelo`).
 - **Reglas:**
   - Solo `precios_habilitados` y `promociones_habilitadas` (`INTERRUPTORES` en `@ecofiltro/shared`). Las demás claves
     son parámetros técnicos de n8n y la app no las modifica.

@@ -114,6 +114,9 @@ eco_admin`), probados en una base desechable igual a producción, y replicados e
 - Control de usuarios (módulo `accesos`, solo admin): `gestion.historial_sesiones` (entrada, última actividad, salida y
   motivo) y `gestion.eventos_usuarios` (fallos, bloqueos, cambios de un admin). Toda sesión se borra con
   `eliminarSesion*` de `auth.repository.js`, que anota el motivo; no borrar `gestion.sesiones` a mano.
+- Identificación por imagen (`@ecofiltro/shared/vision.js`): `eco_productos.pistas_visuales` / `fotos_referencia`
+  (pestaña del producto, equipos y repuestos), `vision_activa` (Interruptores) y `vision_modelo` (`PARAMETROS_TEXTO`,
+  `/configuracion/textos`). Las lee n8n directamente, no `eco_contexto()`.
 - Preferir desactivar (`activo = false`) antes que borrar.
 - No tocar tablas operativas del bot (`eventos`, `work`, `hubspot_*`, `*_locks`, `chat_asignados`, `menu*`...).
 - Cambios sensibles (encender precios, cambiar un precio, desactivar una regla) piden confirmación en la UI.

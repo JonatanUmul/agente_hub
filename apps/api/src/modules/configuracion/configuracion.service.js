@@ -1,6 +1,8 @@
 import {
   CLAVES_PARAMETROS,
+  CLAVES_TEXTO,
   INTERRUPTORES,
+  errorParametroTexto,
   errorEntreParametros,
   errorParametro,
 } from '@ecofiltro/shared';
@@ -46,6 +48,23 @@ export async function cambiarParametro(db, { clave, valor, version, correo }) {
       await repo.actualizarParametro(client, { clave, valor, actualizadoPor: correo });
     }
     const [nuevo] = await repo.listarParametros(client, [clave]);
+    return nuevo;
+  });
+}
+
+export const listarTextos = (db) => repo.listarTextos(db, CLAVES_TEXTO);
+
+export async function cambiarTexto(db, { clave, valor, version, correo }) {
+  const error = errorParametroTexto(clave, valor);
+  if (error) throw new AppError({ codigo: 'VALOR_NO_VALIDO', mensaje: error, estadoHttp: 400 });
+  return withTransaction(db, async (client) => {
+    const [actual] = await repo.listarTextos(client, [clave], { bloquear: true });
+    if (!actual) throw noEncontrado(`La clave ${clave} no existe en eco_configuracion`);
+    if (actual.version !== version) throw conflictoDeVersion();
+    if (actual.valor !== valor) {
+      await repo.actualizarParametro(client, { clave, valor, actualizadoPor: correo });
+    }
+    const [nuevo] = await repo.listarTextos(client, [clave]);
     return nuevo;
   });
 }

@@ -3,8 +3,10 @@ import { useMutacionQueRecarga } from '../../lib/mutaciones.js';
 import {
   cambiarInterruptor,
   cambiarParametro,
+  cambiarTexto,
   listarInterruptores,
   listarParametros,
+  listarTextos,
 } from './api.js';
 
 const CLAVE = ['interruptores'];
@@ -31,3 +33,8 @@ export const useParametros = () =>
   useQuery({ queryKey: CLAVE_PARAMETROS, queryFn: listarParametros });
 export const useCambiarParametro = () =>
   useMutacionQueRecarga(cambiarParametro, [CLAVE_PARAMETROS]);
+
+const CLAVE_TEXTOS = ['configuracion-textos'];
+export const useTextosConfiguracion = () =>
+  useQuery({ queryKey: CLAVE_TEXTOS, queryFn: listarTextos });
+export const useCambiarTexto = () => useMutacionQueRecarga(cambiarTexto, [CLAVE_TEXTOS]);

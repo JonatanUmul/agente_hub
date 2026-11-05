@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { INTERRUPTORES_COMERCIALES } from '@ecofiltro/shared';
+import { INTERRUPTORES_COMERCIALES, INTERRUPTOR_VISION } from '@ecofiltro/shared';
 import { ConfirmarModal } from '../../components/ConfirmarModal.jsx';
 import { EnlaceHistorial } from '../../components/EnlaceHistorial.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
@@ -7,16 +7,25 @@ import { Toggle } from '../../components/Toggle.jsx';
 import { fecha } from '../../lib/formato.js';
 import { usePermiso } from '../auth/hooks.js';
 import { useProductos } from '../productos/hooks.js';
-import { useCambiarInterruptor, useInterruptores } from './hooks.js';
+import { CampoTexto } from './CampoTexto.jsx';
+import { useCambiarInterruptor, useInterruptores, useTextosConfiguracion } from './hooks.js';
 
 const TITULOS = {
   precios_habilitados: 'Precios',
   promociones_habilitadas: 'Promociones y descuentos',
+  [INTERRUPTOR_VISION]: 'Identificar modelos por imagen',
 };
+// Descripción propia; las demás vienen de eco_configuracion.
+const DESCRIPCIONES = {
+  [INTERRUPTOR_VISION]: 'Si está apagado, el bot responde que no puede ver imágenes.',
+};
+const EN_ESTA_PANTALLA = [...INTERRUPTORES_COMERCIALES, INTERRUPTOR_VISION];
 
 export function InterruptoresPage() {
   const { data: interruptores, isPending, error } = useInterruptores();
   const { data: productos } = useProductos();
+  const { data: textos = [] } = useTextosConfiguracion();
+  const modeloVision = textos.find((t) => t.clave === 'vision_modelo');
   const puedeEditar = usePermiso('configuracion:editar');
   const cambiar = useCambiarInterruptor();
   const [pendiente, setPendiente] = useState(null); // { clave, habilitado }
@@ -34,7 +43,7 @@ export function InterruptoresPage() {
     <section className="max-w-2xl space-y-4">
       {/* cierre_automatico se administra en Frases de cierre. */}
       {interruptores
-        .filter((i) => INTERRUPTORES_COMERCIALES.includes(i.clave))
+        .filter((i) => EN_ESTA_PANTALLA.includes(i.clave))
         .map((i) => (
           <div
             key={i.clave}
@@ -53,12 +62,17 @@ export function InterruptoresPage() {
                   · {i.habilitado ? 'Encendido' : 'Apagado'}
                 </span>
               </h3>
-              <p className="text-sm text-tenue">{i.descripcion}</p>
+              <p className="text-sm text-tenue">{DESCRIPCIONES[i.clave] ?? i.descripcion}</p>
               <p className="mt-1 text-xs text-tenue">
                 Último cambio: {fecha(i.actualizadoEn)}{' '}
                 {i.actualizadoPor && `por ${i.actualizadoPor}`} ·{' '}
                 <EnlaceHistorial tabla="eco_configuracion" registroId={i.clave} />
               </p>
+              {i.clave === INTERRUPTOR_VISION && modeloVision && (
+                <div className="mt-3 border-t border-borde pt-3">
+                  <CampoTexto parametro={modeloVision} puedeEditar={puedeEditar} />
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -67,7 +81,7 @@ export function InterruptoresPage() {
         abierto={Boolean(pendiente)}
         titulo={
           pendiente &&
-          `${pendiente.habilitado ? 'Encender' : 'Apagar'} ${TITULOS[pendiente.clave].toLowerCase()}`
+          `${pendiente.habilitado ? 'Encender' : 'Apagar'} «${TITULOS[pendiente.clave]}»`
         }
         mensaje={pendiente && <MensajeConfirmacion {...pendiente} sinPrecio={sinPrecio} />}
         textoConfirmar={pendiente?.habilitado ? 'Sí, encender' : 'Sí, apagar'}
@@ -82,6 +96,16 @@ export function InterruptoresPage() {
 }
 
 function MensajeConfirmacion({ clave, habilitado, sinPrecio }) {
+  if (clave === INTERRUPTOR_VISION) {
+    return habilitado ? (
+      <p>
+        El bot empezará a identificar el modelo en las imágenes que envíen los clientes. Revisa que
+        los productos tengan pistas y fotos de referencia.
+      </p>
+    ) : (
+      <p>El bot responderá que no puede ver imágenes.</p>
+    );
+  }
   if (clave === 'precios_habilitados' && habilitado) {
     return (
       <div className="space-y-2">

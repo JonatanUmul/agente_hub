@@ -5,6 +5,7 @@ import { z } from 'zod';
 import {
   CAMPOS_FICHA,
   ESTADOS_PRODUCTO,
+  TIPOS_CON_VISION,
   calcularPrecioFinal,
   contradiccionesFicha,
   descuentoVigente,
@@ -21,6 +22,7 @@ import { usePautasResumen } from '../pautas/hooks.js';
 import { PestanaFicha, PestanaMedidas, PestanaWeb, vacioANull } from './CamposFicha.jsx';
 import { FichaDelBot } from './FichaDelBot.jsx';
 import { LoQueVeElBot } from './LoQueVeElBot.jsx';
+import { PestanaImagen } from './PestanaImagen.jsx';
 
 // En el formulario las listas se escriben separadas por comas; se validan con las reglas de shared.
 const textoALista = z.string().transform((texto) => texto.split(','));
@@ -76,7 +78,16 @@ const PESTANAS = [
   },
   { id: 'medidas', titulo: 'Medidas', campos: ['anchoCm', 'altoCm', 'largoCm', 'pesoLb'] },
   { id: 'web', titulo: 'Web', campos: ['urlWeb'] },
+  {
+    id: 'imagen',
+    titulo: 'Identificación por imagen',
+    campos: ['pistasVisuales', 'fotosReferencia'],
+  },
 ];
+
+// La pestaña de imagen es para equipos y repuestos; en otro tipo solo aparece si ya tiene datos (para vaciarla).
+const conPestanaImagen = (p) =>
+  TIPOS_CON_VISION.includes(p.tipo) || Boolean(p.pistasVisuales) || p.fotosReferencia.length > 0;
 
 const aLista = (texto) =>
   (texto ?? '')
@@ -104,6 +115,8 @@ const valoresIniciales = (p) => ({
   orden: p.orden,
   activo: p.activo,
   ...fichaInicial(p),
+  pistasVisuales: p.pistasVisuales ?? '',
+  fotosReferencia: p.fotosReferencia.map((f) => ({ url: f.url, color: f.color ?? '' })),
 });
 
 const nombres = (lista) => (lista.length ? lista.map((pa) => pa.nombre).join(', ') : 'Ninguna');
@@ -216,7 +229,9 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
         {producto.familia}
       </p>
       <Pestanas
-        pestanas={PESTANAS.map((p) => ({ ...p, conError: conError(p) }))}
+        pestanas={PESTANAS.filter((p) => p.id !== 'imagen' || conPestanaImagen(producto)).map(
+          (p) => ({ ...p, conError: conError(p) }),
+        )}
         activa={pestana}
         alCambiar={setPestana}
       />
@@ -294,6 +309,17 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
       <div hidden={pestana !== 'web'}>
         <PestanaWeb register={register} errors={errors} enVivo={enVivo} />
       </div>
+      {conPestanaImagen(producto) && (
+        <div hidden={pestana !== 'imagen'}>
+          <PestanaImagen
+            producto={producto}
+            register={register}
+            control={control}
+            errors={errors}
+            enVivo={enVivo}
+          />
+        </div>
+      )}
 
       <div className="space-y-2 rounded-md bg-panel-2 p-3 text-sm">
         <p className="font-medium">Así lo ve el bot</p>

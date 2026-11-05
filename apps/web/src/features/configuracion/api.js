@@ -6,3 +6,6 @@ export const cambiarInterruptor = ({ clave, habilitado }) =>
 export const listarParametros = () => api('/configuracion/parametros');
 export const cambiarParametro = ({ clave, valor, version }) =>
   api(`/configuracion/parametros/${clave}`, { method: 'PUT', body: { valor, version } });
+export const listarTextos = () => api('/configuracion/textos');
+export const cambiarTexto = ({ clave, valor, version }) =>
+  api(`/configuracion/textos/${clave}`, { method: 'PUT', body: { valor, version } });

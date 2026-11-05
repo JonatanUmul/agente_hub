@@ -74,6 +74,15 @@ La app lo muestra como "ItemCode", permite buscarlo y copiarlo, y no lo modifica
 | `compatible_con`                  | text         | Repuestos y accesorios: con qué equipos se usan           |
 | `url_web`                         | text         | Página del producto en ecofiltro.com.gt (solo referencia) |
 
+**Identificación por imagen** (`ecofiltro_bot_vision.sql`; las lee el flujo `Analizar_imagen` de n8n, no `eco_contexto()`):
+
+| Columna            | Tipo  | Qué es                                                                               |
+| ------------------ | ----- | ------------------------------------------------------------------------------------ |
+| `pistas_visuales`  | text  | Qué distingue al modelo de los parecidos (hasta 600 caracteres en la app)            |
+| `fotos_referencia` | jsonb | `[{"url": "https://…", "color": "Azul"}]`, hasta 6; la app conserva `NULL` si no hay |
+
+Claves de `eco_configuracion`: `vision_activa` (booleano) y `vision_modelo` (texto, `google/gemini-2.5-pro`).
+
 ### `eco_pautas` — promociones con vigencia
 
 | Columna                          | Tipo             | Nulo   | Por defecto / restricción                              |

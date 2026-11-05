@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   CAMPOS_FICHA,
+  CAMPOS_VISION,
   calcularPrecioFinal,
   descuentoVigente,
   fichaQueVeElBot,
@@ -59,7 +60,7 @@ const datosEditables = (p, cambios = {}) => ({
   pautaIds: p.pautas.map((pa) => pa.id),
   orden: p.orden,
   activo: p.activo,
-  ...Object.fromEntries(CAMPOS_FICHA.map((c) => [c, p[c]])),
+  ...Object.fromEntries([...CAMPOS_FICHA, ...CAMPOS_VISION].map((c) => [c, p[c]])),
   version: p.version,
   ...cambios,
 });

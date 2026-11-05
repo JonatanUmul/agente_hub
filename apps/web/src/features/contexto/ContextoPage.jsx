@@ -7,6 +7,7 @@ import { MensajeError } from '../../components/MensajeError.jsx';
 import { fecha, monto, porcentaje } from '../../lib/formato.js';
 import { valorLegible } from '../../lib/valores.js';
 import { useContexto } from './hooks.js';
+import { IdentificacionPorImagen } from './IdentificacionPorImagen.jsx';
 
 // Muestra, legible, el JSON que eco_contexto(modulo) entrega al bot en cada mensaje.
 export function ContextoPage() {
@@ -46,6 +47,7 @@ export function ContextoPage() {
       <MensajeError error={error} />
       {contexto &&
         (verJson ? <VistaJson contexto={contexto} /> : <VistaLegible contexto={contexto} />)}
+      <IdentificacionPorImagen />
     </section>
   );
 }

@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import {
   CLAVES_PARAMETROS,
+  CLAVES_TEXTO,
+  INTERRUPTOR_VISION,
+  esquemaCambiarParametroTexto,
+  esquemaParametroTexto,
   INTERRUPTORES_COMERCIALES,
   INTERRUPTOR_RECUPERACION,
   INTERRUPTOR_SEGUIMIENTO_IA,
@@ -29,6 +33,7 @@ export async function rutasConfiguracion(app) {
             ...INTERRUPTORES_COMERCIALES,
             INTERRUPTOR_RECUPERACION,
             INTERRUPTOR_SEGUIMIENTO_IA,
+            INTERRUPTOR_VISION,
           ]),
         }),
         body: esquemaCambiarInterruptor,
@@ -61,6 +66,30 @@ export async function rutasConfiguracion(app) {
     },
     (request) =>
       servicio.cambiarParametro(app.db, {
+        clave: request.params.clave,
+        ...request.body,
+        correo: request.usuario.correo,
+      }),
+  );
+
+  app.get(
+    '/configuracion/textos',
+    { schema: { response: { 200: z.array(esquemaParametroTexto) } } },
+    () => servicio.listarTextos(app.db),
+  );
+
+  app.put(
+    '/configuracion/textos/:clave',
+    {
+      config: { permiso: 'configuracion:editar' },
+      schema: {
+        params: z.object({ clave: z.enum(CLAVES_TEXTO) }),
+        body: esquemaCambiarParametroTexto,
+        response: { 200: esquemaParametroTexto },
+      },
+    },
+    (request) =>
+      servicio.cambiarTexto(app.db, {
         clave: request.params.clave,
         ...request.body,
         correo: request.usuario.correo,

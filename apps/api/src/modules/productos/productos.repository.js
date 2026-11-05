@@ -17,6 +17,8 @@ const COLUMNAS_FICHA = (alias) =>
     'peso_lb',
     'compatible_con',
     'url_web',
+    'pistas_visuales',
+    'fotos_referencia',
   ]
     .map((columna) => `${alias}.${columna}`)
     .join(', ');
@@ -36,7 +38,17 @@ const aFicha = (fila) => ({
   pesoLb: aNumero(fila.peso_lb),
   compatibleCon: fila.compatible_con,
   urlWeb: fila.url_web,
+  ...aVision(fila),
 });
+
+// Identificación por imagen. fotos_referencia es jsonb [{ url, color }]; NULL o algo raro se lee como [].
+function aVision(fila) {
+  const fotos = Array.isArray(fila.fotos_referencia) ? fila.fotos_referencia : [];
+  return {
+    pistasVisuales: fila.pistas_visuales,
+    fotosReferencia: fotos.map((f) => ({ url: String(f?.url ?? ''), color: f?.color ?? null })),
+  };
+}
 
 // descuento_vigente_pct sale de eco_v_catalogo (la misma vista que lee el bot), así no repetimos
 // su lógica. La vista solo incluye productos activos: para los inactivos llega null.
@@ -136,7 +148,10 @@ export async function actualizar(db, id, datos, actualizadoPor) {
          descripcion_corta = $11, descripcion = $12, caracteristicas = $13, material = $14,
          capacidad_texto = $15, capacidad_purificador_litros = $16, tasa_filtrado = $17,
          ancho_cm = $18, alto_cm = $19, largo_cm = $20, peso_lb = $21, compatible_con = $22,
-         url_web = $23
+         url_web = $23, pistas_visuales = $24,
+         -- Sin fotos se conserva NULL si ya lo era: así guardar otro campo no anota un cambio falso.
+         fotos_referencia = CASE WHEN fotos_referencia IS NULL AND $25::jsonb = '[]'::jsonb
+                                 THEN NULL ELSE $25::jsonb END
      WHERE id = $1`,
     [
       id,
@@ -163,6 +178,8 @@ export async function actualizar(db, id, datos, actualizadoPor) {
       datos.pesoLb,
       datos.compatibleCon,
       datos.urlWeb,
+      datos.pistasVisuales,
+      JSON.stringify(datos.fotosReferencia),
     ],
   );
   await db.query(
