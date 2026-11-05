@@ -266,3 +266,23 @@ export async function detalle(db, filtros) {
      GROUP BY 1 ORDER BY 2 DESC LIMIT 500`,
   );
 }
+
+// Decisiones del seguimiento con IA. Sin filtros de módulo, bandeja ni agente: solo fecha y decisión.
+// «Respondió» = el cliente escribió (evento RECEIVED) después del seguimiento; no se leen los mensajes.
+export async function seguimientosIa(db, { desde, hasta, accion }) {
+  const { rows } = await db.query(
+    `SELECT c.sent_at, c.conversationsthreadid, c.action, c.message,
+            EXISTS (SELECT 1 FROM eventos e
+                    WHERE e.conversationsthreadid = c.conversationsthreadid
+                      AND e.status = 'RECEIVED' AND e.fecha_registro > c.sent_at) AS respondio
+     FROM conversation_inactivity_control c
+     WHERE c.action IN ('seguimiento_ia', 'cierre_ia')
+       AND ($3::text IS NULL OR c.action = $3)
+       AND c.sent_at >= ($1::date)::timestamp AT TIME ZONE 'America/Guatemala'
+       AND c.sent_at < ($2::date + 1)::timestamp AT TIME ZONE 'America/Guatemala'
+     ORDER BY c.sent_at DESC
+     LIMIT 500`,
+    [desde, hasta, accion ?? null],
+  );
+  return rows;
+}

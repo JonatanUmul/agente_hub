@@ -338,6 +338,19 @@ Columnas: `nombre` (UNIQUE por módulo), `modulo`, `saludo` (3–300, admite `{m
   `eco_configuracion`: son los mensajes `menu_bienvenida`, `seguimiento_compra` y `seguimiento_asesor`.
 - Réplica de desarrollo: [`13_mensajes.sql`](../docker/postgres/init/13_mensajes.sql).
 
+## Seguimiento con IA por inactividad (aplicado por el administrador, 04-11-2026)
+
+- `eco_configuracion.seguimiento_ia_activo` (booleano). Encendido: a los `minutos_aviso_inactividad` sin respuesta la IA
+  decide un caso (`modelos`, `producto`, `promocion`, `sac`, `general` o `cerrar`) y envía un seguimiento o cierra sin
+  mensaje; si sigue sin responder, se cierra sin mensaje `(cierre − aviso)` minutos después. Ya no se envían
+  `inactividad_aviso`, `inactividad_cierre`, `seguimiento_compra` ni `seguimiento_asesor`.
+- Tipos de mensaje de la categoría **Seguimiento**: `seguimiento_ia_modelos`, `seguimiento_ia_producto` (`{producto}`),
+  `seguimiento_ia_promocion` (`{producto}`, `{promocion}`), `seguimiento_ia_sac`, `seguimiento_ia_general`.
+- Cada decisión queda en `conversation_inactivity_control` (`action` = `seguimiento_ia` con el texto enviado, o
+  `cierre_ia` con `caso: motivo`). La app la muestra en Reportes («Seguimientos de la IA»). «Respondió» se calcula con
+  un evento `RECEIVED` posterior de la misma conversación: el rol de reportes no lee `eventos.message`.
+- Réplica de desarrollo: [`14_seguimiento_ia.sql`](../docker/postgres/init/14_seguimiento_ia.sql).
+
 ## Tablas operativas del bot (inspeccionadas el 27-10-2026, solo lectura)
 
 La app **no escribe** en ellas. El módulo de reportes (fase 5) las lee con un rol propio de solo lectura.

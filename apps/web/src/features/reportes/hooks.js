@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { obtenerDetalle, obtenerReporte } from './api.js';
+import { obtenerDetalle, obtenerReporte, obtenerSeguimientosIa } from './api.js';
 
 // La API guarda en caché 5 minutos; aquí no hace falta pedir más seguido.
 // keepPreviousData: al cambiar un filtro se siguen viendo los datos anteriores (atenuados) mientras carga.
@@ -17,6 +17,14 @@ export const useDetalle = (filtros, habilitado) =>
   useQuery({
     queryKey: ['reportes', 'detalle', filtros],
     queryFn: () => obtenerDetalle(filtros),
+    enabled: habilitado,
+    ...opciones,
+  });
+
+export const useSeguimientosIa = (filtros, habilitado) =>
+  useQuery({
+    queryKey: ['reportes', 'seguimientos-ia', filtros],
+    queryFn: () => obtenerSeguimientosIa(filtros),
     enabled: habilitado,
     ...opciones,
   });

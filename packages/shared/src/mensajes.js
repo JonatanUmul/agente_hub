@@ -11,6 +11,14 @@ export const CATEGORIAS_MENSAJE = [
   'Atención al cliente',
   'Datos no confirmados',
   'Pauta',
+  'Seguimiento',
+];
+// Mensajes que el bot deja de enviar con el seguimiento con IA encendido (seguimiento_ia_activo).
+export const MENSAJES_SIN_USO_CON_IA = [
+  'inactividad_aviso',
+  'inactividad_cierre',
+  'seguimiento_compra',
+  'seguimiento_asesor',
 ];
 // Claves que no deberían quedarse sin texto: desactivar o borrar su última versión pide confirmación.
 export const MENSAJES_PROTEGIDOS = [
@@ -126,13 +134,15 @@ export function mensajesParaElBot(tipos) {
 
 export const tieneVersionActiva = (tipo) => tipo.versiones.some((v) => v.activo);
 
-// Ejemplos para la vista previa. `contexto`: { minutos, pauta, vigencia }.
+// Ejemplos para la vista previa. `contexto`: { minutos, pauta, vigencia, promocion }.
 export function textoDeEjemplo(texto, contexto) {
   const valores = {
     nombre: 'Ana',
     minutos: contexto.minutos ?? 10,
     pauta: contexto.pauta ?? 'Pauta de ejemplo',
     vigencia: contexto.vigencia ?? ', válida hasta el 30 de noviembre',
+    producto: 'Ecofiltro Colors',
+    promocion: contexto.promocion ?? 'un 10 % de descuento',
   };
   return texto.replace(/\{([^}]*)\}/g, (todo, c) => (c in valores ? String(valores[c]) : todo));
 }

@@ -6,7 +6,9 @@ import * as hooks from './hooks.js';
 
 vi.mock('./hooks.js');
 vi.mock('../auth/hooks.js', () => ({ usePermiso: () => true }));
+let seguimientoIa = false;
 vi.mock('../configuracion/hooks.js', () => ({
+  useEstadoInterruptores: () => ({ estado: { seguimiento_ia_activo: seguimientoIa } }),
   useParametros: () => ({
     data: [
       { clave: 'minutos_aviso_inactividad', valor: 10 },
@@ -118,6 +120,15 @@ describe('MensajesPage', () => {
     fireEvent.click(within(tarjeta).getByRole('button', { name: 'Agregar' }));
     expect(within(tarjeta).getByText(/Comodín no permitido/)).toBeTruthy();
     expect(m.crear.mutate).not.toHaveBeenCalled();
+  });
+
+  it('con el seguimiento con IA marca los mensajes que no se usan', () => {
+    seguimientoIa = true;
+    pagina();
+    const tarjeta = screen.getByText('Aviso de inactividad').closest('article');
+    expect(within(tarjeta).getByText('No se usa con el seguimiento con IA')).toBeTruthy();
+    expect(screen.getAllByText('No se usa con el seguimiento con IA')).toHaveLength(1);
+    seguimientoIa = false;
   });
 
   it('filtra por texto', () => {

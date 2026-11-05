@@ -10,3 +10,5 @@ export const obtenerDetalle = (filtros) => api(`/reportes/detalle?${consultaDe(f
 // El CSV se descarga con un enlace normal (GET con la cookie de sesión): no pasa por fetch.
 export const urlExportar = (tabla, filtros) =>
   `/api/reportes/exportar/${tabla}?${consultaDe(filtros)}`;
+export const obtenerSeguimientosIa = (filtros) =>
+  api(`/reportes/seguimientos-ia?${consultaDe(filtros)}`);

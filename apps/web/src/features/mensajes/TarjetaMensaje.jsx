@@ -21,7 +21,8 @@ const quedaSinActivas = (tipo, id, activoNuevo) =>
   MENSAJES_PROTEGIDOS.includes(tipo.clave) &&
   !tipo.versiones.some((v) => (v.id === id ? activoNuevo : v.activo));
 
-export function TarjetaMensaje({ tipo, ejemplo, puedeEditar }) {
+// `sinUso`: el seguimiento con IA está encendido y el bot no envía este mensaje.
+export function TarjetaMensaje({ tipo, ejemplo, puedeEditar, sinUso = false }) {
   const crear = useCrearMensaje();
   const editar = useEditarMensaje();
   const cambiarActivo = useCambiarActivoMensaje();
@@ -96,7 +97,14 @@ export function TarjetaMensaje({ tipo, ejemplo, puedeEditar }) {
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h4 className="font-medium">{tipo.titulo}</h4>
+          <h4 className="font-medium">
+            {tipo.titulo}
+            {sinUso && (
+              <span className="ml-2 rounded-full bg-panel-2 px-2 py-0.5 text-[11px] font-normal text-alerta">
+                No se usa con el seguimiento con IA
+              </span>
+            )}
+          </h4>
           {tipo.descripcion && <p className="text-xs text-tenue">{tipo.descripcion}</p>}
           <div className="mt-1 flex flex-wrap gap-1">
             {tipo.comodines.map(nombreComodin).map((c) => (

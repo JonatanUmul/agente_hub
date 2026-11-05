@@ -9,6 +9,7 @@ export const INTERRUPTORES = [
   ...INTERRUPTORES_COMERCIALES,
   'cierre_automatico',
   'recuperacion_compra_activa',
+  'seguimiento_ia_activo',
 ];
 
 export const esquemaInterruptor = z.object({
@@ -90,8 +91,31 @@ export const PARAMETROS_ENTEROS = {
   max_fotos_por_respuesta: p('Fotos', 'Fotos por respuesta', 'fotos', 0, 10),
   segundos_entre_fotos: p('Fotos', 'Entre fotos', 'segundos', 0, 30),
 };
-// Interruptor del bloque de inactividad (booleano en eco_configuracion).
+// Interruptores del bloque de inactividad (booleanos en eco_configuracion).
 export const INTERRUPTOR_RECUPERACION = 'recuperacion_compra_activa';
+export const INTERRUPTOR_SEGUIMIENTO_IA = 'seguimiento_ia_activo';
+export const INTERRUPTORES_TIEMPOS = {
+  [INTERRUPTOR_SEGUIMIENTO_IA]: {
+    titulo: 'Seguimiento con IA',
+    descripcion:
+      'Cuando el cliente deja de responder, la IA revisa la conversación y envía un seguimiento según el caso, o cierra sin mensaje. Reemplaza el aviso de cierre y el seguimiento de compra.',
+  },
+  [INTERRUPTOR_RECUPERACION]: { titulo: 'Seguimiento de compra', descripcion: null },
+};
+
+// Con el seguimiento con IA encendido, el aviso pasa a ser el momento del seguimiento.
+export function textosTiempo(clave, seguimientoIa) {
+  const info = PARAMETROS_ENTEROS[clave];
+  if (!seguimientoIa) return { titulo: info.titulo, ayuda: info.ayuda };
+  if (clave === 'minutos_aviso_inactividad')
+    return { titulo: 'Seguimiento cuando deja de responder', ayuda: info.ayuda };
+  if (clave === 'minutos_cierre_inactividad')
+    return {
+      titulo: info.titulo,
+      ayuda: 'El cierre ocurre (cierre − aviso) minutos después del seguimiento.',
+    };
+  return { titulo: info.titulo, ayuda: info.ayuda };
+}
 
 // Validación entre claves: el cierre por inactividad debe llegar después del aviso.
 export function errorEntreParametros(valores) {

@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { CATEGORIAS_MENSAJE } from '@ecofiltro/shared';
+import {
+  CATEGORIAS_MENSAJE,
+  INTERRUPTOR_SEGUIMIENTO_IA,
+  MENSAJES_SIN_USO_CON_IA,
+} from '@ecofiltro/shared';
 import { claseFiltro } from '../../components/Campo.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
 import { usePermiso } from '../auth/hooks.js';
-import { useParametros } from '../configuracion/hooks.js';
+import { useEstadoInterruptores, useParametros } from '../configuracion/hooks.js';
 import { usePautas } from '../pautas/hooks.js';
 import { useMensajes } from './hooks.js';
 import { TarjetaMensaje } from './TarjetaMensaje.jsx';
@@ -27,6 +31,7 @@ function useEjemplo() {
     return {
       minutos: Number.isInteger(aviso) && Number.isInteger(cierre) ? cierre - aviso : undefined,
       pauta: pauta?.nombre,
+      promocion: pauta?.descuentoPct ? `un ${pauta.descuentoPct} % de descuento` : undefined,
       vigencia: pauta?.vigenteHasta
         ? `, válida hasta el ${formatoFecha.format(new Date(pauta.vigenteHasta))}`
         : undefined,
@@ -38,6 +43,8 @@ export function MensajesPage() {
   const { data: tipos, isPending, error } = useMensajes();
   const puedeEditar = usePermiso('mensajes:editar');
   const ejemplo = useEjemplo();
+  const { estado: interruptores } = useEstadoInterruptores();
+  const seguimientoIa = Boolean(interruptores[INTERRUPTOR_SEGUIMIENTO_IA]);
   const [texto, setTexto] = useState('');
   const [categoria, setCategoria] = useState('');
   const { hash } = useLocation();
@@ -93,7 +100,13 @@ export function MensajesPage() {
           <div key={c} className="space-y-3">
             <h3 className="font-medium">{c}</h3>
             {deCategoria.map((t) => (
-              <TarjetaMensaje key={t.clave} tipo={t} ejemplo={ejemplo} puedeEditar={puedeEditar} />
+              <TarjetaMensaje
+                key={t.clave}
+                tipo={t}
+                ejemplo={ejemplo}
+                puedeEditar={puedeEditar}
+                sinUso={seguimientoIa && MENSAJES_SIN_USO_CON_IA.includes(t.clave)}
+              />
             ))}
           </div>
         );

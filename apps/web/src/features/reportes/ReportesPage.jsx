@@ -11,6 +11,7 @@ import { Barras } from './Barras.jsx';
 import { ConfiguracionActiva } from './ConfiguracionActiva.jsx';
 import { FrasesActivas } from './FrasesActivas.jsx';
 import { SaludoTemporada } from './SaludoTemporada.jsx';
+import { SeguimientosIa } from './SeguimientosIa.jsx';
 import { FiltrosReporte } from './FiltrosReporte.jsx';
 import { GraficosPorDia } from './GraficosPorDia.jsx';
 import { MapaCalor } from './MapaCalor.jsx';
@@ -76,6 +77,7 @@ export function ReportesPage() {
           </p>
           <Tarjetas tarjetas={reporte.tarjetas} tiempoAsignacion={reporte.tiempoAsignacion} />
           <Contenido reporte={reporte} exportar={exportar} />
+          <SeguimientosIa desde={filtros.desde} hasta={filtros.hasta} />
           <Detalle filtros={filtros} exportar={exportar} />
         </div>
       )}

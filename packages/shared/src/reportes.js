@@ -67,3 +67,30 @@ export function ultimosDias(dias, hoy = new Date()) {
   const hoyGt = new Date(hoy.getTime() - 6 * 3_600_000).toISOString().slice(0, 10); // Guatemala = UTC-6, sin horario de verano
   return { desde: sumarDias(hoyGt, -(dias - 1)), hasta: hoyGt };
 }
+
+// Seguimientos de la IA por inactividad (conversation_inactivity_control).
+export const DECISIONES_SEGUIMIENTO_IA = { enviado: 'seguimiento_ia', cerrado: 'cierre_ia' };
+export const esquemaFiltrosSeguimientosIa = z
+  .object({
+    desde: fecha,
+    hasta: fecha,
+    decision: z.preprocess(
+      vacioAUndefined,
+      z.enum(Object.keys(DECISIONES_SEGUIMIENTO_IA)).optional(),
+    ),
+  })
+  .refine((f) => f.hasta >= f.desde, {
+    path: ['hasta'],
+    message: 'Debe ser igual o posterior a "desde"',
+  })
+  .refine((f) => diasEntre(f.desde, f.hasta) <= DIAS_MAXIMOS_REPORTE, {
+    path: ['hasta'],
+    message: `El rango máximo es de ${DIAS_MAXIMOS_REPORTE} días`,
+  });
+export const esquemaSeguimientoIa = z.object({
+  fecha: z.string(),
+  conversacion: z.string(),
+  decision: z.enum(Object.keys(DECISIONES_SEGUIMIENTO_IA)),
+  texto: z.string().nullable(),
+  respondio: z.boolean(),
+});

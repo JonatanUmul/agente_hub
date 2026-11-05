@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { TABLAS_EXPORTABLES, esquemaFiltrosReporte } from '@ecofiltro/shared';
+import {
+  TABLAS_EXPORTABLES,
+  esquemaFiltrosReporte,
+  esquemaFiltrosSeguimientosIa,
+  esquemaSeguimientoIa,
+} from '@ecofiltro/shared';
 import * as servicio from './reportes.service.js';
 
 export async function rutasReportes(app) {
@@ -10,6 +15,17 @@ export async function rutasReportes(app) {
 
   app.get('/reportes/detalle', { schema: { querystring: esquemaFiltrosReporte } }, (request) =>
     servicio.obtenerDetalle(app.dbReportes, request.query),
+  );
+
+  app.get(
+    '/reportes/seguimientos-ia',
+    {
+      schema: {
+        querystring: esquemaFiltrosSeguimientosIa,
+        response: { 200: z.array(esquemaSeguimientoIa) },
+      },
+    },
+    (request) => servicio.obtenerSeguimientosIa(app.dbReportes, request.query),
   );
 
   // Exportar a CSV: solo admin y comercial.

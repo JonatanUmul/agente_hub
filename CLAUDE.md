@@ -107,7 +107,8 @@ eco_admin`), probados en una base desechable igual a producción, y replicados e
   `candidatosSaludo` (`@ecofiltro/shared/saludos.js`), con prueba de paridad.
 - Mensajes del bot (`eco_mensajes`, módulo `mensajes`; catálogo `eco_mensajes_tipos` solo lectura). Validación en
   `errorTextoMensaje`; paridad con `eco_contexto()->'mensajes'` (`mensajesParaElBot`). Tiempos (pantalla Tiempos):
-  `PARAMETROS_ENTEROS` + `recuperacion_compra_activa`.
+  `PARAMETROS_ENTEROS` + `recuperacion_compra_activa` + `seguimiento_ia_activo` (cambia textos y el resumen de inactividad;
+  `MENSAJES_SIN_USO_CON_IA`).
 - Preferir desactivar (`activo = false`) antes que borrar.
 - No tocar tablas operativas del bot (`eventos`, `work`, `hubspot_*`, `*_locks`, `chat_asignados`, `menu*`...).
 - Cambios sensibles (encender precios, cambiar un precio, desactivar una regla) piden confirmación en la UI.

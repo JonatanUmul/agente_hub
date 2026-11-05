@@ -6,8 +6,10 @@ import { MensajeError } from '../../components/MensajeError.jsx';
 import { useCambiarParametro } from './hooks.js';
 
 // Un tiempo o límite de eco_configuracion: número con su unidad, rango y botón Guardar al cambiar.
-export function CampoTiempo({ parametro, puedeEditar }) {
+// `textos`: título y ayuda (cambian con el seguimiento con IA).
+export function CampoTiempo({ parametro, textos, puedeEditar }) {
   const info = PARAMETROS_ENTEROS[parametro.clave];
+  const { titulo, ayuda } = textos ?? info;
   const cambiar = useCambiarParametro();
   const [texto, setTexto] = useState(null);
   const valorActual = parametro.valor ?? info.porDefecto;
@@ -19,7 +21,7 @@ export function CampoTiempo({ parametro, puedeEditar }) {
   return (
     <div className="space-y-1">
       <label className="block text-sm" htmlFor={parametro.clave}>
-        {info.titulo}
+        {titulo}
       </label>
       <div className="flex items-center gap-2">
         <input
@@ -55,7 +57,7 @@ export function CampoTiempo({ parametro, puedeEditar }) {
         )}
       </div>
       {error && <p className="text-xs text-peligro">{error}</p>}
-      {!error && info.ayuda && <p className="text-xs text-apagado">{info.ayuda}</p>}
+      {!error && ayuda && <p className="text-xs text-apagado">{ayuda}</p>}
       <MensajeError error={cambiar.error} />
     </div>
   );

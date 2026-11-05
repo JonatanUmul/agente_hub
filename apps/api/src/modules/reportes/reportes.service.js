@@ -1,4 +1,9 @@
-import { MODULOS_REPORTE, periodoAnterior, variacion } from '@ecofiltro/shared';
+import {
+  DECISIONES_SEGUIMIENTO_IA,
+  MODULOS_REPORTE,
+  periodoAnterior,
+  variacion,
+} from '@ecofiltro/shared';
 import { AppError } from '../../lib/app-error.js';
 import { aCsv } from '../../lib/csv.js';
 import * as repo from './reportes.repository.js';
@@ -147,6 +152,29 @@ export function obtenerDetalle(db, filtros) {
       modulos: f.modulos,
       transferida: f.transferida,
       pauta: f.pauta,
+    })),
+  );
+}
+
+const DECISION_DE_ACCION = Object.fromEntries(
+  Object.entries(DECISIONES_SEGUIMIENTO_IA).map(([decision, accion]) => [accion, decision]),
+);
+
+export function obtenerSeguimientosIa(db, filtros) {
+  verificarConfigurado(db);
+  return conCache(`seguimientos-ia:${JSON.stringify(filtros)}`, async () =>
+    (
+      await repo.seguimientosIa(db, {
+        desde: filtros.desde,
+        hasta: filtros.hasta,
+        accion: filtros.decision ? DECISIONES_SEGUIMIENTO_IA[filtros.decision] : null,
+      })
+    ).map((f) => ({
+      fecha: f.sent_at.toISOString(),
+      conversacion: f.conversationsthreadid,
+      decision: DECISION_DE_ACCION[f.action],
+      texto: f.message,
+      respondio: f.respondio,
     })),
   );
 }

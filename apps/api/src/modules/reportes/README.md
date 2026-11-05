@@ -10,6 +10,8 @@ Dashboard de cómo está funcionando el bot (docs/reportes-indicadores.md). **So
 - **Endpoints** (filtros por query: `desde`, `hasta` obligatorios —máximo 365 días—, `modulo`, `bandeja`, `agente`):
   - `GET /api/reportes` (todos los roles) → tarjetas con valor, periodo anterior y variación %, series por día,
     mapa de calor día × hora, módulos, agentes, fuera de horario, pautas, preguntas y multimedia.
+  - `GET /api/reportes/seguimientos-ia?desde=&hasta=&decision=enviado|cerrado` → decisiones del seguimiento con IA
+    (máx. 500) y si el cliente respondió después (evento `RECEIVED` posterior).
   - `GET /api/reportes/detalle` → una fila por conversación (máx. 500), **sin datos del cliente**.
   - `GET /api/reportes/exportar/:tabla` (permiso `reportes:exportar` = admin, comercial) → CSV (`;`, UTF-8 con BOM,
     protegido contra inyección de fórmulas). Tablas: `por-dia`, `agentes`, `pautas`, `preguntas`, `multimedia`, `detalle`.
