@@ -11,8 +11,8 @@ import {
 const CLAVE = ['multimedia'];
 
 export const useArchivos = () => useQuery({ queryKey: CLAVE, queryFn: listarArchivos });
-// Los conteos de archivos por pauta también cambian.
-const RECARGAR = [CLAVE, ['pautas']];
+// Las pautas de un archivo se ven también en Pautas y Productos.
+const RECARGAR = [CLAVE, ['pautas'], ['productos']];
 export const useCrearArchivo = () => useMutacionQueRecarga(crearArchivo, RECARGAR);
 export const useEditarArchivo = () => useMutacionQueRecarga(editarArchivo, RECARGAR);
 export const useCambiarActivoArchivo = () => useMutacionQueRecarga(cambiarActivoArchivo, RECARGAR);

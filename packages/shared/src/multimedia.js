@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { fechaIso, orden, textoOpcional, textoRequerido, version } from './comunes.js';
+import { fechaIso, orden, textoOpcional, textoRequerido, version, listaDeIds } from './comunes.js';
 
 export const TIPOS_MULTIMEDIA = ['imagen', 'video', 'promocion'];
 
@@ -27,11 +27,7 @@ const camposEditables = {
   productoId: z.number().int().positive().nullable(),
   color: textoOpcional(100),
   tema: textoOpcional(100),
-  // Sin repetidos y ordenadas, para comparar sin importar el orden en que se marcaron.
-  pautaIds: z
-    .array(z.number().int().positive())
-    .max(50)
-    .transform((ids) => [...new Set(ids)].sort((a, b) => a - b)),
+  pautaIds: listaDeIds,
   orden,
   activo: z.boolean(),
 };

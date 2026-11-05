@@ -99,6 +99,8 @@ eco_admin`), probados en una base desechable igual a producción, y replicados e
   recibe en `eco_contexto()`; los vacíos no se envían. Reglas en `@ecofiltro/shared/ficha.js` (`fichaQueVeElBot`,
   `faltantesFicha`, `contradiccionesFicha`, `TIPOS_POR_CAMPO`), con prueba de paridad contra `eco_contexto()`.
 - Arte de pauta = imagen sin producto con `pauta_id` = la pauta (`artePauta.js`).
+- Modelos y archivos también se asignan desde la pauta (`productoIds`, `multimediaIds`, `aplicaTodos` =
+  `eco_pautas.aplica_todos`). Pauta principal del archivo: `principalTrasCambio` (shared) = mismo UPDATE del repo.
 - Editables en `eco_configuracion`: `precios_habilitados` y `promociones_habilitadas` (Interruptores) y
   `cierre_automatico` (desde Frases de cierre, permiso `frases:editar`); las demás claves son de n8n.
 - Frases de cierre (`eco_frases_cierre`, módulo `frases`): n8n elige una al azar entre las activas de GLOBAL + el módulo

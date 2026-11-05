@@ -41,6 +41,30 @@ export function loQueRecibeElCliente(archivos, pautaId, maxFotos) {
   };
 }
 
+// Pauta principal (eco_multimedia.pauta_id) tras guardar los archivos de una pauta desde su formulario.
+// Misma regla que el UPDATE de pautas.repository.js:
+// - archivo agregado sin pauta principal → esta pauta;
+// - archivo quitado cuya principal era esta → otra de sus pautas (la de menor id) o null.
+export function principalTrasCambio(archivo, pautaId, seleccionado) {
+  const principal = archivo.pautaIdPrincipal;
+  if (seleccionado) return principal ?? pautaId;
+  if (principal !== pautaId) return principal;
+  const otras = archivo.pautas.map((p) => p.id).filter((id) => id !== pautaId);
+  return otras.length ? Math.min(...otras) : null;
+}
+
+// Archivos como quedarían con `multimediaIds` como selección de la pauta (para la vista previa).
+export const conSeleccion = (archivos, pautaId, multimediaIds) =>
+  archivos.map((a) => {
+    const seleccionado = multimediaIds.includes(a.id);
+    const otras = a.pautas.filter((p) => p.id !== pautaId);
+    return {
+      ...a,
+      pautas: seleccionado ? [...otras, { id: pautaId }] : otras,
+      pautaIdPrincipal: principalTrasCambio(a, pautaId, seleccionado),
+    };
+  });
+
 // Alta del arte. `reemplaza`: arte anterior que se desactiva en la misma operación.
 export const esquemaCrearArte = z.object({
   pautaId: z.number().int().positive(),

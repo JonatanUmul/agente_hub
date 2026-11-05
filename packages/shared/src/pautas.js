@@ -3,6 +3,7 @@ import {
   ESTADOS_VIGENCIA,
   errorVigencia,
   fechaIso,
+  listaDeIds,
   listaDeTextos,
   porcentaje,
   textoOpcional,
@@ -19,6 +20,11 @@ export const esquemaPautaResumen = z.object({
   descuentoPct: z.number().nullable(),
   activo: z.boolean(),
   vigente: z.boolean(),
+  // Para todos los modelos (formas de pago, beneficios generales): n8n ofrece todos los equipos disponibles.
+  aplicaTodos: z.boolean(),
+  // eco_productos_pautas y eco_multimedia_pautas, también los inactivos.
+  productoIds: z.array(z.number().int()),
+  multimediaIds: z.array(z.number().int()),
 });
 
 export const esquemaPauta = esquemaPautaResumen.extend({
@@ -42,6 +48,10 @@ const camposEditables = {
   vigenteDesde: fechaIso.nullable(),
   vigenteHasta: fechaIso.nullable(),
   activo: z.boolean(),
+  aplicaTodos: z.boolean(),
+  // Con `aplicaTodos` los modelos se conservan sin tocar, para que vuelvan si se apaga.
+  productoIds: listaDeIds,
+  multimediaIds: listaDeIds,
 };
 
 export const esquemaCrearPauta = z
@@ -52,3 +62,7 @@ export const esquemaCrearPauta = z
 export const esquemaEditarPauta = z
   .object({ ...camposEditables, version })
   .refine(vigenciaValida, errorVigencia);
+
+// Otras pautas vigentes con descuento del producto: el bot usa el descuento mayor.
+export const otrasPautasConDescuento = (producto, pautaId) =>
+  producto.pautas.filter((pa) => pa.id !== pautaId && pa.vigente && pa.descuentoPct > 0);

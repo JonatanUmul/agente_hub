@@ -86,8 +86,12 @@ La app lo muestra como "ItemCode", permite buscarlo y copiarlo, y no lo modifica
 | `palabras_clave`                 | text[]           | no     | `'{}'`                                                 |
 | `vigente_desde`, `vigente_hasta` | timestamptz      | sí     | CHECK `vigente_hasta > vigente_desde` si ambas existen |
 | `activo`                         | boolean          | no     | `true`                                                 |
+| `aplica_todos`                   | boolean          | no     | `false` (ecofiltro_bot_pauta_todos_modelos.sql)        |
 | `creado_en`, `actualizado_en`    | timestamptz      | no     | `now()`                                                |
 | `actualizado_por`                | text             | sí     |                                                        |
+
+`aplica_todos`: pauta para todos los modelos (formas de pago como Visa Cuotas). n8n ofrece todos los equipos
+disponibles en lugar de los de `eco_productos_pautas`; la app conserva esos enlaces para cuando se apague.
 
 ### `eco_multimedia`
 

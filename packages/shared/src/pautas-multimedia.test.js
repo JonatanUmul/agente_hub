@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { comoLoVeElBot, esquemaCrearArchivo } from './multimedia.js';
-import { esquemaCrearPauta } from './pautas.js';
+import { conSeleccion, loQueRecibeElCliente, principalTrasCambio } from './artePauta.js';
+import { esquemaCrearPauta, otrasPautasConDescuento } from './pautas.js';
 
 const pauta = {
   codigo: 'NAVIDAD',
@@ -11,6 +12,9 @@ const pauta = {
   vigenteDesde: '2026-12-01T00:00:00-06:00',
   vigenteHasta: '2026-12-26T00:00:00-06:00',
   activo: true,
+  aplicaTodos: false,
+  productoIds: [],
+  multimediaIds: [],
 };
 
 describe('esquemaCrearPauta', () => {
@@ -28,6 +32,59 @@ describe('esquemaCrearPauta', () => {
     expect(
       esquemaCrearPauta.safeParse({ ...pauta, vigenteHasta: null, descuentoPct: null }).success,
     ).toBe(true);
+  });
+});
+
+describe('modelos y archivos de la pauta', () => {
+  it('ids sin repetidos, ordenados y máximo 50', () => {
+    expect(esquemaCrearPauta.parse({ ...pauta, productoIds: [5, 2, 5] }).productoIds).toEqual([
+      2, 5,
+    ]);
+    const muchos = Array.from({ length: 51 }, (_, i) => i + 1);
+    expect(esquemaCrearPauta.safeParse({ ...pauta, multimediaIds: muchos }).success).toBe(false);
+    expect(esquemaCrearPauta.safeParse({ ...pauta, productoIds: [0] }).success).toBe(false);
+  });
+
+  it('avisa de otras pautas vigentes con descuento, no de la propia ni de las sin descuento', () => {
+    const producto = {
+      pautas: [
+        { id: 1, nombre: 'Esta', vigente: true, descuentoPct: 10 },
+        { id: 2, nombre: 'Navidad', vigente: true, descuentoPct: 15 },
+        { id: 3, nombre: 'Vencida', vigente: false, descuentoPct: 20 },
+        { id: 4, nombre: 'Visa', vigente: true, descuentoPct: null },
+      ],
+    };
+    expect(otrasPautasConDescuento(producto, 1).map((p) => p.nombre)).toEqual(['Navidad']);
+  });
+});
+
+describe('pauta principal de un archivo', () => {
+  const archivo = (pautaIdPrincipal, pautas) => ({
+    pautaIdPrincipal,
+    pautas: pautas.map((id) => ({ id })),
+  });
+
+  it('al agregarlo: toma esta pauta solo si no tenía principal', () => {
+    expect(principalTrasCambio(archivo(null, []), 5, true)).toBe(5);
+    expect(principalTrasCambio(archivo(2, [2]), 5, true)).toBe(2);
+  });
+
+  it('al quitarlo: si era esta, pasa a la de menor id o a null', () => {
+    expect(principalTrasCambio(archivo(5, [9, 5, 3]), 5, false)).toBe(3);
+    expect(principalTrasCambio(archivo(5, [5]), 5, false)).toBeNull();
+    expect(principalTrasCambio(archivo(2, [2]), 5, false)).toBe(2);
+  });
+
+  it('la vista previa usa la selección: con arte envía solo artes', () => {
+    const base = { tipo: 'imagen', activo: true, orden: 0 };
+    const archivos = [
+      { ...base, id: 1, producto: { id: 1 }, pautaIdPrincipal: null, pautas: [] },
+      { ...base, id: 2, producto: null, pautaIdPrincipal: null, pautas: [] },
+    ];
+    const fotos = loQueRecibeElCliente(conSeleccion(archivos, 7, [1]), 7, 3);
+    expect(fotos).toMatchObject({ conArte: false, imagenes: [{ id: 1 }] });
+    const arte = loQueRecibeElCliente(conSeleccion(archivos, 7, [1, 2]), 7, 3);
+    expect(arte).toMatchObject({ conArte: true, imagenes: [{ id: 2 }] });
   });
 });
 

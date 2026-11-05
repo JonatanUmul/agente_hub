@@ -11,6 +11,7 @@ import {
   esquemaArchivo,
   esquemaContexto,
   esquemaEditarArchivo,
+  esquemaEditarPauta,
   esquemaEditarFrase,
   esquemaEditarSaludo,
   esquemaFrase,
@@ -87,7 +88,10 @@ try {
     (p) => p.codigo,
   );
 
-  validar('pautas', esquemaPauta, await pautas.listar(pool), (p) => p.codigo);
+  // Requiere eco_pautas.aplica_todos (ecofiltro_bot_pauta_todos_modelos.sql).
+  const listaPautas = await pautas.listar(pool);
+  validar('pautas', esquemaPauta, listaPautas, (p) => p.codigo);
+  validar('pautas (guardar sin cambios)', esquemaEditarPauta, listaPautas, (p) => p.codigo);
 
   const archivos = await multimedia.listar(pool);
   validar('multimedia', esquemaArchivo, archivos, (a) => a.hubspotFileId);

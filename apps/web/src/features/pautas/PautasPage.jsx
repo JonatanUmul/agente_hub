@@ -56,7 +56,7 @@ export function PautasPage() {
       titulo: 'Asociados',
       celda: (p) => (
         <div className="text-xs">
-          <div>{p.productosActivos} producto(s)</div>
+          <div>{p.aplicaTodos ? 'Todos los modelos' : `${p.productosActivos} producto(s)`}</div>
           <div>{p.archivosActivos} archivo(s)</div>
         </div>
       ),
@@ -108,11 +108,12 @@ export function PautasPage() {
         abierto={accion?.tipo === 'crear' || accion?.tipo === 'editar'}
         titulo={accion?.tipo === 'crear' ? 'Nueva pauta' : `Editar ${pauta?.nombre}`}
         alCerrar={cerrar}
-        ancho="max-w-2xl"
+        ancho="max-w-3xl"
       >
         {(accion?.tipo === 'crear' || accion?.tipo === 'editar') && (
           <PautaForm
             pauta={accion.tipo === 'editar' ? pauta : null}
+            multimediaIdsServidor={pautas.find((p) => p.id === pauta?.id)?.multimediaIds}
             mutacion={accion.tipo === 'crear' ? crear : editar}
             alTerminar={cerrar}
             alCancelar={cerrar}
@@ -151,7 +152,7 @@ function MensajeActivo({ pauta }) {
   return (
     <div className="space-y-2">
       <p>El bot dejará de mencionar &quot;{pauta.nombre}&quot; desde el siguiente mensaje.</p>
-      {pauta.productosActivos > 0 && (
+      {pauta.productosActivos > 0 && !pauta.aplicaTodos && (
         <p>
           {pauta.productosActivos} producto(s) asociado(s) dejarán de tener el descuento de esta
           pauta.

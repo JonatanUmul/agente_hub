@@ -9,29 +9,11 @@ import {
 } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
 import { Campo, claseControl } from '../../components/Campo.jsx';
-import { GloboWhatsapp } from '../../components/GloboWhatsapp.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
 import { Toggle } from '../../components/Toggle.jsx';
 import { useParametros } from '../configuracion/hooks.js';
 import { useArchivos, useCambiarActivoArchivo, useCrearArtePauta } from '../multimedia/hooks.js';
-
-// Recuadro del archivo: la app no tiene acceso a las imágenes de HubSpot, así que muestra descripción e ID.
-function Miniatura({ archivo }) {
-  return (
-    <div className="flex h-24 w-24 shrink-0 flex-col justify-between rounded-md border border-borde-fuerte bg-panel-2 p-1.5 text-[10px]">
-      <span className="line-clamp-3 text-texto">{archivo.descripcion}</span>
-      <span className="truncate font-mono text-apagado">#{archivo.hubspotFileId}</span>
-    </div>
-  );
-}
-
-const Chip = ({ arte }) => (
-  <span
-    className={`rounded-full px-2 py-0.5 text-[11px] ${arte ? 'bg-acento/15 text-acento' : 'bg-panel-2 text-tenue'}`}
-  >
-    {arte ? 'Arte' : 'Foto de producto'}
-  </span>
-);
+import { ChipArte, Miniatura } from './Miniatura.jsx';
 
 function FormularioArte({ pauta, reemplaza, alTerminar }) {
   const crear = useCrearArtePauta();
@@ -138,7 +120,7 @@ export function ImagenPauta({ pauta, puedeEditar }) {
             >
               <Miniatura archivo={a} />
               <div className="min-w-0 flex-1 space-y-1 text-sm">
-                <Chip arte={esArte(a)} />
+                <ChipArte archivo={a} />
                 <p className="truncate">{a.descripcion}</p>
                 {a.producto && <p className="text-xs text-tenue">{a.producto.nombre}</p>}
               </div>
@@ -165,18 +147,6 @@ export function ImagenPauta({ pauta, puedeEditar }) {
           principal es otra).
         </p>
       )}
-
-      <div className="rounded-md bg-panel-2 p-3">
-        <p className="mb-2 text-sm font-medium">Esto recibe el cliente</p>
-        {recibe.imagenes.length > 0 && (
-          <div className="mb-2 flex flex-wrap gap-2">
-            {recibe.imagenes.map((a) => (
-              <Miniatura key={a.id} archivo={a} />
-            ))}
-          </div>
-        )}
-        <GloboWhatsapp>{pauta.mensajeCliente || pauta.nombre}</GloboWhatsapp>
-      </div>
     </section>
   );
 }

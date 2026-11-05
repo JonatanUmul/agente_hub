@@ -1,13 +1,18 @@
-import { useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { esquemaCrearPauta, esquemaEditarPauta } from '@ecofiltro/shared';
+import { PARAMETROS_ENTEROS, esquemaCrearPauta, esquemaEditarPauta } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
 import { Campo, claseControl } from '../../components/Campo.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
 import { fecha, porcentaje } from '../../lib/formato.js';
 import { isoALocal, localAIso } from '../../lib/fechas.js';
+import { useParametros } from '../configuracion/hooks.js';
+import { useArchivos } from '../multimedia/hooks.js';
+import { useProductos } from '../productos/hooks.js';
+import { PautaModelos } from './PautaModelos.jsx';
+import { PautaMultimedia } from './PautaMultimedia.jsx';
 
 // El formulario trabaja con texto (palabras separadas por comas, fechas en hora local).
 // Se convierte al formato de la API y se valida con el MISMO esquema de shared que usa la API.
@@ -37,7 +42,12 @@ const valoresIniciales = (p) => ({
   vigenteDesde: isoALocal(p?.vigenteDesde),
   vigenteHasta: isoALocal(p?.vigenteHasta),
   activo: p?.activo ?? true,
+  aplicaTodos: p?.aplicaTodos ?? false,
+  productoIds: p?.productoIds ?? [],
+  multimediaIds: p?.multimediaIds ?? [],
 });
+
+const cantidad = (ids) => `${ids.length}`;
 
 // Qué cambios afectan lo que el bot dice hoy (si la pauta está vigente o lo estará con el cambio).
 function cambiosSensibles(antes, despues) {
@@ -50,20 +60,64 @@ function cambiosSensibles(antes, despues) {
     cambios.push(['Vigente hasta', fecha(antes.vigenteHasta), fecha(despues.vigenteHasta)]);
   if (antes.activo !== despues.activo)
     cambios.push(['Activa', antes.activo ? 'Sí' : 'No', despues.activo ? 'Sí' : 'No']);
+  if (antes.aplicaTodos !== despues.aplicaTodos)
+    cambios.push([
+      'Todos los modelos',
+      antes.aplicaTodos ? 'Sí' : 'No',
+      despues.aplicaTodos ? 'Sí' : 'No',
+    ]);
+  if (!despues.aplicaTodos && antes.productoIds.join() !== despues.productoIds.join())
+    cambios.push(['Modelos', cantidad(antes.productoIds), cantidad(despues.productoIds)]);
+  if (antes.multimediaIds.join() !== despues.multimediaIds.join())
+    cambios.push(['Archivos', cantidad(antes.multimediaIds), cantidad(despues.multimediaIds)]);
   return cambios;
 }
 
-export function PautaForm({ pauta, mutacion, alTerminar, alCancelar }) {
+// Un arte agregado en «Imagen de la pauta» llega asociado desde el servidor: lo sumamos a la selección
+// para que guardar el formulario no lo quite.
+function useArchivosNuevosDelServidor(idsServidor, getValues, setValue) {
+  const anteriores = useRef(idsServidor);
+  useEffect(() => {
+    if (!idsServidor || idsServidor === anteriores.current) return;
+    const nuevos = idsServidor.filter((id) => !(anteriores.current ?? []).includes(id));
+    anteriores.current = idsServidor;
+    if (nuevos.length) {
+      const actuales = getValues('multimediaIds');
+      setValue(
+        'multimediaIds',
+        [...new Set([...actuales, ...nuevos])].sort((a, b) => a - b),
+      );
+    }
+  }, [idsServidor, getValues, setValue]);
+}
+
+// `multimediaIdsServidor`: archivos de la pauta según la lista recién recargada (la pauta del formulario es la
+// que se abrió, con su versión, para no pisar cambios de otra persona).
+export function PautaForm({ pauta, multimediaIdsServidor, mutacion, alTerminar, alCancelar }) {
   const editando = Boolean(pauta);
   const [porConfirmar, setPorConfirmar] = useState(null);
   const esquema = useMemo(() => esquemaFormulario(pauta), [pauta]);
   const {
     register,
+    control,
     handleSubmit,
+    getValues,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(esquema),
     defaultValues: valoresIniciales(pauta),
+  });
+  const { data: productos = [] } = useProductos();
+  const { data: archivos = [] } = useArchivos();
+  const { data: parametros } = useParametros();
+  const maxFotos =
+    parametros?.find((p) => p.clave === 'max_fotos_pauta')?.valor ??
+    PARAMETROS_ENTEROS.max_fotos_pauta.porDefecto;
+  useArchivosNuevosDelServidor(multimediaIdsServidor, getValues, setValue);
+  const [productoIds, aplicaTodos, mensajeCliente, nombre] = useWatch({
+    control,
+    name: ['productoIds', 'aplicaTodos', 'mensajeCliente', 'nombre'],
   });
 
   const guardar = (datos) =>
@@ -150,6 +204,17 @@ export function PautaForm({ pauta, mutacion, alTerminar, alCancelar }) {
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" {...register('activo')} /> Activa
       </label>
+      <PautaModelos control={control} productos={productos} pautaId={pauta?.id} />
+      <PautaMultimedia
+        control={control}
+        archivos={archivos}
+        // Al crear todavía no hay id: 0 no corresponde a ninguna pauta real.
+        pautaId={pauta?.id ?? 0}
+        productoIds={productoIds}
+        aplicaTodos={aplicaTodos}
+        maxFotos={maxFotos}
+        mensaje={mensajeCliente || nombre}
+      />
       <MensajeError error={mutacion.error} />
       <div className="flex justify-end gap-2">
         <Boton variante="secundario" onClick={alCancelar}>

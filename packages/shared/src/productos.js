@@ -9,6 +9,7 @@ import {
   textoPlano,
   textoPlanoOpcional,
   version,
+  listaDeIds,
 } from './comunes.js';
 
 // Valores permitidos por los CHECK de eco_productos.
@@ -156,11 +157,7 @@ export const esquemaEditarProducto = z.object({
   estado: z.enum(ESTADOS_PRODUCTO),
   colores: listaDeTextos,
   palabrasClave: listaDeTextos,
-  // Sin repetidos y ordenadas, para comparar sin importar el orden en que se marcaron.
-  pautaIds: z
-    .array(z.number().int().positive())
-    .max(50)
-    .transform((ids) => [...new Set(ids)].sort((a, b) => a - b)),
+  pautaIds: listaDeIds,
   orden,
   activo: z.boolean(),
   // Qué campos aplican a cada tipo (purificador, compatibilidad) lo valida el service: el tipo no viaja en el formulario.

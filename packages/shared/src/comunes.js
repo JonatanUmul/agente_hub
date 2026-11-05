@@ -53,6 +53,13 @@ export const orden = z
   .min(-1_000_000)
   .max(1_000_000);
 
+// Ids de una relación (pautas de un producto, modelos de una pauta…). Sin repetidos y ordenados,
+// para comparar sin importar el orden en que se marcaron.
+export const listaDeIds = z
+  .array(z.number().int().positive())
+  .max(50, 'Máximo 50')
+  .transform((ids) => [...new Set(ids)].sort((a, b) => a - b));
+
 // `version` = actualizado_en de la fila; detecta si otra persona guardó mientras editabas.
 export const version = z.string().min(1);
 

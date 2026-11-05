@@ -57,6 +57,9 @@ describe('integración: pautas', () => {
         vigenteDesde: haceUnaHora(),
         vigenteHasta: enUnaHora(),
         activo: true,
+        aplicaTodos: false,
+        productoIds: [],
+        multimediaIds: [],
       },
     });
     expect(res.statusCode).toBe(201);
@@ -75,6 +78,9 @@ describe('integración: pautas', () => {
       descuentoPct: null,
       palabrasClave: [],
       activo: true,
+      aplicaTodos: false,
+      productoIds: [],
+      multimediaIds: [],
     };
     const repetido = await comercial.pedir({
       method: 'POST',

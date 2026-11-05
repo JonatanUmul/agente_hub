@@ -11,6 +11,9 @@ const CAMPOS_EDITABLES = [
   'vigenteDesde',
   'vigenteHasta',
   'activo',
+  'aplicaTodos',
+  'productoIds',
+  'multimediaIds',
 ];
 const CAMPOS_FECHA = ['vigenteDesde', 'vigenteHasta'];
 
@@ -33,6 +36,26 @@ function traducirError(error) {
   return error;
 }
 
+// Lo nuevo que se asocia debe existir y estar activo; lo ya asociado se conserva aunque esté inactivo
+// (el formulario no lo muestra, pero lo reenvía). `pautaId` es null al crear.
+async function validarAsociados(db, pautaId, datos) {
+  const productos = datos.aplicaTodos
+    ? []
+    : await repo.productosNoAsignables(db, pautaId, datos.productoIds);
+  const archivos = await repo.archivosNoAsignables(db, pautaId, datos.multimediaIds);
+  const problemas = [
+    productos.length && `producto(s) ${productos.join(', ')}`,
+    archivos.length && `archivo(s) ${archivos.join(', ')}`,
+  ].filter(Boolean);
+  if (problemas.length) {
+    throw new AppError({
+      codigo: 'ASOCIADO_NO_VALIDO',
+      mensaje: `No existen o están inactivos: ${problemas.join(' y ')} (id). Recarga la página y vuelve a elegir.`,
+      estadoHttp: 400,
+    });
+  }
+}
+
 export const listarPautas = (db) => repo.listar(db);
 export const listarPautasResumen = (db) => repo.listarResumen(db);
 
@@ -45,6 +68,7 @@ export async function obtenerPauta(db, id) {
 export async function crearPauta(db, { datos, correo }) {
   try {
     return await withTransaction(db, async (client) => {
+      await validarAsociados(client, null, datos);
       const id = await repo.insertar(client, datos, correo);
       return repo.obtenerPorId(client, id);
     });
@@ -67,8 +91,10 @@ async function editar(db, opciones) {
   }
 }
 
-export const editarPauta = (db, { id, datos, correo }) =>
-  editar(db, { id, version: datos.version, correo, aplicar: () => datos });
+export async function editarPauta(db, { id, datos, correo }) {
+  await validarAsociados(db, id, datos);
+  return editar(db, { id, version: datos.version, correo, aplicar: () => datos });
+}
 
 export const cambiarActivoPauta = (db, { id, activo, version, correo }) =>
   editar(db, { id, version, correo, aplicar: (actual) => ({ ...actual, activo }) });
