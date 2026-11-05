@@ -2,6 +2,12 @@ import { esquemaCambiarContrasena, esquemaLogin, esquemaSesion } from '@ecofiltr
 import { NOMBRE_COOKIE, opcionesCookie } from './cookie.js';
 import * as servicio from './auth.service.js';
 
+// IP y navegador para el control de accesos (el user-agent se recorta: lo manda el cliente).
+export const origenDe = (request) => ({
+  ip: request.ip,
+  navegador: request.headers['user-agent']?.slice(0, 300) ?? null,
+});
+
 export async function rutasAuth(app) {
   const { config } = app;
 
@@ -19,6 +25,7 @@ export async function rutasAuth(app) {
         app.db,
         config,
         request.body,
+        origenDe(request),
       );
       reply.setCookie(NOMBRE_COOKIE, token, opcionesCookie(config));
       return { usuario, csrfToken };
@@ -42,8 +49,9 @@ export async function rutasAuth(app) {
     { schema: { body: esquemaCambiarContrasena } },
     async (request, reply) => {
       await servicio.cambiarContrasenaPropia(app.db, {
-        usuarioId: request.usuario.id,
+        usuario: request.usuario,
         token: request.tokenSesion,
+        ip: request.ip,
         ...request.body,
       });
       return reply.code(204).send();

@@ -109,6 +109,9 @@ eco_admin`), probados en una base desechable igual a producción, y replicados e
   `errorTextoMensaje`; paridad con `eco_contexto()->'mensajes'` (`mensajesParaElBot`). Tiempos (pantalla Tiempos):
   `PARAMETROS_ENTEROS` + `recuperacion_compra_activa` + `seguimiento_ia_activo` (cambia textos y el resumen de inactividad;
   `MENSAJES_SIN_USO_CON_IA`).
+- Control de usuarios (módulo `accesos`, solo admin): `gestion.historial_sesiones` (entrada, última actividad, salida y
+  motivo) y `gestion.eventos_usuarios` (fallos, bloqueos, cambios de un admin). Toda sesión se borra con
+  `eliminarSesion*` de `auth.repository.js`, que anota el motivo; no borrar `gestion.sesiones` a mano.
 - Preferir desactivar (`activo = false`) antes que borrar.
 - No tocar tablas operativas del bot (`eventos`, `work`, `hubspot_*`, `*_locks`, `chat_asignados`, `menu*`...).
 - Cambios sensibles (encender precios, cambiar un precio, desactivar una regla) piden confirmación en la UI.

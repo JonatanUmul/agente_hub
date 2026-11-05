@@ -5,6 +5,7 @@ import pluginDb from './plugins/db.js';
 import pluginErrores from './plugins/errores.js';
 import pluginRateLimit from './plugins/rate-limit.js';
 import pluginSeguridad from './plugins/seguridad.js';
+import moduloAccesos from './modules/accesos/index.js';
 import moduloAgentes from './modules/agentes/index.js';
 import moduloAuditoria from './modules/auditoria/index.js';
 import moduloAuth from './modules/auth/index.js';
@@ -57,6 +58,7 @@ export async function crearApp({ config, pool, poolReportes = null, logger = tru
       await api.register(moduloSalud);
       await api.register(moduloAuth);
       await api.register(moduloUsuarios);
+      await api.register(moduloAccesos);
       await api.register(moduloConfiguracion);
       await api.register(moduloPautas);
       await api.register(moduloProductos);

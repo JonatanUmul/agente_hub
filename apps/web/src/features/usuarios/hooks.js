@@ -1,5 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { crearUsuario, editarUsuario, listarUsuarios, restablecerContrasena } from './api.js';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  cerrarSesiones,
+  crearUsuario,
+  editarUsuario,
+  listarUsuarios,
+  obtenerAccesos,
+  restablecerContrasena,
+} from './api.js';
 
 const CLAVE = ['usuarios'];
 
@@ -10,10 +17,24 @@ function useMutacionUsuarios(mutationFn) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: CLAVE }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CLAVE });
+      queryClient.invalidateQueries({ queryKey: ['accesos'] });
+    },
   });
 }
 
 export const useCrearUsuario = () => useMutacionUsuarios(crearUsuario);
 export const useEditarUsuario = () => useMutacionUsuarios(editarUsuario);
 export const useRestablecerContrasena = () => useMutacionUsuarios(restablecerContrasena);
+export const useCerrarSesiones = () => useMutacionUsuarios(cerrarSesiones);
+
+// Cada minuto: así se ve quién sigue en línea sin recargar.
+export const useAccesos = (filtros, habilitado) =>
+  useQuery({
+    queryKey: ['accesos', filtros],
+    queryFn: () => obtenerAccesos(filtros),
+    enabled: habilitado,
+    refetchInterval: 60_000,
+    placeholderData: keepPreviousData,
+  });

@@ -9,6 +9,11 @@ import * as servicio from './usuarios.service.js';
 
 const params = z.object({ id: z.coerce.number().int().positive() });
 const soloAdmin = { permiso: 'usuarios:gestionar' };
+const actorDe = (request) => ({
+  id: request.usuario.id,
+  correo: request.usuario.correo,
+  ip: request.ip,
+});
 
 export async function rutasUsuarios(app) {
   app.get(
@@ -21,7 +26,7 @@ export async function rutasUsuarios(app) {
     '/usuarios',
     { config: soloAdmin, schema: { body: esquemaCrearUsuario, response: { 201: esquemaUsuario } } },
     async (request, reply) =>
-      reply.code(201).send(await servicio.crearUsuario(app.db, request.body)),
+      reply.code(201).send(await servicio.crearUsuario(app.db, request.body, actorDe(request))),
   );
 
   app.patch(
@@ -34,7 +39,7 @@ export async function rutasUsuarios(app) {
       servicio.editarUsuario(app.db, {
         id: request.params.id,
         cambios: request.body,
-        actorId: request.usuario.id,
+        actor: actorDe(request),
       }),
   );
 
@@ -45,7 +50,17 @@ export async function rutasUsuarios(app) {
       await servicio.restablecerContrasena(app.db, {
         id: request.params.id,
         contrasena: request.body.contrasena,
+        actor: actorDe(request),
       });
+      return reply.code(204).send();
+    },
+  );
+
+  app.post(
+    '/usuarios/:id/cerrar-sesiones',
+    { config: soloAdmin, schema: { params } },
+    async (request, reply) => {
+      await servicio.cerrarSesiones(app.db, { id: request.params.id, actor: actorDe(request) });
       return reply.code(204).send();
     },
   );

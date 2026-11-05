@@ -4,11 +4,14 @@ import { Boton } from '../../components/Boton.jsx';
 import { ConfirmarModal } from '../../components/ConfirmarModal.jsx';
 import { MensajeError } from '../../components/MensajeError.jsx';
 import { Modal } from '../../components/Modal.jsx';
+import { Pestanas } from '../../components/Pestanas.jsx';
 import { Tabla } from '../../components/Tabla.jsx';
 import { usePermiso, useSesion } from '../auth/hooks.js';
+import { ControlAccesos } from './ControlAccesos.jsx';
 import { RestablecerContrasenaForm } from './RestablecerContrasenaForm.jsx';
 import { UsuarioForm } from './UsuarioForm.jsx';
 import {
+  useCerrarSesiones,
   useCrearUsuario,
   useEditarUsuario,
   useRestablecerContrasena,
@@ -18,6 +21,11 @@ import {
 const formatoFecha = new Intl.DateTimeFormat('es-GT', { dateStyle: 'medium', timeStyle: 'short' });
 const fecha = (iso) => (iso ? formatoFecha.format(new Date(iso)) : '—');
 const estaBloqueado = (u) => u.bloqueadoHasta && new Date(u.bloqueadoHasta) > new Date();
+
+const PESTANAS = [
+  { id: 'usuarios', titulo: 'Usuarios' },
+  { id: 'accesos', titulo: 'Control de accesos' },
+];
 
 export function UsuariosPage() {
   return (
@@ -33,14 +41,18 @@ function Usuarios() {
   const crear = useCrearUsuario();
   const editar = useEditarUsuario();
   const restablecer = useRestablecerContrasena();
+  const cerrarSesiones = useCerrarSesiones();
+  const [pestana, setPestana] = useState('usuarios');
 
   // Un solo estado para saber qué modal está abierto y sobre qué usuario.
-  const [accion, setAccion] = useState(null); // { tipo: 'crear'|'editar'|'activo'|'contrasena', usuario? }
+  // { tipo: 'crear'|'editar'|'activo'|'contrasena'|'sesiones', usuario? }
+  const [accion, setAccion] = useState(null);
   const cerrar = () => {
     setAccion(null);
     crear.reset();
     editar.reset();
     restablecer.reset();
+    cerrarSesiones.reset();
   };
 
   if (isPending) return <p className="text-tenue">Cargando usuarios…</p>;
@@ -74,9 +86,19 @@ function Usuarios() {
             Contraseña
           </Boton>
           {u.id !== sesion.usuario.id && (
-            <Boton variante="enlace" onClick={() => setAccion({ tipo: 'activo', usuario: u })}>
-              {u.activo ? 'Desactivar' : 'Activar'}
-            </Boton>
+            <>
+              {u.activo && (
+                <Boton
+                  variante="enlace"
+                  onClick={() => setAccion({ tipo: 'sesiones', usuario: u })}
+                >
+                  Cerrar sesiones
+                </Boton>
+              )}
+              <Boton variante="enlace" onClick={() => setAccion({ tipo: 'activo', usuario: u })}>
+                {u.activo ? 'Desactivar' : 'Activar'}
+              </Boton>
+            </>
           )}
         </div>
       ),
@@ -88,9 +110,16 @@ function Usuarios() {
     <section className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Usuarios</h2>
-        <Boton onClick={() => setAccion({ tipo: 'crear' })}>Nuevo usuario</Boton>
+        {pestana === 'usuarios' && (
+          <Boton onClick={() => setAccion({ tipo: 'crear' })}>Nuevo usuario</Boton>
+        )}
       </div>
-      <Tabla columnas={columnas} filas={usuarios} />
+      <Pestanas pestanas={PESTANAS} activa={pestana} alCambiar={setPestana} />
+      {pestana === 'usuarios' ? (
+        <Tabla columnas={columnas} filas={usuarios} />
+      ) : (
+        <ControlAccesos usuarios={usuarios} />
+      )}
 
       <Modal
         abierto={accion?.tipo === 'crear' || accion?.tipo === 'editar'}
@@ -133,6 +162,18 @@ function Usuarios() {
         alConfirmar={() =>
           editar.mutate({ id: usuario.id, activo: !usuario.activo }, { onSuccess: cerrar })
         }
+        alCancelar={cerrar}
+      />
+
+      <ConfirmarModal
+        abierto={accion?.tipo === 'sesiones'}
+        titulo="Cerrar sesiones"
+        mensaje={`${usuario?.nombre} tendrá que volver a iniciar sesión en todos sus navegadores.`}
+        textoConfirmar="Cerrar sesiones"
+        peligro
+        cargando={cerrarSesiones.isPending}
+        error={cerrarSesiones.error}
+        alConfirmar={() => cerrarSesiones.mutate({ id: usuario.id }, { onSuccess: cerrar })}
         alCancelar={cerrar}
       />
     </section>

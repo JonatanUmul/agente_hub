@@ -2,7 +2,9 @@
 
 Inicio y cierre de sesión, sesión actual y cambio de la propia contraseña.
 
-- **Tablas:** `gestion.sesiones` (lectura/escritura), `gestion.usuarios` (intentos fallidos, bloqueo, último acceso, hash).
+- **Tablas:** `gestion.sesiones` (lectura/escritura), `gestion.usuarios` (intentos fallidos, bloqueo, último acceso, hash),
+  `gestion.historial_sesiones` (entrada con IP y navegador, última actividad, salida y motivo) y
+  `gestion.eventos_usuarios` (accesos fallidos, bloqueos, cambio de la propia contraseña).
 - **Endpoints:**
   - `POST /api/auth/login` (público, rate limit `LOGIN_RATE_LIMIT_POR_MINUTO` por IP) → `{ usuario, csrfToken }` + cookie `eco_sesion`.
   - `GET /api/auth/sesion` → `{ usuario, csrfToken }` o 401.

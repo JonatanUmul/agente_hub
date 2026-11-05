@@ -2,12 +2,15 @@
 
 Administración de las personas que usan la app. Todos los endpoints exigen el permiso `usuarios:gestionar` (solo `admin`).
 
-- **Tablas:** `gestion.usuarios`; borra filas de `gestion.sesiones` al desactivar o restablecer contraseña.
+- **Tablas:** `gestion.usuarios`, `gestion.eventos_usuarios`; borra filas de `gestion.sesiones` al desactivar o restablecer contraseña.
 - **Endpoints:**
   - `GET /api/usuarios` → lista (nunca incluye el hash).
   - `POST /api/usuarios` `{ correo, nombre, rol, contrasena }` → 201. 409 `CORREO_EN_USO` si el correo existe.
   - `PATCH /api/usuarios/:id` `{ nombre?, rol?, activo? }` → usuario actualizado.
   - `POST /api/usuarios/:id/contrasena` `{ contrasena }` → 204. Desbloquea y cierra sus sesiones.
+  - `POST /api/usuarios/:id/cerrar-sesiones` → 204. Lo saca de todos sus navegadores.
+- **Control:** cada creación, cambio de nombre o rol, activación, restablecimiento y cierre de sesiones queda en
+  `gestion.eventos_usuarios` con quién lo hizo (ver módulo `accesos`). Desde `crear-admin` queda como `consola`.
 - **Reglas:**
   - No se borra a nadie: se desactiva. Desactivar corta sus sesiones al instante.
   - Siempre queda al menos un admin activo (409 `ULTIMO_ADMIN`), verificado con `FOR UPDATE` dentro de una transacción.

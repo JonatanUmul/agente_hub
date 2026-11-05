@@ -217,6 +217,8 @@ Funciona, pero:
 ALTER SCHEMA gestion OWNER TO eco_app;
 ALTER TABLE gestion.usuarios OWNER TO eco_app;
 ALTER TABLE gestion.sesiones OWNER TO eco_app;
+ALTER TABLE gestion.historial_sesiones OWNER TO eco_app;
+ALTER TABLE gestion.eventos_usuarios OWNER TO eco_app;
 ALTER TABLE gestion.migraciones OWNER TO eco_app;
 ```
 
