@@ -15,8 +15,9 @@ const TITULOS = {
   promociones_habilitadas: 'Promociones y descuentos',
   [INTERRUPTOR_VISION]: 'Identificar modelos por imagen',
 };
-// Descripción propia; las demás vienen de eco_configuracion.
 const DESCRIPCIONES = {
+  precios_habilitados: 'El bot da los precios del catálogo.',
+  promociones_habilitadas: 'El bot menciona descuentos y pautas vigentes.',
   [INTERRUPTOR_VISION]: 'Si está apagado, el bot responde que no puede ver imágenes.',
 };
 const EN_ESTA_PANTALLA = [...INTERRUPTORES_COMERCIALES, INTERRUPTOR_VISION];
@@ -62,7 +63,7 @@ export function InterruptoresPage() {
                   · {i.habilitado ? 'Encendido' : 'Apagado'}
                 </span>
               </h3>
-              <p className="text-sm text-tenue">{DESCRIPCIONES[i.clave] ?? i.descripcion}</p>
+              <p className="text-sm text-tenue">{DESCRIPCIONES[i.clave]}</p>
               <p className="mt-1 text-xs text-tenue">
                 Último cambio: {fecha(i.actualizadoEn)}{' '}
                 {i.actualizadoPor && `por ${i.actualizadoPor}`} ·{' '}
@@ -98,10 +99,7 @@ export function InterruptoresPage() {
 function MensajeConfirmacion({ clave, habilitado, sinPrecio }) {
   if (clave === INTERRUPTOR_VISION) {
     return habilitado ? (
-      <p>
-        El bot empezará a identificar el modelo en las imágenes que envíen los clientes. Revisa que
-        los productos tengan pistas y fotos de referencia.
-      </p>
+      <p>El bot identificará el modelo en las imágenes de los clientes.</p>
     ) : (
       <p>El bot responderá que no puede ver imágenes.</p>
     );

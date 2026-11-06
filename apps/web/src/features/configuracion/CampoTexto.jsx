@@ -44,7 +44,6 @@ export function CampoTexto({ parametro, puedeEditar }) {
         )}
       </div>
       {error && <p className="text-xs text-peligro">{error}</p>}
-      {!error && <p className="text-xs text-apagado">{info.ayuda}</p>}
       <MensajeError error={cambiar.error} />
     </div>
   );

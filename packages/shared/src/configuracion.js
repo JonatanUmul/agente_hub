@@ -157,7 +157,6 @@ export function errorParametro(clave, valor) {
 export const PARAMETROS_TEXTO = {
   vision_modelo: {
     titulo: 'Modelo para imágenes',
-    ayuda: 'Modelo de OpenRouter para imágenes. gemini-2.5-pro fue el más preciso en las pruebas.',
     porDefecto: 'google/gemini-2.5-pro',
   },
 };
