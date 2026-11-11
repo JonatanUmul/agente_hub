@@ -98,63 +98,54 @@ export function ProductosPage() {
             <BotonCopiar texto={p.codigo} />
           </div>
           <div className="text-xs text-tenue">
-            {p.tipo} · {p.familia}
+            {p.tipo} · {p.familia} ·{' '}
+            <span className={p.estado === 'disponible' ? '' : 'text-alerta'}>{p.estado}</span>
           </div>
         </>
       ),
     },
-    { titulo: 'Estado', celda: (p) => p.estado },
-    { titulo: 'Precio base', className: 'text-right', celda: (p) => monto(p.precioBase) },
     {
-      titulo: 'Descuento',
+      titulo: 'Precio',
       className: 'text-right',
-      celda: (p) => <Descuento producto={p} />,
-    },
-    { titulo: 'Precio final', className: 'text-right', celda: (p) => monto(p.precioFinal) },
-    {
-      titulo: 'Lo que ve el bot',
-      celda: (p) => <LoQueVeElBot producto={p} interruptores={interruptores} />,
+      celda: (p) => <Precio producto={p} interruptores={interruptores} />,
     },
     {
-      titulo: 'Ficha completa',
-      className: 'text-xs',
-      celda: (p) => <FichaCompleta producto={p} />,
-    },
-    {
-      titulo: 'Imagen',
-      className: 'text-xs',
-      celda: (p) => <IndicadorImagen producto={p} />,
-    },
-    {
-      titulo: 'Activo',
+      titulo: 'Ficha y avisos',
+      className: 'min-w-48 text-xs',
       celda: (p) => (
-        <Toggle
-          activo={p.activo}
-          etiqueta={`Activo: ${p.nombre}`}
-          deshabilitado={!puedeEditar}
-          alCambiar={() => setAccion({ tipo: 'activo', producto: p })}
-        />
+        <>
+          <FichaCompleta producto={p} />
+          <IndicadorImagen producto={p} />
+        </>
       ),
     },
     {
-      titulo: '',
+      titulo: 'Activo',
       className: 'text-right whitespace-nowrap',
       celda: (p) => (
-        <div className="flex justify-end gap-3">
-          <EnlaceHistorial tabla="eco_productos" registroId={p.id} />
-          {puedeEditar && (
-            <>
-              <Boton
-                variante="enlace"
-                onClick={() => setAccion({ tipo: 'crear', valores: valoresParaDuplicar(p) })}
-              >
-                Duplicar
-              </Boton>
-              <Boton variante="enlace" onClick={() => setAccion({ tipo: 'editar', producto: p })}>
-                Editar
-              </Boton>
-            </>
-          )}
+        <div className="flex flex-col items-end gap-2">
+          <Toggle
+            activo={p.activo}
+            etiqueta={`Activo: ${p.nombre}`}
+            deshabilitado={!puedeEditar}
+            alCambiar={() => setAccion({ tipo: 'activo', producto: p })}
+          />
+          <div className="flex flex-col items-end gap-1 text-sm xl:flex-row xl:gap-3">
+            {puedeEditar && (
+              <>
+                <Boton variante="enlace" onClick={() => setAccion({ tipo: 'editar', producto: p })}>
+                  Editar
+                </Boton>
+                <Boton
+                  variante="enlace"
+                  onClick={() => setAccion({ tipo: 'crear', valores: valoresParaDuplicar(p) })}
+                >
+                  Duplicar
+                </Boton>
+              </>
+            )}
+            <EnlaceHistorial tabla="eco_productos" registroId={p.id} />
+          </div>
         </div>
       ),
     },
@@ -280,20 +271,30 @@ export function ProductosPage() {
   );
 }
 
-// Muestra el descuento vigente y las pautas asociadas (las no vigentes, atenuadas).
-function Descuento({ producto: p }) {
-  if (!p.activo) return porcentaje(p.descuentoPct);
+// Precio final (el que paga el cliente hoy), con el precio base y las pautas si hay descuento,
+// y lo que dirá el bot con los interruptores actuales.
+function Precio({ producto: p, interruptores }) {
+  const descuento = p.activo ? p.descuentoVigentePct : p.descuentoPct;
   return (
-    <div>
-      <div>{porcentaje(p.descuentoVigentePct)}</div>
-      {p.pautas.map((pa) => (
-        <div
-          key={pa.id}
-          className={`text-xs ${pa.vigente ? 'text-tenue' : 'text-apagado line-through'}`}
-        >
-          {pa.nombre}
+    <div className="space-y-0.5">
+      <div className="font-medium whitespace-nowrap">{monto(p.precioFinal ?? p.precioBase)}</div>
+      {descuento > 0 && (
+        <div className="text-xs whitespace-nowrap text-tenue">
+          <span className="line-through">{monto(p.precioBase)}</span> −{porcentaje(descuento)}
         </div>
-      ))}
+      )}
+      {p.activo &&
+        p.pautas.map((pa) => (
+          <div
+            key={pa.id}
+            className={`text-xs ${pa.vigente ? 'text-tenue' : 'text-apagado line-through'}`}
+          >
+            {pa.nombre}
+          </div>
+        ))}
+      <div className="text-xs whitespace-nowrap text-apagado">
+        Bot: <LoQueVeElBot producto={p} interruptores={interruptores} />
+      </div>
     </div>
   );
 }

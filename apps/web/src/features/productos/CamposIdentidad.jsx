@@ -49,15 +49,6 @@ export function CamposIdentidad({ producto, register, errors }) {
             <Campo etiqueta="Familia" error={errors.familia} ayuda="Ej.: CERAMICA, LLAVE">
               <input className={claseControl} {...register('familia')} />
             </Campo>
-            <Campo etiqueta="Capacidad (L)" error={errors.capacidadLitros} ayuda="Opcional">
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                className={claseControl}
-                {...register('capacidadLitros', { setValueAs: vacioANull })}
-              />
-            </Campo>
           </>
         )}
         <Campo etiqueta="Variante" error={errors.variante} ayuda="Ej.: Flor Azul, Marfil">
@@ -70,6 +61,17 @@ export function CamposIdentidad({ producto, register, errors }) {
         >
           <input className={claseControl} {...register('nombreCorto')} />
         </Campo>
+        {creando && (
+          <Campo etiqueta="Capacidad (L)" error={errors.capacidadLitros} ayuda="Opcional">
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              className={claseControl}
+              {...register('capacidadLitros', { setValueAs: vacioANull })}
+            />
+          </Campo>
+        )}
       </div>
     </div>
   );

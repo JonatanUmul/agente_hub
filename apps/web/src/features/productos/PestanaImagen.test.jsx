@@ -118,7 +118,7 @@ describe('Identificación por imagen en el formulario de producto', () => {
 });
 
 describe('IndicadorImagen', () => {
-  it('✓ con pistas y fotos, ⚠ si falta algo, — si está inactivo', () => {
+  it('✓ con pistas y fotos, ⚠ si falta algo, nada si está inactivo', () => {
     const { rerender } = render(
       <IndicadorImagen
         producto={producto({
@@ -127,10 +127,10 @@ describe('IndicadorImagen', () => {
         })}
       />,
     );
-    expect(screen.getByText('✓')).toBeTruthy();
+    expect(screen.getByText('✓ Imagen')).toBeTruthy();
     rerender(<IndicadorImagen producto={producto({ pistasVisuales: 'x' })} />);
-    expect(screen.getByLabelText('Falta: fotos de referencia')).toBeTruthy();
-    rerender(<IndicadorImagen producto={producto({ activo: false })} />);
-    expect(screen.getByText('—')).toBeTruthy();
+    expect(screen.getByText('⚠ Imagen: falta fotos de referencia')).toBeTruthy();
+    const { container } = render(<IndicadorImagen producto={producto({ activo: false })} />);
+    expect(container.textContent).toBe('');
   });
 });
