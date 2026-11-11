@@ -40,6 +40,9 @@ describe('integración: auditoría', () => {
       url: `/api/productos/${productoId}`,
       payload: {
         precioBase: 150,
+        codigo: actual.codigo,
+        variante: actual.variante,
+        nombreCorto: actual.nombreCorto,
         descuentoPct: actual.descuentoPct,
         estado: actual.estado,
         colores: actual.colores,

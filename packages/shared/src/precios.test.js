@@ -54,6 +54,9 @@ describe('precioQueVeElBot', () => {
 
 describe('esquemaEditarProducto', () => {
   const valido = {
+    codigo: 'DEV-1',
+    variante: null,
+    nombreCorto: null,
     precioBase: 10.5,
     descuentoPct: 0,
     estado: 'disponible',

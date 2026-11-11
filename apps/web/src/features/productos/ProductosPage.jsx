@@ -13,13 +13,26 @@ import { Toggle } from '../../components/Toggle.jsx';
 import { monto, porcentaje } from '../../lib/formato.js';
 import { usePermiso } from '../auth/hooks.js';
 import { useEstadoInterruptores } from '../configuracion/hooks.js';
-import { useCambiarActivoProducto, useEditarProducto, useProductos } from './hooks.js';
-import { FichaCompleta } from './FichaCompleta.jsx';
+import {
+  useCambiarActivoProducto,
+  useCrearProducto,
+  useEditarProducto,
+  useProductos,
+} from './hooks.js';
+import { FichaCompleta, tieneAvisos } from './FichaCompleta.jsx';
 import { IndicadorImagen } from './IndicadorImagen.jsx';
 import { LoQueVeElBot } from './LoQueVeElBot.jsx';
 import { ProductoForm } from './ProductoForm.jsx';
+import { valoresParaDuplicar } from './valoresFormulario.js';
 
-const FILTROS_INICIALES = { texto: '', tipo: '', familia: '', estado: '', activo: 'todos' };
+const FILTROS_INICIALES = {
+  texto: '',
+  tipo: '',
+  familia: '',
+  estado: '',
+  activo: 'todos',
+  conAvisos: false,
+};
 
 // El catálogo es pequeño (decenas de productos): se pide completo y se filtra en el navegador,
 // así los filtros responden al instante sin ir a la API.
@@ -28,11 +41,14 @@ function filtrar(productos, f) {
   return productos.filter(
     (p) =>
       (!texto ||
-        [p.codigo, p.nombre, ...p.palabrasClave].some((v) => v.toLowerCase().includes(texto))) &&
+        [p.codigo, p.nombre, p.variante, ...p.palabrasClave]
+          .filter(Boolean)
+          .some((v) => v.toLowerCase().includes(texto))) &&
       (!f.tipo || p.tipo === f.tipo) &&
       (!f.familia || p.familia === f.familia) &&
       (!f.estado || p.estado === f.estado) &&
-      (f.activo === 'todos' || p.activo === (f.activo === 'activos')),
+      (f.activo === 'todos' || p.activo === (f.activo === 'activos')) &&
+      (!f.conAvisos || tieneAvisos(p)),
   );
 }
 
@@ -41,9 +57,11 @@ export function ProductosPage() {
   const { estado: interruptores } = useEstadoInterruptores();
   const puedeEditar = usePermiso('productos:editar');
   const editar = useEditarProducto();
+  const crear = useCrearProducto();
   const cambiarActivo = useCambiarActivoProducto();
   const [filtros, setFiltros] = useState(FILTROS_INICIALES);
-  const [accion, setAccion] = useState(null); // { tipo: 'editar' | 'activo', producto }
+  // { tipo: 'editar' | 'activo' | 'crear', producto?, valores? } (crear con `valores` = duplicado)
+  const [accion, setAccion] = useState(null);
 
   const familias = useMemo(
     () => [...new Set((productos ?? []).map((p) => p.familia))].sort(),
@@ -57,6 +75,7 @@ export function ProductosPage() {
   const cerrar = () => {
     setAccion(null);
     editar.reset();
+    crear.reset();
     cambiarActivo.reset();
   };
   const filtro = (campo) => ({
@@ -71,6 +90,7 @@ export function ProductosPage() {
       celda: (p) => (
         <>
           <div className="font-medium">{p.nombre}</div>
+          {p.variante && <div className="text-xs text-tenue">Variante: {p.variante}</div>}
           <div className="flex items-center gap-1 text-xs text-tenue">
             <span className="whitespace-nowrap">
               ItemCode <span className="font-mono whitespace-nowrap text-texto">{p.codigo}</span>
@@ -123,9 +143,17 @@ export function ProductosPage() {
         <div className="flex justify-end gap-3">
           <EnlaceHistorial tabla="eco_productos" registroId={p.id} />
           {puedeEditar && (
-            <Boton variante="enlace" onClick={() => setAccion({ tipo: 'editar', producto: p })}>
-              Editar
-            </Boton>
+            <>
+              <Boton
+                variante="enlace"
+                onClick={() => setAccion({ tipo: 'crear', valores: valoresParaDuplicar(p) })}
+              >
+                Duplicar
+              </Boton>
+              <Boton variante="enlace" onClick={() => setAccion({ tipo: 'editar', producto: p })}>
+                Editar
+              </Boton>
+            </>
           )}
         </div>
       ),
@@ -144,6 +172,9 @@ export function ProductosPage() {
             cambiar
           </Link>
         </p>
+        {puedeEditar && (
+          <Boton onClick={() => setAccion({ tipo: 'crear', valores: null })}>Nuevo producto</Boton>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -175,6 +206,14 @@ export function ProductosPage() {
           <option value="activos">Solo activos</option>
           <option value="inactivos">Solo inactivos</option>
         </select>
+        <label className="flex items-center gap-1.5 text-sm text-tenue">
+          <input
+            type="checkbox"
+            checked={filtros.conAvisos}
+            onChange={(e) => setFiltros({ ...filtros, conAvisos: e.target.checked })}
+          />
+          Solo productos con avisos
+        </label>
         {JSON.stringify(filtros) !== JSON.stringify(FILTROS_INICIALES) && (
           <Boton variante="enlace" onClick={() => setFiltros(FILTROS_INICIALES)}>
             Limpiar filtros
@@ -192,8 +231,8 @@ export function ProductosPage() {
       />
 
       <Modal
-        abierto={accion?.tipo === 'editar'}
-        titulo={`Editar ${producto?.nombre}`}
+        abierto={accion?.tipo === 'editar' || accion?.tipo === 'crear'}
+        titulo={accion?.tipo === 'crear' ? 'Nuevo producto' : `Editar ${producto?.nombre}`}
         alCerrar={cerrar}
         ancho="max-w-2xl"
       >
@@ -202,6 +241,15 @@ export function ProductosPage() {
             producto={producto}
             interruptores={interruptores}
             mutacion={editar}
+            alTerminar={cerrar}
+            alCancelar={cerrar}
+          />
+        )}
+        {accion?.tipo === 'crear' && (
+          <ProductoForm
+            valoresIniciales={accion.valores}
+            interruptores={interruptores}
+            mutacion={crear}
             alTerminar={cerrar}
             alCancelar={cerrar}
           />

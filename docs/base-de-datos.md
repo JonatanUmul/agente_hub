@@ -40,10 +40,12 @@ La app lo muestra como "ItemCode", permite buscarlo y copiarlo, y no lo modifica
 | Columna                       | Tipo             | Nulo | Por defecto / restricción                                       |
 | ----------------------------- | ---------------- | ---- | --------------------------------------------------------------- |
 | `id` **PK**                   | integer (serial) | no   | `eco_productos_id_seq`                                          |
-| `codigo`                      | text             | no   | UNIQUE                                                          |
+| `codigo`                      | text             | no   | UNIQUE + índice único `upper(codigo)` (`docs/sql/005`)          |
 | `nombre`                      | text             | no   |                                                                 |
 | `tipo`                        | text             | no   | CHECK `equipo`, `accesorio`, `repuesto`                         |
 | `familia`                     | text             | no   | índice `eco_productos_familia_idx`                              |
+| `variante`                    | text             | sí   | Estilo dentro de la familia («Flor Azul»), `docs/sql/005`       |
+| `nombre_corto`                | text             | sí   | Nombre en listas del bot; NULL = `nombre`, `docs/sql/005`       |
 | `capacidad_litros`            | numeric(6,2)     | sí   |                                                                 |
 | `colores`                     | text[]           | no   | `'{}'`                                                          |
 | `estado`                      | text             | no   | `'disponible'` · CHECK `disponible`, `agotado`, `descontinuado` |

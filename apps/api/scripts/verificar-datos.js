@@ -77,6 +77,8 @@ try {
     esquemaEditarProducto,
     productos.map((p) => ({
       ...tomar(p, [
+        'variante',
+        'nombreCorto',
         'precioBase',
         'descuentoPct',
         'estado',

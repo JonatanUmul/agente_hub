@@ -53,6 +53,9 @@ const COLUMNAS_POR_ETIQUETA = {
 const obtener = async () => (await comercial.pedir({ url: `/api/productos/${productoId}` })).json();
 const datosEditables = (p, cambios = {}) => ({
   precioBase: p.precioBase,
+  codigo: p.codigo,
+  variante: p.variante,
+  nombreCorto: p.nombreCorto,
   descuentoPct: p.descuentoPct,
   estado: p.estado,
   colores: p.colores,

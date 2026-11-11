@@ -15,7 +15,8 @@ export function hayCambios(actual, nuevo, campos, camposFecha = []) {
 //   3. escribir solo si hay cambios (guardar sin cambios no genera auditoría vacía);
 //   4. devolver el registro completo.
 // `repo` debe tener obtenerEditableBloqueando, actualizar y obtenerPorId.
-// `aplicar(actual)` devuelve el estado nuevo (todo el formulario o solo `activo`).
+// `aplicar(actual, client)` devuelve el estado nuevo (todo el formulario o solo `activo`); puede ser async
+// si necesita consultar la base dentro de la misma transacción.
 export function editarConVersion(
   db,
   { id, version, correo, repo, campos, camposFecha, aplicar, mensajeNoEncontrado },
@@ -25,7 +26,7 @@ export function editarConVersion(
     if (!actual) throw noEncontrado(mensajeNoEncontrado);
     if (actual.version !== version) throw conflictoDeVersion();
 
-    const nuevo = aplicar(actual);
+    const nuevo = await aplicar(actual, client);
     if (hayCambios(actual, nuevo, campos, camposFecha)) {
       await repo.actualizar(client, id, nuevo, correo);
     }

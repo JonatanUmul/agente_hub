@@ -122,6 +122,7 @@ const COLORES = [
   ['morado', /\bmorad[oa]s?\b/],
   ['amarillo', /\bamarill[oa]s?\b/],
   ['naranja', /\b(naranjas?|anaranjad[oa]s?)\b/],
+  ['fucsia', /\bfucsias?\b/],
   ['café', /\bcafes?\b/],
   ['beige', /\bbeige\b/],
   ['turquesa', /\bturquesas?\b/],
@@ -202,4 +203,30 @@ export function contradiccionesFicha(p) {
       ...revisarColores(caracteristica, p),
     ].map((motivo) => ({ indice, caracteristica, motivo }));
   });
+}
+
+// ---------------------------------------------------------------- Avisos de incoherencia
+
+// Para comparar el color de la ficha con el de la foto: «Azul» = «azul» = « azúl ».
+const mismoColor = (a, b) => normalizar(a.trim()) === normalizar(b.trim());
+
+// Datos que se contradicen entre sí y hacen que el bot responda mal o derive a un asesor.
+// Son avisos: no impiden guardar. `p.coloresConFoto` = colores de las imágenes activas del producto.
+export function avisosProducto(p) {
+  const avisos = [];
+  if (p.activo && p.estado === 'disponible' && p.precioBase === null)
+    avisos.push('Activo y disponible, pero sin precio');
+  if (p.activo && p.estado === 'descontinuado') avisos.push('Descontinuado, pero sigue activo');
+
+  const colores = p.colores ?? [];
+  const sinFoto = colores.filter((c) => !(p.coloresConFoto ?? []).some((f) => mismoColor(c, f)));
+  if (sinFoto.length) avisos.push(`Sin foto activa del color: ${sinFoto.join(', ')}`);
+
+  // Igual que en las características: sin colores cargados no hay con qué comparar.
+  const propios = new Set(colores.flatMap(coloresEn));
+  const ajenos =
+    propios.size && p.descripcion ? coloresEn(p.descripcion).filter((c) => !propios.has(c)) : [];
+  if (ajenos.length)
+    avisos.push(`La descripción menciona ${ajenos.join(', ')}, que no está en colores`);
+  return avisos;
 }

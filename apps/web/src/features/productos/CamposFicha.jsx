@@ -15,11 +15,11 @@ import { ListaCaracteristicas } from './ListaCaracteristicas.jsx';
 
 export const vacioANull = (valor) => (valor === '' || valor === null ? null : Number(valor));
 
-export function PestanaFicha({ producto, register, control, errors, contradicciones, enVivo }) {
+export function PestanaFicha({ register, control, errors, contradicciones, enVivo }) {
   // Un campo que no aplica a este tipo se oculta, salvo que ya tenga un valor: hay que poder vaciarlo.
-  const mostrar = (campo) => campoAplica(campo, producto.tipo) || Boolean(enVivo[campo]);
+  const mostrar = (campo) => campoAplica(campo, enVivo.tipo) || Boolean(enVivo[campo]);
   const ayudaNoAplica = (campo) =>
-    campoAplica(campo, producto.tipo)
+    campoAplica(campo, enVivo.tipo)
       ? undefined
       : `Solo para ${TIPOS_POR_CAMPO[campo].join(' y ')}: déjalo vacío.`;
 

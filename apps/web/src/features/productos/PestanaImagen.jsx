@@ -67,7 +67,8 @@ function FotosDeMultimedia({ productoId, urlsUsadas, alElegir, alCerrar }) {
 }
 
 // Pestaña «Identificación por imagen»: pistas visuales y fotos de referencia ([{ url, color }]).
-export function PestanaImagen({ producto, register, control, errors, enVivo }) {
+// `productoId`: null mientras se crea (todavía no tiene fotos en Multimedia).
+export function PestanaImagen({ productoId, register, control, errors, enVivo }) {
   const { fields, append, remove } = useFieldArray({ control, name: 'fotosReferencia' });
   const [verMultimedia, setVerMultimedia] = useState(false);
   const errorFotos = errors.fotosReferencia?.message ?? errors.fotosReferencia?.root?.message;
@@ -131,13 +132,15 @@ export function PestanaImagen({ producto, register, control, errors, enVivo }) {
           >
             Agregar foto
           </Boton>
-          <Boton variante="secundario" disabled={lleno} onClick={() => setVerMultimedia(true)}>
-            Usar foto de Multimedia
-          </Boton>
+          {productoId && (
+            <Boton variante="secundario" disabled={lleno} onClick={() => setVerMultimedia(true)}>
+              Usar foto de Multimedia
+            </Boton>
+          )}
         </div>
         {verMultimedia && !lleno && (
           <FotosDeMultimedia
-            productoId={producto.id}
+            productoId={productoId}
             urlsUsadas={fotos.map((f) => f.url)}
             alElegir={(foto) => append(foto)}
             alCerrar={() => setVerMultimedia(false)}

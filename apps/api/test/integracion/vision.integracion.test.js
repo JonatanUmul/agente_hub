@@ -38,6 +38,9 @@ const guardar = async (id, cambios) => {
     url: `/api/productos/${id}`,
     payload: {
       precioBase: p.precioBase,
+      codigo: p.codigo,
+      variante: p.variante,
+      nombreCorto: p.nombreCorto,
       descuentoPct: p.descuentoPct,
       estado: p.estado,
       colores: p.colores,

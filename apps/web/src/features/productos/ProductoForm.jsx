@@ -3,13 +3,15 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
-  CAMPOS_FICHA,
   ESTADOS_PRODUCTO,
   TIPOS_CON_VISION,
   calcularPrecioFinal,
   contradiccionesFicha,
   descuentoVigente,
+  errorPrecioRequerido,
+  esquemaDatosProductoNuevo,
   esquemaEditarProducto,
+  tienePrecioSiLoNecesita,
 } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
 import { Campo, claseControl } from '../../components/Campo.jsx';
@@ -19,10 +21,14 @@ import { Pestanas } from '../../components/Pestanas.jsx';
 import { SelectorPautas } from '../../components/SelectorPautas.jsx';
 import { monto, porcentaje } from '../../lib/formato.js';
 import { usePautasResumen } from '../pautas/hooks.js';
+import { obtenerImpactoCodigo } from './api.js';
 import { PestanaFicha, PestanaMedidas, PestanaWeb, vacioANull } from './CamposFicha.jsx';
+import { CamposIdentidad } from './CamposIdentidad.jsx';
 import { FichaDelBot } from './FichaDelBot.jsx';
+import { ImpactoCodigo } from './ImpactoCodigo.jsx';
 import { LoQueVeElBot } from './LoQueVeElBot.jsx';
 import { PestanaImagen } from './PestanaImagen.jsx';
+import { valoresParaCrear, valoresParaEditar } from './valoresFormulario.js';
 
 // En el formulario las listas se escriben separadas por comas; se validan con las reglas de shared.
 const textoALista = z.string().transform((texto) => texto.split(','));
@@ -30,22 +36,17 @@ const textoALista = z.string().transform((texto) => texto.split(','));
 const filasALista = z
   .array(z.object({ texto: z.string() }))
   .transform((filas) => filas.map((f) => f.texto));
-const esquemaFormulario = esquemaEditarProducto.omit({ version: true }).extend({
-  colores: textoALista.pipe(esquemaEditarProducto.shape.colores),
-  palabrasClave: textoALista.pipe(esquemaEditarProducto.shape.palabrasClave),
-  caracteristicas: filasALista.pipe(esquemaEditarProducto.shape.caracteristicas),
+const listas = (esquema) => ({
+  colores: textoALista.pipe(esquema.shape.colores),
+  palabrasClave: textoALista.pipe(esquema.shape.palabrasClave),
+  caracteristicas: filasALista.pipe(esquema.shape.caracteristicas),
 });
-
-const NUMEROS_FICHA = ['capacidadPurificadorLitros', 'anchoCm', 'altoCm', 'largoCm', 'pesoLb'];
-const fichaInicial = (p) =>
-  Object.fromEntries(
-    CAMPOS_FICHA.map((campo) => {
-      if (campo === 'caracteristicas')
-        return [campo, p.caracteristicas.map((texto) => ({ texto }))];
-      if (NUMEROS_FICHA.includes(campo)) return [campo, p[campo]];
-      return [campo, p[campo] ?? ''];
-    }),
-  );
+const esquemaEditar = esquemaEditarProducto
+  .omit({ version: true, confirmarCambioCodigo: true })
+  .extend(listas(esquemaEditarProducto));
+const esquemaCrear = esquemaDatosProductoNuevo
+  .extend(listas(esquemaDatosProductoNuevo))
+  .refine(tienePrecioSiLoNecesita, errorPrecioRequerido);
 
 // Pestañas del formulario y los campos de cada una (para marcar la que tiene errores).
 const PESTANAS = [
@@ -53,6 +54,13 @@ const PESTANAS = [
     id: 'general',
     titulo: 'General',
     campos: [
+      'codigo',
+      'nombre',
+      'tipo',
+      'familia',
+      'capacidadLitros',
+      'variante',
+      'nombreCorto',
       'precioBase',
       'descuentoPct',
       'estado',
@@ -86,8 +94,10 @@ const PESTANAS = [
 ];
 
 // La pestaña de imagen es para equipos y repuestos; en otro tipo solo aparece si ya tiene datos (para vaciarla).
-const conPestanaImagen = (p) =>
-  TIPOS_CON_VISION.includes(p.tipo) || Boolean(p.pistasVisuales) || p.fotosReferencia.length > 0;
+const conPestanaImagen = (enVivo) =>
+  TIPOS_CON_VISION.includes(enVivo.tipo) ||
+  Boolean(enVivo.pistasVisuales) ||
+  (enVivo.fotosReferencia ?? []).length > 0;
 
 const aLista = (texto) =>
   (texto ?? '')
@@ -98,25 +108,11 @@ const aLista = (texto) =>
 // El producto tal como quedaría con lo que se está escribiendo (para avisos y vistas previas).
 const productoEnVivo = (producto, valores) => ({
   ...valores,
-  nombre: producto.nombre,
-  tipo: producto.tipo,
-  capacidadLitros: producto.capacidadLitros,
+  nombre: producto?.nombre ?? valores.nombre,
+  tipo: producto?.tipo ?? valores.tipo,
+  capacidadLitros: producto?.capacidadLitros ?? valores.capacidadLitros,
   colores: aLista(valores.colores),
   caracteristicas: (valores.caracteristicas ?? []).map((f) => f.texto),
-});
-
-const valoresIniciales = (p) => ({
-  precioBase: p.precioBase,
-  descuentoPct: p.descuentoPct,
-  estado: p.estado,
-  colores: p.colores.join(', '),
-  palabrasClave: p.palabrasClave.join(', '),
-  pautaIds: p.pautas.map((pa) => pa.id).sort((a, b) => a - b),
-  orden: p.orden,
-  activo: p.activo,
-  ...fichaInicial(p),
-  pistasVisuales: p.pistasVisuales ?? '',
-  fotosReferencia: p.fotosReferencia.map((f) => ({ url: f.url, color: f.color ?? '' })),
 });
 
 const nombres = (lista) => (lista.length ? lista.map((pa) => pa.nombre).join(', ') : 'Ninguna');
@@ -124,6 +120,7 @@ const nombres = (lista) => (lista.length ? lista.map((pa) => pa.nombre).join(', 
 // Cambios que alteran lo que paga el cliente o si el bot ofrece el producto: piden confirmación.
 function cambiosSensibles(antes, despues) {
   const cambios = [];
+  if (antes.codigo !== despues.codigo) cambios.push(['ItemCode', antes.codigo, despues.codigo]);
   if (antes.precioBase !== despues.precioBase)
     cambios.push(['Precio base', monto(antes.precioBase), monto(despues.precioBase)]);
   if (antes.descuentoPct !== despues.descuentoPct)
@@ -137,6 +134,7 @@ function cambiosSensibles(antes, despues) {
 }
 
 // El formulario espera a tener la lista de pautas antes de dibujarse (para mostrar las marcadas).
+// `producto`: el que se edita; sin él, se crea uno nuevo. `valoresIniciales` (opcional): p. ej. un duplicado.
 export function ProductoForm(props) {
   const { data: pautas, isPending, error } = usePautasResumen();
   if (isPending) return <Cargando />;
@@ -144,17 +142,29 @@ export function ProductoForm(props) {
   return <FormularioProducto {...props} pautas={pautas} />;
 }
 
-function FormularioProducto({ producto, interruptores, pautas, mutacion, alTerminar, alCancelar }) {
-  const [porConfirmar, setPorConfirmar] = useState(null);
+function FormularioProducto({
+  producto,
+  valoresIniciales,
+  interruptores,
+  pautas,
+  mutacion,
+  alTerminar,
+  alCancelar,
+}) {
+  const creando = !producto;
+  const [porConfirmar, setPorConfirmar] = useState(null); // { datos, cambios, impacto? }
+  const [entendido, setEntendido] = useState(false);
+  const [revisando, setRevisando] = useState(false);
   const [pestana, setPestana] = useState('general');
   const {
     register,
     handleSubmit,
     control,
+    setError,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(esquemaFormulario),
-    defaultValues: valoresIniciales(producto),
+    resolver: zodResolver(creando ? esquemaCrear : esquemaEditar),
+    defaultValues: valoresIniciales ?? (creando ? valoresParaCrear() : valoresParaEditar(producto)),
   });
 
   // Vista previa en vivo: con los valores que se están escribiendo.
@@ -173,17 +183,40 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
   };
 
   const guardar = (datos) =>
-    mutacion.mutate(
-      { id: producto.id, version: producto.version, ...datos },
-      { onSuccess: alTerminar },
-    );
+    mutacion.mutate(creando ? datos : { id: producto.id, version: producto.version, ...datos }, {
+      onSuccess: alTerminar,
+    });
 
-  const enviar = (datos) => {
+  // Al cambiar el ItemCode se consulta antes con quién choca y a qué afecta.
+  const revisarCodigo = async (codigo) => {
+    setRevisando(true);
+    try {
+      const impacto = await obtenerImpactoCodigo({ id: producto.id, codigo });
+      if (impacto.conflicto) {
+        const c = impacto.conflicto;
+        setError('codigo', {
+          message: `Ya lo usa «${c.nombre}» (ItemCode ${c.codigo}${c.activo ? '' : ', inactivo'})`,
+        });
+        setPestana('general');
+        return null;
+      }
+      return impacto;
+    } finally {
+      setRevisando(false);
+    }
+  };
+
+  const enviar = async (datos) => {
+    if (creando) return guardar(datos);
     const cambios = cambiosSensibles(producto, {
       ...datos,
       nombresPautas: nombres(pautas.filter((pa) => datos.pautaIds.includes(pa.id))),
     });
-    if (cambios.length > 0) setPorConfirmar({ datos, cambios });
+    const cambiaCodigo = datos.codigo !== producto.codigo;
+    const impacto = cambiaCodigo ? await revisarCodigo(datos.codigo) : null;
+    if (cambiaCodigo && !impacto) return;
+    setEntendido(false);
+    if (cambios.length > 0) setPorConfirmar({ datos, cambios, impacto });
     else guardar(datos);
   };
 
@@ -195,12 +228,14 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
   };
 
   if (porConfirmar) {
+    const { datos, cambios, impacto } = porConfirmar;
+    const faltaEntender = impacto?.menciones.length > 0 && !entendido;
     return (
       <div className="space-y-4 text-sm">
         <p>Estos cambios aplican en el siguiente mensaje de cada cliente:</p>
         <table className="w-full">
           <tbody>
-            {porConfirmar.cambios.map(([campo, antes, despues]) => (
+            {cambios.map(([campo, antes, despues]) => (
               <tr key={campo} className="border-b border-borde">
                 <td className="py-1 font-medium">{campo}</td>
                 <td className="py-1 text-tenue line-through">{antes}</td>
@@ -209,12 +244,25 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
             ))}
           </tbody>
         </table>
+        {impacto && (
+          <ImpactoCodigo
+            antes={producto.codigo}
+            despues={datos.codigo}
+            impacto={impacto}
+            entendido={entendido}
+            alEntender={setEntendido}
+          />
+        )}
         <MensajeError error={mutacion.error} />
         <div className="flex justify-end gap-2">
           <Boton variante="secundario" onClick={() => setPorConfirmar(null)}>
             Volver
           </Boton>
-          <Boton cargando={mutacion.isPending} onClick={() => guardar(porConfirmar.datos)}>
+          <Boton
+            disabled={faltaEntender}
+            cargando={mutacion.isPending}
+            onClick={() => guardar({ ...datos, confirmarCambioCodigo: Boolean(impacto) })}
+          >
             Confirmar y guardar
           </Boton>
         </div>
@@ -222,24 +270,24 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
     );
   }
 
+  const pestanas = PESTANAS.filter((p) => p.id !== 'imagen' || conPestanaImagen(enVivo));
   return (
     <form onSubmit={handleSubmit(enviar, alFallar)} className="space-y-4" noValidate>
-      <p className="text-sm text-tenue">
-        ItemCode <span className="font-mono">{producto.codigo}</span> · {producto.tipo} ·{' '}
-        {producto.familia}
-      </p>
       <Pestanas
-        pestanas={PESTANAS.filter((p) => p.id !== 'imagen' || conPestanaImagen(producto)).map(
-          (p) => ({ ...p, conError: conError(p) }),
-        )}
+        pestanas={pestanas.map((p) => ({ ...p, conError: conError(p) }))}
         activa={pestana}
         alCambiar={setPestana}
       />
 
       {/* Las pestañas ocultas siguen montadas: sus campos se validan y se guardan igual. */}
       <div hidden={pestana !== 'general'} className="space-y-4">
+        <CamposIdentidad producto={producto} register={register} errors={errors} />
         <div className="grid grid-cols-2 gap-4">
-          <Campo etiqueta="Precio base (Q)" error={errors.precioBase} ayuda="Vacío = sin precio">
+          <Campo
+            etiqueta="Precio base (Q)"
+            error={errors.precioBase}
+            ayuda={creando ? 'Requerido, salvo descontinuado' : 'Vacío = sin precio'}
+          >
             <input
               type="number"
               step="0.01"
@@ -295,7 +343,6 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
 
       <div hidden={pestana !== 'ficha'}>
         <PestanaFicha
-          producto={producto}
           register={register}
           control={control}
           errors={errors}
@@ -309,10 +356,10 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
       <div hidden={pestana !== 'web'}>
         <PestanaWeb register={register} errors={errors} enVivo={enVivo} />
       </div>
-      {conPestanaImagen(producto) && (
+      {conPestanaImagen(enVivo) && (
         <div hidden={pestana !== 'imagen'}>
           <PestanaImagen
-            producto={producto}
+            productoId={producto?.id ?? null}
             register={register}
             control={control}
             errors={errors}
@@ -348,7 +395,9 @@ function FormularioProducto({ producto, interruptores, pautas, mutacion, alTermi
         <Boton variante="secundario" onClick={alCancelar}>
           Cancelar
         </Boton>
-        <Boton type="submit">Guardar</Boton>
+        <Boton type="submit" cargando={revisando || (creando && mutacion.isPending)}>
+          {creando ? 'Crear producto' : 'Guardar'}
+        </Boton>
       </div>
     </form>
   );

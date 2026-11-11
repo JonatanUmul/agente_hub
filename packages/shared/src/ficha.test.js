@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
+  avisosProducto,
   camposQueNoAplican,
   contradiccionesFicha,
   faltantesFicha,
   fichaQueVeElBot,
   textoMedidas,
 } from './ficha.js';
-import { esquemaEditarProducto } from './productos.js';
+import { esquemaEditarProducto, itemCode } from './productos.js';
 
 const fichaVacia = {
   descripcionCorta: null,
@@ -26,6 +27,9 @@ const fichaVacia = {
   fotosReferencia: [],
 };
 const editable = {
+  codigo: 'DEV-1',
+  variante: null,
+  nombreCorto: null,
   precioBase: 10,
   descuentoPct: 0,
   estado: 'disponible',
@@ -204,5 +208,66 @@ describe('contradiccionesFicha', () => {
 
   it('sin el campo no hay con qué comparar', () => {
     expect(contradiccionesFicha({ ...fichaVacia, caracteristicas: ['Pesa 20 lbs'] })).toEqual([]);
+  });
+});
+
+describe('avisosProducto', () => {
+  const base = {
+    activo: true,
+    estado: 'disponible',
+    precioBase: 100,
+    colores: [],
+    coloresConFoto: [],
+    descripcion: null,
+  };
+  const avisos = (cambio) => avisosProducto({ ...base, ...cambio });
+
+  it('sin avisos cuando todo cuadra', () => {
+    expect(avisos({ colores: ['Azul'], coloresConFoto: ['azul'] })).toEqual([]);
+  });
+
+  it('activo y disponible sin precio; no si está agotado o inactivo', () => {
+    expect(avisos({ precioBase: null })).toEqual(['Activo y disponible, pero sin precio']);
+    expect(avisos({ precioBase: null, estado: 'agotado' })).toEqual([]);
+    expect(avisos({ precioBase: null, activo: false })).toEqual([]);
+  });
+
+  it('descontinuado que sigue activo', () => {
+    expect(avisos({ estado: 'descontinuado' })).toEqual(['Descontinuado, pero sigue activo']);
+  });
+
+  it('color sin foto activa (sin importar mayúsculas ni tildes)', () => {
+    expect(avisos({ colores: ['Azul', 'Café'], coloresConFoto: ['AZUL', 'cafe'] })).toEqual([]);
+    expect(avisos({ colores: ['Azul', 'Rojo'], coloresConFoto: ['Azul'] })).toEqual([
+      'Sin foto activa del color: Rojo',
+    ]);
+  });
+
+  it('la descripción ofrece colores que no están cargados', () => {
+    const colors = {
+      colores: ['Azul', 'Verde'],
+      coloresConFoto: ['Azul', 'Verde'],
+      descripcion: 'Disponible en azul, verde, naranja y fucsia.',
+    };
+    expect(avisos(colors)).toEqual([
+      'La descripción menciona naranja, fucsia, que no está en colores',
+    ]);
+  });
+});
+
+describe('itemCode', () => {
+  const valido = (codigo) => itemCode.safeParse(codigo).success;
+  it('normaliza a mayúsculas sin espacios y rechaza otros caracteres', () => {
+    expect(itemCode.parse(' ceramica flor-azul ')).toBe('CERAMICAFLOR-AZUL');
+    expect(valido('A.B-1')).toBe(true);
+    expect(valido('CERÁMICA')).toBe(false);
+    expect(valido('A/B')).toBe(false);
+    expect(valido('  ')).toBe(false);
+  });
+
+  it('en la edición, un código viejo fuera de formato pasa tal cual (el service valida solo si cambia)', () => {
+    expect(esquemaEditarProducto.parse({ ...editable, codigo: 'cerámica' }).codigo).toBe(
+      'cerámica',
+    );
   });
 });
