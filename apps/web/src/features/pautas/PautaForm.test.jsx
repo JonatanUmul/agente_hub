@@ -110,24 +110,22 @@ describe('PautaForm: modelos', () => {
 });
 
 describe('PautaForm: alcance', () => {
-  it('una pauta nueva viene «Solo para quien llega por el anuncio»', () => {
+  it('una pauta nueva viene «Solo para quien llega por la pauta»', () => {
     formulario({ pauta: null });
     const interruptor = screen.getByRole('switch', {
-      name: 'Solo para quien llega por el anuncio',
+      name: 'Solo para quien llega por la pauta',
     });
     expect(interruptor.getAttribute('aria-checked')).toBe('true');
   });
 
-  it('«Aplica a todos los modelos» la abre y lo explica; volver a encenderla se respeta', async () => {
+  it('«Aplica a todos los modelos» la abre; volver a encenderla se respeta', async () => {
     const { mutacion } = formulario();
     fireEvent.click(screen.getByRole('switch', { name: 'Aplica a todos los modelos' }));
-    const solo = screen.getByRole('switch', { name: 'Solo para quien llega por el anuncio' });
+    const solo = screen.getByRole('switch', { name: 'Solo para quien llega por la pauta' });
     expect(solo.getAttribute('aria-checked')).toBe('false');
-    expect(screen.getByText(/Se desactivó porque aplica a todos los modelos/)).toBeTruthy();
 
     fireEvent.click(solo);
     expect(solo.getAttribute('aria-checked')).toBe('true');
-    expect(screen.queryByText(/Se desactivó porque/)).toBeNull();
     await guardarYConfirmar();
     await waitFor(() => expect(mutacion.mutate).toHaveBeenCalled());
     expect(mutacion.mutate.mock.calls[0][0]).toMatchObject({
@@ -138,7 +136,7 @@ describe('PautaForm: alcance', () => {
 
   it('desactivarla se guarda y se confirma como cambio de alcance', async () => {
     const { mutacion } = formulario();
-    fireEvent.click(screen.getByRole('switch', { name: 'Solo para quien llega por el anuncio' }));
+    fireEvent.click(screen.getByRole('switch', { name: 'Solo para quien llega por la pauta' }));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar' }));
     expect(await screen.findByText('Alcance')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar y guardar' }));
@@ -151,13 +149,11 @@ describe('PautaForm: multimedia', () => {
   it('con un arte, lo que verá el cliente son solo los artes', () => {
     formulario();
     const vista = () => screen.getByText('Lo que verá el cliente').parentElement;
-    expect(within(vista()).getByText(/Sin arte: el bot envía hasta 1 foto/)).toBeTruthy();
     const casilla = (texto) =>
       screen.getAllByText(texto)[0].closest('label').querySelector('input');
     fireEvent.click(casilla('Foto azul'));
     expect(within(vista()).getByText('Foto azul')).toBeTruthy();
     fireEvent.click(casilla('Arte Visa'));
-    expect(within(vista()).getByText(/Con arte/)).toBeTruthy();
     expect(within(vista()).getByText('Arte Visa')).toBeTruthy();
     expect(within(vista()).queryByText('Foto azul')).toBeNull();
   });

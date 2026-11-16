@@ -92,11 +92,6 @@ export function ImagenPauta({ pauta, puedeEditar }) {
         )}
       </div>
 
-      {!recibe.conArte && (
-        <p className="rounded-md border border-info/30 bg-info/10 px-3 py-2 text-sm">
-          Sube una imagen de la pauta para no enviar fotos sueltas de cada color.
-        </p>
-      )}
       {recibe.artesActivos > 1 && (
         <p className="text-sm text-alerta">El bot enviará hasta {MAX_ARTES_PAUTA} imágenes.</p>
       )}

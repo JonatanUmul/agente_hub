@@ -24,7 +24,7 @@ export function PautasPage() {
   const editar = useEditarPauta();
   const cambiarActivo = useCambiarActivoPauta();
   const [accion, setAccion] = useState(null); // { tipo: 'crear' | 'editar' | 'activo', pauta? }
-  const [alcance, setAlcance] = useState(''); // '' | 'anuncio' | 'abierta'
+  const [alcance, setAlcance] = useState(''); // '' | 'pauta' | 'abierta'
 
   if (isPending) return <p className="text-tenue">Cargando pautas…</p>;
   if (error) return <MensajeError error={error} />;
@@ -120,12 +120,12 @@ export function PautasPage() {
         aria-label="Alcance"
       >
         <option value="">Todos los alcances</option>
-        <option value="anuncio">Solo anuncio</option>
+        <option value="pauta">Solo pauta</option>
         <option value="abierta">Abiertas</option>
       </select>
       <Tabla
         columnas={columnas}
-        filas={pautas.filter((p) => !alcance || p.soloPorAnuncio === (alcance === 'anuncio'))}
+        filas={pautas.filter((p) => !alcance || p.soloPorAnuncio === (alcance === 'pauta'))}
         vacio="No hay pautas"
       />
 

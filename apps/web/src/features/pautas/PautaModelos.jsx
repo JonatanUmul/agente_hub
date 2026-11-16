@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useController } from 'react-hook-form';
 import { otrasPautasConDescuento } from '@ecofiltro/shared';
 import { Boton } from '../../components/Boton.jsx';
@@ -36,16 +35,11 @@ function Producto({ producto, marcado, alternar, pautaId }) {
   );
 }
 
-// Interruptor con su título y su ayuda.
-function Opcion({ campo, titulo, ayuda, nota }) {
+function Opcion({ activo, titulo, alCambiar }) {
   return (
-    <div className="flex items-start gap-3 text-sm">
-      <Toggle activo={campo.value} etiqueta={titulo} alCambiar={campo.onChange} />
-      <div>
-        <p>{titulo}</p>
-        <p className="text-xs text-tenue">{ayuda}</p>
-        {nota && <p className="text-xs text-info">{nota}</p>}
-      </div>
+    <div className="flex items-center gap-3 text-sm">
+      <Toggle activo={activo} etiqueta={titulo} alCambiar={alCambiar} />
+      <p>{titulo}</p>
     </div>
   );
 }
@@ -54,20 +48,12 @@ function Opcion({ campo, titulo, ayuda, nota }) {
 // Los productos inactivos ya asociados no se muestran, pero se conservan en la selección.
 export function PautaModelos({ control, productos, pautaId }) {
   const todos = useController({ control, name: 'aplicaTodos' }).field;
-  const soloAnuncio = useController({ control, name: 'soloPorAnuncio' }).field;
+  const soloPauta = useController({ control, name: 'soloPorAnuncio' }).field;
   // Una pauta para todos los modelos es una forma de pago o un beneficio general: se abre a cualquiera.
-  // Si la persona vuelve a encender «Solo para quien llega por el anuncio», se respeta.
-  const [apagadoSolo, setApagadoSolo] = useState(false);
+  // Si la persona vuelve a encender el alcance por pauta, se respeta.
   const alCambiarTodos = (valor) => {
     todos.onChange(valor);
-    if (valor && soloAnuncio.value) {
-      soloAnuncio.onChange(false);
-      setApagadoSolo(true);
-    }
-  };
-  const alCambiarSoloAnuncio = (valor) => {
-    soloAnuncio.onChange(valor);
-    setApagadoSolo(false);
+    if (valor) soloPauta.onChange(false);
   };
   const { field, fieldState } = useController({ control, name: 'productoIds' });
   const activos = productos.filter((p) => p.activo);
@@ -83,19 +69,11 @@ export function PautaModelos({ control, productos, pautaId }) {
     <section className="space-y-3 border-t border-borde pt-4">
       <h3 className="font-medium">Alcance</h3>
       <Opcion
-        campo={{ value: soloAnuncio.value, onChange: alCambiarSoloAnuncio }}
-        titulo="Solo para quien llega por el anuncio"
-        ayuda="Si está activada, el bot solo aplica esta promoción a los clientes que escriben desde el anuncio. Si un cliente pregunta por descuentos en una conversación normal, el bot no la menciona. Si la desactivás, el bot puede ofrecerla a cualquiera."
-        nota={
-          apagadoSolo &&
-          'Se desactivó porque aplica a todos los modelos: es una forma de pago o un beneficio general.'
-        }
+        activo={soloPauta.value}
+        titulo="Solo para quien llega por la pauta"
+        alCambiar={soloPauta.onChange}
       />
-      <Opcion
-        campo={{ value: todos.value, onChange: alCambiarTodos }}
-        titulo="Aplica a todos los modelos"
-        ayuda="Para formas de pago o beneficios generales, como Visa Cuotas. El bot mostrará todos los equipos disponibles, incluso los que se agreguen después."
-      />
+      <Opcion activo={todos.value} titulo="Aplica a todos los modelos" alCambiar={alCambiarTodos} />
 
       {!todos.value && (
         <>

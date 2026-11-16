@@ -1,11 +1,6 @@
 import { useState } from 'react';
 import { useController } from 'react-hook-form';
-import {
-  MAX_ARTES_PAUTA,
-  TIPOS_MULTIMEDIA,
-  conSeleccion,
-  loQueRecibeElCliente,
-} from '@ecofiltro/shared';
+import { TIPOS_MULTIMEDIA, conSeleccion, loQueRecibeElCliente } from '@ecofiltro/shared';
 import { claseFiltro } from '../../components/Campo.jsx';
 import { GloboWhatsapp } from '../../components/GloboWhatsapp.jsx';
 import { ChipArte, Miniatura } from './Miniatura.jsx';
@@ -140,12 +135,7 @@ export function PautaMultimedia({
       )}
 
       <div className="rounded-md bg-panel-2 p-3">
-        <p className="text-sm font-medium">Lo que verá el cliente</p>
-        <p className="mb-2 text-xs text-tenue">
-          {recibe.conArte
-            ? `Con arte: el bot envía solo los artes (hasta ${MAX_ARTES_PAUTA}).`
-            : `Sin arte: el bot envía hasta ${maxFotos} foto(s) de producto.`}
-        </p>
+        <p className="mb-2 text-sm font-medium">Lo que verá el cliente</p>
         {recibe.imagenes.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-2">
             {recibe.imagenes.map((a) => (

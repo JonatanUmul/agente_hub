@@ -70,8 +70,8 @@ function cambiosSensibles(antes, despues) {
   if (antes.soloPorAnuncio !== despues.soloPorAnuncio)
     cambios.push([
       'Alcance',
-      antes.soloPorAnuncio ? 'Solo anuncio' : 'Abierta',
-      despues.soloPorAnuncio ? 'Solo anuncio' : 'Abierta',
+      antes.soloPorAnuncio ? 'Solo pauta' : 'Abierta',
+      despues.soloPorAnuncio ? 'Solo pauta' : 'Abierta',
     ]);
   if (!despues.aplicaTodos && antes.productoIds.join() !== despues.productoIds.join())
     cambios.push(['Modelos', cantidad(antes.productoIds), cantidad(despues.productoIds)]);
@@ -169,7 +169,7 @@ export function PautaForm({ pauta, multimediaIdsServidor, mutacion, alTerminar, 
       {editando ? (
         <p className="text-sm text-tenue">Código: {pauta.codigo}</p>
       ) : (
-        <Campo etiqueta="Código" error={errors.codigo} ayuda="No se puede cambiar después">
+        <Campo etiqueta="Código" error={errors.codigo}>
           <input className={claseControl} {...register('codigo')} />
         </Campo>
       )}
@@ -180,11 +180,7 @@ export function PautaForm({ pauta, multimediaIdsServidor, mutacion, alTerminar, 
         <textarea rows={3} className={claseControl} {...register('mensajeCliente')} />
       </Campo>
       <div className="grid grid-cols-2 gap-4">
-        <Campo
-          etiqueta="Descuento (%)"
-          error={errors.descuentoPct}
-          ayuda="Vacío = sin descuento propio de la pauta"
-        >
+        <Campo etiqueta="Descuento (%)" error={errors.descuentoPct}>
           <input
             type="number"
             step="0.01"
@@ -194,17 +190,13 @@ export function PautaForm({ pauta, multimediaIdsServidor, mutacion, alTerminar, 
             {...register('descuentoPct', { setValueAs: vacioANull })}
           />
         </Campo>
-        <Campo etiqueta="Palabras clave" error={errors.palabrasClave} ayuda="Separadas por comas">
+        <Campo etiqueta="Palabras clave" error={errors.palabrasClave}>
           <input className={claseControl} {...register('palabrasClave')} />
         </Campo>
-        <Campo etiqueta="Vigente desde" error={errors.vigenteDesde} ayuda="Vacío = desde ya">
+        <Campo etiqueta="Vigente desde" error={errors.vigenteDesde}>
           <input type="datetime-local" className={claseControl} {...register('vigenteDesde')} />
         </Campo>
-        <Campo
-          etiqueta="Vigente hasta"
-          error={errors.vigenteHasta}
-          ayuda="Vacío = sin fecha de fin"
-        >
+        <Campo etiqueta="Vigente hasta" error={errors.vigenteHasta}>
           <input type="datetime-local" className={claseControl} {...register('vigenteHasta')} />
         </Campo>
       </div>
