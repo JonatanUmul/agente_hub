@@ -10,13 +10,15 @@ const IDS_ASOCIADOS = (alias) => `
 
 const asociados = (fila) => ({
   aplicaTodos: fila.aplica_todos,
+  soloPorAnuncio: fila.solo_por_anuncio,
   productoIds: fila.producto_ids,
   multimediaIds: fila.multimedia_ids,
 });
 
 const SELECT_PAUTA = `
   SELECT pa.id, pa.codigo, pa.nombre, pa.mensaje_cliente, pa.descuento_pct, pa.palabras_clave,
-         pa.vigente_desde, pa.vigente_hasta, pa.activo, pa.aplica_todos, pa.actualizado_en, pa.actualizado_por,
+         pa.vigente_desde, pa.vigente_hasta, pa.activo, pa.aplica_todos, pa.solo_por_anuncio,
+         pa.actualizado_en, pa.actualizado_por,
          ${IDS_ASOCIADOS('pa')},
          pa.actualizado_en::text AS version,
          ${vigenteSql('pa')} AS vigente,
@@ -65,7 +67,7 @@ export async function obtenerPorId(db, id) {
 
 export async function listarResumen(db) {
   const { rows } = await db.query(
-    `SELECT pa.id, pa.codigo, pa.nombre, pa.descuento_pct, pa.activo, pa.aplica_todos,
+    `SELECT pa.id, pa.codigo, pa.nombre, pa.descuento_pct, pa.activo, pa.aplica_todos, pa.solo_por_anuncio,
             ${vigenteSql('pa')} AS vigente, ${IDS_ASOCIADOS('pa')}
      FROM eco_pautas pa
      ORDER BY pa.activo DESC, pa.nombre, pa.id`,
@@ -85,8 +87,8 @@ export async function insertar(db, datos, actualizadoPor) {
   const { rows } = await db.query(
     `INSERT INTO eco_pautas
        (codigo, nombre, mensaje_cliente, descuento_pct, palabras_clave, vigente_desde, vigente_hasta, activo,
-        aplica_todos, actualizado_por)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        aplica_todos, solo_por_anuncio, actualizado_por)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      RETURNING id`,
     [
       datos.codigo,
@@ -98,6 +100,7 @@ export async function insertar(db, datos, actualizadoPor) {
       datos.vigenteHasta,
       datos.activo,
       datos.aplicaTodos,
+      datos.soloPorAnuncio,
       actualizadoPor,
     ],
   );
@@ -110,7 +113,7 @@ export async function insertar(db, datos, actualizadoPor) {
 export async function obtenerEditableBloqueando(db, id) {
   const { rows } = await db.query(
     `SELECT pa.nombre, pa.mensaje_cliente, pa.descuento_pct, pa.palabras_clave, pa.vigente_desde,
-            pa.vigente_hasta, pa.activo, pa.aplica_todos, pa.actualizado_en::text AS version,
+            pa.vigente_hasta, pa.activo, pa.aplica_todos, pa.solo_por_anuncio, pa.actualizado_en::text AS version,
             ${IDS_ASOCIADOS('pa')}
      FROM eco_pautas pa WHERE pa.id = $1 FOR UPDATE`,
     [id],
@@ -134,7 +137,8 @@ export async function actualizar(db, id, datos, actualizadoPor) {
   await db.query(
     `UPDATE eco_pautas
      SET nombre = $2, mensaje_cliente = $3, descuento_pct = $4, palabras_clave = $5,
-         vigente_desde = $6, vigente_hasta = $7, activo = $8, aplica_todos = $9, actualizado_por = $10
+         vigente_desde = $6, vigente_hasta = $7, activo = $8, aplica_todos = $9, solo_por_anuncio = $10,
+         actualizado_por = $11
      WHERE id = $1`,
     [
       id,
@@ -146,6 +150,7 @@ export async function actualizar(db, id, datos, actualizadoPor) {
       datos.vigenteHasta,
       datos.activo,
       datos.aplicaTodos,
+      datos.soloPorAnuncio,
       actualizadoPor,
     ],
   );

@@ -13,6 +13,7 @@ const pauta = {
   vigenteHasta: '2026-12-26T00:00:00-06:00',
   activo: true,
   aplicaTodos: false,
+  soloPorAnuncio: true,
   productoIds: [],
   multimediaIds: [],
 };

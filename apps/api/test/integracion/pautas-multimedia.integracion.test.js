@@ -58,6 +58,7 @@ describe('integración: pautas', () => {
         vigenteHasta: enUnaHora(),
         activo: true,
         aplicaTodos: false,
+        soloPorAnuncio: true,
         productoIds: [],
         multimediaIds: [],
       },
@@ -79,6 +80,7 @@ describe('integración: pautas', () => {
       palabrasClave: [],
       activo: true,
       aplicaTodos: false,
+      soloPorAnuncio: true,
       productoIds: [],
       multimediaIds: [],
     };

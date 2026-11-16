@@ -12,6 +12,7 @@ const CAMPOS_EDITABLES = [
   'vigenteHasta',
   'activo',
   'aplicaTodos',
+  'soloPorAnuncio',
   'productoIds',
   'multimediaIds',
 ];

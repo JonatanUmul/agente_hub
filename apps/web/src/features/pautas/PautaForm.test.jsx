@@ -57,6 +57,7 @@ const PAUTA = {
   vigenteHasta: null,
   activo: true,
   aplicaTodos: false,
+  soloPorAnuncio: true,
   productoIds: [4],
   multimediaIds: [],
   version: 'v1',
@@ -105,6 +106,44 @@ describe('PautaForm: modelos', () => {
     await guardarYConfirmar();
     await waitFor(() => expect(mutacion.mutate).toHaveBeenCalled());
     expect(mutacion.mutate.mock.calls[0][0]).toMatchObject({ aplicaTodos: true, productoIds: [4] });
+  });
+});
+
+describe('PautaForm: alcance', () => {
+  it('una pauta nueva viene «Solo para quien llega por el anuncio»', () => {
+    formulario({ pauta: null });
+    const interruptor = screen.getByRole('switch', {
+      name: 'Solo para quien llega por el anuncio',
+    });
+    expect(interruptor.getAttribute('aria-checked')).toBe('true');
+  });
+
+  it('«Aplica a todos los modelos» la abre y lo explica; volver a encenderla se respeta', async () => {
+    const { mutacion } = formulario();
+    fireEvent.click(screen.getByRole('switch', { name: 'Aplica a todos los modelos' }));
+    const solo = screen.getByRole('switch', { name: 'Solo para quien llega por el anuncio' });
+    expect(solo.getAttribute('aria-checked')).toBe('false');
+    expect(screen.getByText(/Se desactivó porque aplica a todos los modelos/)).toBeTruthy();
+
+    fireEvent.click(solo);
+    expect(solo.getAttribute('aria-checked')).toBe('true');
+    expect(screen.queryByText(/Se desactivó porque/)).toBeNull();
+    await guardarYConfirmar();
+    await waitFor(() => expect(mutacion.mutate).toHaveBeenCalled());
+    expect(mutacion.mutate.mock.calls[0][0]).toMatchObject({
+      aplicaTodos: true,
+      soloPorAnuncio: true,
+    });
+  });
+
+  it('desactivarla se guarda y se confirma como cambio de alcance', async () => {
+    const { mutacion } = formulario();
+    fireEvent.click(screen.getByRole('switch', { name: 'Solo para quien llega por el anuncio' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    expect(await screen.findByText('Alcance')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar y guardar' }));
+    await waitFor(() => expect(mutacion.mutate).toHaveBeenCalled());
+    expect(mutacion.mutate.mock.calls[0][0]).toMatchObject({ soloPorAnuncio: false });
   });
 });
 

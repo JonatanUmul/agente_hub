@@ -56,6 +56,7 @@ const guardar = async (cambios) => {
       vigenteHasta: resto.vigenteHasta,
       activo: resto.activo,
       aplicaTodos: resto.aplicaTodos,
+      soloPorAnuncio: resto.soloPorAnuncio,
       productoIds: resto.productoIds,
       multimediaIds: resto.multimediaIds,
       version: resto.version,
@@ -77,6 +78,7 @@ const crearPauta = (sufijo, extra = {}) =>
       vigenteHasta: null,
       activo: true,
       aplicaTodos: false,
+      soloPorAnuncio: true,
       productoIds: [],
       multimediaIds: [],
       ...extra,
@@ -188,6 +190,25 @@ describe('integración: modelos y archivos desde la pauta', () => {
       p.equipo,
     ]);
     expect(rows[0].pauta_id).toBe(pauta.id); // eco_productos.pauta_id = su primera pauta
+  });
+
+  it('«Solo para quien llega por el anuncio» se guarda y queda en el historial', async () => {
+    expect((await leer()).soloPorAnuncio).toBe(true);
+    const res = await guardar({ soloPorAnuncio: false });
+    expect(res.statusCode).toBe(200);
+    expect((await leer()).soloPorAnuncio).toBe(false);
+    const resumen = (await comercial.pedir({ url: '/api/pautas/resumen' }))
+      .json()
+      .find((r) => r.id === pauta.id);
+    expect(resumen.soloPorAnuncio).toBe(false);
+
+    const { rows } = await ctx.poolAdmin.query(
+      `SELECT despues->>'actualizado_por' AS por FROM eco_auditoria
+       WHERE tabla = 'eco_pautas' AND registro_id = $1 AND operacion = 'UPDATE'
+         AND antes->>'solo_por_anuncio' = 'true' AND despues->>'solo_por_anuncio' = 'false'`,
+      [String(pauta.id)],
+    );
+    expect(rows).toEqual([{ por: comercial.correo }]);
   });
 
   it('una versión vieja responde 409', async () => {

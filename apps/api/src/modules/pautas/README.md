@@ -20,6 +20,8 @@ multimediaIds }` para selectores.
   - ⚠ Mientras una pauta no esté vigente, los productos asociados quedan **sin descuento**, también el propio
     (regla de `eco_v_catalogo`). `productosConDescuentoPropio` cuenta cuántos se ven afectados; la web lo advierte.
   - Concurrencia optimista con `version` (409 `CONFLICTO_VERSION`) y sin `UPDATE` si no hay cambios.
+- **Alcance** (`soloPorAnuncio` = `eco_pautas.solo_por_anuncio`): `true` = solo para quien llega por el anuncio,
+  `false` = el bot puede ofrecerla a cualquiera. La web la abre sola al marcar «Aplica a todos los modelos».
 - **Modelos y archivos desde la pauta** (misma transacción y misma `version` que la pauta):
   - Se borran solo los enlaces quitados y se insertan los nuevos con `actualizado_por`.
   - Con `aplicaTodos` los modelos no se tocan: vuelven si se apaga.

@@ -43,6 +43,7 @@ const valoresIniciales = (p) => ({
   vigenteHasta: isoALocal(p?.vigenteHasta),
   activo: p?.activo ?? true,
   aplicaTodos: p?.aplicaTodos ?? false,
+  soloPorAnuncio: p?.soloPorAnuncio ?? true,
   productoIds: p?.productoIds ?? [],
   multimediaIds: p?.multimediaIds ?? [],
 });
@@ -65,6 +66,12 @@ function cambiosSensibles(antes, despues) {
       'Todos los modelos',
       antes.aplicaTodos ? 'Sí' : 'No',
       despues.aplicaTodos ? 'Sí' : 'No',
+    ]);
+  if (antes.soloPorAnuncio !== despues.soloPorAnuncio)
+    cambios.push([
+      'Alcance',
+      antes.soloPorAnuncio ? 'Solo anuncio' : 'Abierta',
+      despues.soloPorAnuncio ? 'Solo anuncio' : 'Abierta',
     ]);
   if (!despues.aplicaTodos && antes.productoIds.join() !== despues.productoIds.join())
     cambios.push(['Modelos', cantidad(antes.productoIds), cantidad(despues.productoIds)]);

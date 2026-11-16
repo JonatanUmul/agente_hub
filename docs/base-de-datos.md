@@ -98,6 +98,7 @@ Claves de `eco_configuracion`: `vision_activa` (booleano) y `vision_modelo` (tex
 | `vigente_desde`, `vigente_hasta` | timestamptz      | sí     | CHECK `vigente_hasta > vigente_desde` si ambas existen |
 | `activo`                         | boolean          | no     | `true`                                                 |
 | `aplica_todos`                   | boolean          | no     | `false` (ecofiltro_bot_pauta_todos_modelos.sql)        |
+| `solo_por_anuncio`               | boolean          | no     | `true` = solo para quien llega por el anuncio          |
 | `creado_en`, `actualizado_en`    | timestamptz      | no     | `now()`                                                |
 | `actualizado_por`                | text             | sí     |                                                        |
 

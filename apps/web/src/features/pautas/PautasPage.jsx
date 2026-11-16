@@ -10,6 +10,8 @@ import { fecha, porcentaje } from '../../lib/formato.js';
 import { usePermiso } from '../auth/hooks.js';
 import { useEstadoInterruptores } from '../configuracion/hooks.js';
 import { EstadoVigencia } from '../../components/EstadoVigencia.jsx';
+import { claseFiltro } from '../../components/Campo.jsx';
+import { EtiquetaAlcance } from './EtiquetaAlcance.jsx';
 import { ImagenPauta } from './ImagenPauta.jsx';
 import { PautaForm } from './PautaForm.jsx';
 import { useCambiarActivoPauta, useCrearPauta, useEditarPauta, usePautas } from './hooks.js';
@@ -22,6 +24,7 @@ export function PautasPage() {
   const editar = useEditarPauta();
   const cambiarActivo = useCambiarActivoPauta();
   const [accion, setAccion] = useState(null); // { tipo: 'crear' | 'editar' | 'activo', pauta? }
+  const [alcance, setAlcance] = useState(''); // '' | 'anuncio' | 'abierta'
 
   if (isPending) return <p className="text-tenue">Cargando pautas…</p>;
   if (error) return <MensajeError error={error} />;
@@ -51,7 +54,15 @@ export function PautasPage() {
         </div>
       ),
     },
-    { titulo: 'Estado', celda: (p) => <EstadoVigencia estado={p.estadoVigencia} /> },
+    {
+      titulo: 'Estado',
+      celda: (p) => (
+        <div className="flex flex-col items-start gap-1">
+          <EstadoVigencia estado={p.estadoVigencia} />
+          <EtiquetaAlcance soloPorAnuncio={p.soloPorAnuncio} />
+        </div>
+      ),
+    },
     {
       titulo: 'Asociados',
       celda: (p) => (
@@ -102,7 +113,21 @@ export function PautasPage() {
         </div>
         {puedeEditar && <Boton onClick={() => setAccion({ tipo: 'crear' })}>Nueva pauta</Boton>}
       </div>
-      <Tabla columnas={columnas} filas={pautas} vacio="No hay pautas" />
+      <select
+        value={alcance}
+        onChange={(e) => setAlcance(e.target.value)}
+        className={claseFiltro}
+        aria-label="Alcance"
+      >
+        <option value="">Todos los alcances</option>
+        <option value="anuncio">Solo anuncio</option>
+        <option value="abierta">Abiertas</option>
+      </select>
+      <Tabla
+        columnas={columnas}
+        filas={pautas.filter((p) => !alcance || p.soloPorAnuncio === (alcance === 'anuncio'))}
+        vacio="No hay pautas"
+      />
 
       <Modal
         abierto={accion?.tipo === 'crear' || accion?.tipo === 'editar'}

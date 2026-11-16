@@ -22,6 +22,8 @@ export const esquemaPautaResumen = z.object({
   vigente: z.boolean(),
   // Para todos los modelos (formas de pago, beneficios generales): n8n ofrece todos los equipos disponibles.
   aplicaTodos: z.boolean(),
+  // true = solo para quien llega por el anuncio; false = el bot puede ofrecerla a cualquiera.
+  soloPorAnuncio: z.boolean(),
   // eco_productos_pautas y eco_multimedia_pautas, también los inactivos.
   productoIds: z.array(z.number().int()),
   multimediaIds: z.array(z.number().int()),
@@ -49,6 +51,7 @@ const camposEditables = {
   vigenteHasta: fechaIso.nullable(),
   activo: z.boolean(),
   aplicaTodos: z.boolean(),
+  soloPorAnuncio: z.boolean(),
   // Con `aplicaTodos` los modelos se conservan sin tocar, para que vuelvan si se apaga.
   productoIds: listaDeIds,
   multimediaIds: listaDeIds,

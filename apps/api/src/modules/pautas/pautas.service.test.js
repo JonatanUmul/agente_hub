@@ -14,6 +14,7 @@ const editable = {
   vigenteHasta: null,
   activo: true,
   aplicaTodos: false,
+  soloPorAnuncio: true,
   productoIds: [3],
   multimediaIds: [],
   version: 'v1',
