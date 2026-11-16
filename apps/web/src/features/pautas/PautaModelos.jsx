@@ -68,11 +68,7 @@ export function PautaModelos({ control, productos, pautaId }) {
   return (
     <section className="space-y-3 border-t border-borde pt-4">
       <h3 className="font-medium">Alcance</h3>
-      <Opcion
-        activo={soloPauta.value}
-        titulo="Solo para quien llega por la pauta"
-        alCambiar={soloPauta.onChange}
-      />
+      <Opcion activo={soloPauta.value} titulo="Pauta" alCambiar={soloPauta.onChange} />
       <Opcion activo={todos.value} titulo="Aplica a todos los modelos" alCambiar={alCambiarTodos} />
 
       {!todos.value && (

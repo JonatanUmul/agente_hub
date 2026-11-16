@@ -110,10 +110,10 @@ describe('PautaForm: modelos', () => {
 });
 
 describe('PautaForm: alcance', () => {
-  it('una pauta nueva viene «Solo para quien llega por la pauta»', () => {
+  it('una pauta nueva viene «Pauta»', () => {
     formulario({ pauta: null });
     const interruptor = screen.getByRole('switch', {
-      name: 'Solo para quien llega por la pauta',
+      name: 'Pauta',
     });
     expect(interruptor.getAttribute('aria-checked')).toBe('true');
   });
@@ -121,7 +121,7 @@ describe('PautaForm: alcance', () => {
   it('«Aplica a todos los modelos» la abre; volver a encenderla se respeta', async () => {
     const { mutacion } = formulario();
     fireEvent.click(screen.getByRole('switch', { name: 'Aplica a todos los modelos' }));
-    const solo = screen.getByRole('switch', { name: 'Solo para quien llega por la pauta' });
+    const solo = screen.getByRole('switch', { name: 'Pauta' });
     expect(solo.getAttribute('aria-checked')).toBe('false');
 
     fireEvent.click(solo);
@@ -136,7 +136,7 @@ describe('PautaForm: alcance', () => {
 
   it('desactivarla se guarda y se confirma como cambio de alcance', async () => {
     const { mutacion } = formulario();
-    fireEvent.click(screen.getByRole('switch', { name: 'Solo para quien llega por la pauta' }));
+    fireEvent.click(screen.getByRole('switch', { name: 'Pauta' }));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar' }));
     expect(await screen.findByText('Alcance')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar y guardar' }));
