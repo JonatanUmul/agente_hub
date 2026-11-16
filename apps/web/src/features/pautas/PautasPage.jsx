@@ -120,7 +120,7 @@ export function PautasPage() {
         aria-label="Alcance"
       >
         <option value="">Todos los alcances</option>
-        <option value="pauta">Solo pauta</option>
+        <option value="pauta">Pauta</option>
         <option value="abierta">Abiertas</option>
       </select>
       <Tabla

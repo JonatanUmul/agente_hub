@@ -1,4 +1,4 @@
-// Mismo estilo que EstadoVigencia: «Solo pauta» (exclusiva de quien llega por la pauta) o «Abierta» (para cualquiera).
+// Mismo estilo que EstadoVigencia: «Pauta» (exclusiva de quien llega por la pauta) o «Abierta» (para cualquiera).
 export function EtiquetaAlcance({ soloPorAnuncio }) {
   const estilo = soloPorAnuncio
     ? 'border-info/30 bg-info/10 text-info'
@@ -7,7 +7,7 @@ export function EtiquetaAlcance({ soloPorAnuncio }) {
     <span
       className={`inline-flex rounded border px-1.5 py-0.5 font-mono text-[11px] whitespace-nowrap ${estilo}`}
     >
-      {soloPorAnuncio ? 'Solo pauta' : 'Abierta'}
+      {soloPorAnuncio ? 'Pauta' : 'Abierta'}
     </span>
   );
 }

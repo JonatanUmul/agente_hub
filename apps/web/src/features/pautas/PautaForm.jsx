@@ -70,8 +70,8 @@ function cambiosSensibles(antes, despues) {
   if (antes.soloPorAnuncio !== despues.soloPorAnuncio)
     cambios.push([
       'Alcance',
-      antes.soloPorAnuncio ? 'Solo pauta' : 'Abierta',
-      despues.soloPorAnuncio ? 'Solo pauta' : 'Abierta',
+      antes.soloPorAnuncio ? 'Pauta' : 'Abierta',
+      despues.soloPorAnuncio ? 'Pauta' : 'Abierta',
     ]);
   if (!despues.aplicaTodos && antes.productoIds.join() !== despues.productoIds.join())
     cambios.push(['Modelos', cantidad(antes.productoIds), cantidad(despues.productoIds)]);
